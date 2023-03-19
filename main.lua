@@ -18,28 +18,6 @@ local sword = Sword(world)
 local player = Player(window.VIRTUAL_WIDTH / 2, window.VIRTUAL_HEIGHT / 2,
                       world, sword);
 
-local levelString = [[
-########################
-########################
-##....................##
-##....................##
-##...###############..##
-##....................##
-##..............X.....##
-##....................##
-##..............####..##
-##.....X...........#..##
-##.................#..##
-##.................#..##
-##..............####..##
-##....................##
-#######........P......##
-#######...............##
-#######.........########
-########################
-########################
-]]
-
 local cols_len = 0 -- how many collisions are happening
 local function drawDebug()
     bump_debug.draw(world)
@@ -51,7 +29,7 @@ local function drawDebug()
     love.graphics.printf(statistics, 0, 580, 790, 'right')
 end
 
-local level = Level(levelString, world, player, Wall, Enemy, WallManager,
+local level = Level(120, 80, world, player, Wall, Enemy, WallManager,
                     EnemyManager)
 local camera;
 
@@ -78,8 +56,9 @@ function love.update(dt)
 end
 
 function love.draw()
-    camera:attach()
     -- push:apply("start")
+    -- push:apply("end")
+    camera:attach()
 
     -- drawDebug()
     level.wallManager:renderWalls()
@@ -87,7 +66,6 @@ function love.draw()
 
     player:render()
 
-    -- push:apply("end")
     camera:detach()
     love.graphics.setBackgroundColor(GameSettings:getDarkColor(1))
 end

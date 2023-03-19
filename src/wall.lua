@@ -22,10 +22,7 @@ local Wall = Class {
     end,
 
     load = function(self)
-        local block = {
-            self.positionX, self.positionY, self.collisionW, self.collisionH
-        }
-        self.world:add(block, self.positionX, self.positionY, self.collisionW,
+        self.world:add(self, self.positionX, self.positionY, self.collisionW,
                        self.collisionH)
     end
 }

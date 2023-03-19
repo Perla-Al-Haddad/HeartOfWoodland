@@ -21,13 +21,14 @@ Player = Class {
     end,
 
     load = function(self)
-        self.world:add(self, self.positionX,
-                       self.positionY,
-                       self.collisionW, self.collisionH)
+        self.world:add(self, self.positionX, self.positionY, self.collisionW,
+                       self.collisionH)
     end,
 
     handleMovePlayer = function(self, dt)
         local speed = self.speed
+
+        if self.state ~= 0 then return end
 
         local dx, dy = 0, 0
         if love.keyboard.isDown('right') then
