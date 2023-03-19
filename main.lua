@@ -1,5 +1,6 @@
 local push = require('lib.push');
 local bump = require("lib.bump");
+local bump_debug = require("lib.bump_debug")
 
 local window = require('src.window');
 local Player = require('src.player');
@@ -12,34 +13,45 @@ local Enemy = require('src.enemy')
 local EnemyManager = require('src.enemyManager')
 
 local world = bump.newWorld(GameSettings.TILE_SIZE)
-local sword = Sword()
+local sword = Sword(world)
 local player = Player(window.VIRTUAL_WIDTH / 2, window.VIRTUAL_HEIGHT / 2,
                       world, sword);
 
 local levelString = [[
-#########################
-#########################
-###...................###
-###...................###
-###..###############..###
-###...................###
-###.............X.....###
-###....X..............###
-###.............####..###
-###................#..###
-###................#..###
-###................#..###
-###.............####..###
-###...................###
-#######........P......###
-#######...............###
-#######.........#########
-#######.........#########
-#########################
-#########################
+########################
+########################
+##....................##
+##....................##
+##...###############..##
+##....................##
+##..............X.....##
+##....................##
+##..............####..##
+##.....X...........#..##
+##.................#..##
+##.................#..##
+##..............####..##
+##....................##
+#######........P......##
+#######...............##
+#######.........########
+########################
+########################
 ]]
 
-local level = Level(levelString, world, player, Wall, Enemy, WallManager, EnemyManager)
+local cols_len = 0 -- how many collisions are happening
+local function drawDebug()
+    bump_debug.draw(world)
+
+    local statistics = ("fps: %d, mem: %dKB, collisions: %d, items: %d"):format(
+                           love.timer.getFPS(), collectgarbage("count"),
+                           cols_len, world:countItems())
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.printf(statistics, 0, 580, 790, 'right')
+end
+
+local level = Level(levelString, world, player, Wall, Enemy, WallManager,
+                    EnemyManager)
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")

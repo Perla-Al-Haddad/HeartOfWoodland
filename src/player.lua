@@ -3,6 +3,8 @@ Class = require("lib.hump.class")
 
 Player = Class {
     init = function(self, positionX, positionY, world, sword)
+        self.type = 'player'
+
         self.positionX = positionX;
         self.positionY = positionY;
         self.speed = GameSettings.PLAYER_SPEED;
@@ -19,8 +21,9 @@ Player = Class {
     end,
 
     load = function(self)
-        self.world:add(self, self.positionX, self.positionY, self.collisionW,
-                       self.collisionH)
+        self.world:add(self, self.positionX - GameSettings.TILE_SIZE / 2,
+                       self.positionY - GameSettings.TILE_SIZE / 2,
+                       self.collisionW, self.collisionH)
     end,
 
     handleMovePlayer = function(self, dt)
@@ -60,15 +63,17 @@ Player = Class {
         end
 
         if self.state == 1 and self.attackTimer < 0 then
+            self.sword:removeSwordFromWorld(self)
             self.sword.active = false
             self.state = 0
         end
+
+        self.sword:update(self)
     end,
 
     render = function(self)
         love.graphics.setColor(GameSettings:getGreenColor(1));
-        love.graphics.rectangle('fill', self.positionX - self.collisionW / 2,
-                                self.positionY - self.collisionH / 2,
+        love.graphics.rectangle('fill', self.positionX, self.positionY,
                                 self.collisionW, self.collisionH);
         love.graphics.setColor(255, 255, 255);
 
@@ -78,6 +83,7 @@ Player = Class {
     attack = function(self)
         if self.state == 0 and self.attackCoolDown <= 0 then
             self.state = 1
+            self.sword:addSwordToWorld(self)
             self.sword.active = true
             self.attackTimer = 0.2
             self.attackCoolDown = 0.4

@@ -12,12 +12,10 @@ local Wall = Class {
 
     render = function(self)
         love.graphics.setColor(GameSettings:getBlueColor(0.65))
-        love.graphics.rectangle("fill", self.positionX - self.collisionW / 2,
-                                self.positionY - self.collisionH / 2,
+        love.graphics.rectangle("fill", self.positionX, self.positionY,
                                 self.collisionW, self.collisionH)
         love.graphics.setColor(GameSettings:getBlueColor(1))
-        love.graphics.rectangle("line", self.positionX - self.collisionW / 2,
-                                self.positionY - self.collisionH / 2,
+        love.graphics.rectangle("line", self.positionX, self.positionY,
                                 self.collisionW, self.collisionH)
 
         love.graphics.setColor(255, 255, 255)

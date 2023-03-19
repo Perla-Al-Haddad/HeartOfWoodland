@@ -1,7 +1,7 @@
 local window = {}
 
-window.WINDOWS_WIDTH = 1260;
-window.WINDOWS_HEIGHT = 780;
+window.WINDOWS_WIDTH = 1280;
+window.WINDOWS_HEIGHT = 720;
 window.VIRTUAL_WIDTH = 384;
 window.VIRTUAL_HEIGHT = 304;
 window.TITLE = "Heart of Woodland ♥";
