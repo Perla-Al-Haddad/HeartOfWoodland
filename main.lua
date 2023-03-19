@@ -51,9 +51,7 @@ function love.load()
     print("Heart of Woodland \003")
 end
 
-function love.update(dt)
-    player:handleKeyBoardEvents(player, dt)
-end
+function love.update(dt) player:handleKeyBoardEvents(player, dt) end
 
 function love.draw()
     push:apply("start")
@@ -66,3 +64,7 @@ function love.draw()
 end
 
 function love.quit() print("Thanks for playing! Come back soon!") end
+
+function love.keypressed(key, scancode, isrepeat)
+    if key == "space" then player:attack(player) end
+end
