@@ -1,29 +1,27 @@
-local Wall = {}
+Class = require("lib.hump.class")
 
-function Wall:new(o, positionX, positionY, world)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    o.collisionW = 16
-    o.collisionH = 16
-    o.world = world
-    o.positionX = positionX
-    o.positionY = positionY
-    return o
-end
+local Wall = Class {
+    init = function(self, positionX, positionY, world)
+        self.collisionW = 16
+        self.collisionH = 16
+        self.world = world
+        self.positionX = positionX
+        self.positionY = positionY
+    end,
 
-function Wall:render(o)
-    love.graphics.setColor(0, 0, 255)
-    love.graphics.rectangle("line", o.positionX - o.collisionW / 2,
-                            o.positionY - o.collisionH / 2,
-                            o.collisionW, o.collisionH)
-    love.graphics.setColor(255, 255, 255)
-end
+    render = function (self)
+        love.graphics.setColor(0, 0, 255)
+        love.graphics.rectangle("line", self.positionX - self.collisionW / 2,
+                                self.positionY - self.collisionH / 2,
+                                self.collisionW, self.collisionH)
+        love.graphics.setColor(255, 255, 255)
+    end,
 
-function Wall:load(o)
-    local block = {o.positionX, o.positionY, o.collisionW, o.collisionH}
-    o.world:add(block, o.positionX, o.positionY, o.collisionW,
-                   o.collisionH)
-end
+    load = function (self)
+        local block = {self.positionX, self.positionY, self.collisionW, self.collisionH}
+        self.world:add(block, self.positionX, self.positionY, self.collisionW,
+                       self.collisionH)
+    end
+}
 
 return Wall

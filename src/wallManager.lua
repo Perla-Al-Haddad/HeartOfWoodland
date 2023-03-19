@@ -1,23 +1,15 @@
-local WallManager = {}
+Class = require('lib.hump.class')
 
-function WallManager:new(o, walls)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    o.walls = walls
-    return o
-end
+local WallManager = Class {
+    init = function(self, walls) self.walls = walls end,
 
-function WallManager:loadWalls(o)
-    for _, wall in pairs(o.walls) do
-        wall:load(wall)
+    loadWalls = function(self)
+        for _, wall in pairs(self.walls) do wall:load(wall) end
+    end,
+
+    renderWalls = function(self)
+        for _, wall in pairs(self.walls) do wall:render(wall) end
     end
-end
-
-function WallManager:renderWalls(o)
-    for _, wall in pairs(o.walls) do
-        wall:render(wall)
-    end
-end
+}
 
 return WallManager

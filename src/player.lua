@@ -1,94 +1,87 @@
-local Player = {};
+Class = require("lib.hump.class")
 
-function Player:new(o, positionX, positionY, world, sword)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    o.positionX = positionX;
-    o.positionY = positionY;
-    o.speed = 150;
-    o.collisionW = 16;
-    o.collisionH = 16;
-    o.state = 0
-    o.attackDir = "right";
+Player = Class {
+    init = function(self, positionX, positionY, world, sword)
+        self.positionX = positionX;
+        self.positionY = positionY;
+        self.speed = 150;
+        self.collisionW = 16;
+        self.collisionH = 16;
+        self.state = 0
+        self.attackDir = "right";
 
-    o.attackTimer = 0;
-    o.attackCoolDown = 0;
+        self.attackTimer = 0;
+        self.attackCoolDown = 0;
 
-    o.world = world;
-    o.sword = sword;
-    
-    return o
-end
+        self.world = world;
+        self.sword = sword;
+    end,
 
-function Player:load(o)
-    o.world:add(o, o.positionX, o.positionY, o.collisionW,
-                   o.collisionH)
-end
+    load = function(self)
+        self.world:add(self, self.positionX, self.positionY, self.collisionW,
+                       self.collisionH)
+    end,
 
-function Player:handleQuit() love.event.quit(); end
+    handleMovePlayer = function(self, dt)
+        local speed = self.speed
 
-function Player:handleMovePlayer(o, dt)
-    local speed = o.speed
+        local dx, dy = 0, 0
+        if love.keyboard.isDown('right') then
+            self.attackDir = 'right'
+            dx = speed * dt
+        elseif love.keyboard.isDown('left') then
+            self.attackDir = 'left'
+            dx = -speed * dt
+        end
+        if love.keyboard.isDown('down') then
+            self.attackDir = 'down'
+            dy = speed * dt
+        elseif love.keyboard.isDown('up') then
+            self.attackDir = 'up'
+            dy = -speed * dt
+        end
 
-    local dx, dy = 0, 0
-    if love.keyboard.isDown('right') then
-        o.attackDir = 'right'
-        dx = speed * dt
-    elseif love.keyboard.isDown('left') then
-        o.attackDir = 'left'
-        dx = -speed * dt
+        if dx ~= 0 or dy ~= 0 then
+            self.positionX, self.positionY, _, _ =
+                self.world:move(self, self.positionX + dx, self.positionY + dy)
+        end
+    end,
+
+    update = function(self, dt)
+        self:handleMovePlayer(dt);
+
+        if self.attackTimer > 0 then
+            self.attackTimer = self.attackTimer - dt
+        end
+
+        if self.attackCoolDown > 0 then
+            self.attackCoolDown = self.attackCoolDown - dt
+        end
+
+        if self.state == 1 and self.attackTimer < 0 then
+            self.sword.active = false
+            self.state = 0
+        end
+    end,
+
+    render = function(self)
+        love.graphics.setColor(255, 255, 255);
+        love.graphics.rectangle('fill', self.positionX - self.collisionW / 2,
+                                self.positionY - self.collisionH / 2,
+                                self.collisionW, self.collisionH);
+        love.graphics.setColor(255, 255, 255);
+
+        self.sword:render(self);
+    end,
+
+    attack = function(self)
+        if self.state == 0 and self.attackCoolDown <= 0 then
+            self.state = 1
+            self.sword.active = true
+            self.attackTimer = 0.2
+            self.attackCoolDown = 0.4
+        end
     end
-    if love.keyboard.isDown('down') then
-        o.attackDir = 'down'
-        dy = speed * dt
-    elseif love.keyboard.isDown('up') then
-        o.attackDir = 'up'
-        dy = -speed * dt
-    end
-
-    if dx ~= 0 or dy ~= 0 then
-        o.positionX, o.positionY, _, _ =
-            o.world:move(o, o.positionX + dx, o.positionY + dy)
-    end
-end
-
-function Player:handleKeyBoardEvents(o, dt)
-    Player:handleMovePlayer(o, dt);
-
-    if love.keyboard.isDown("escape") then o:handleQuit(); end
-
-    if o.attackTimer > 0 then
-        o.attackTimer = o.attackTimer - dt
-    end
-
-    if o.attackCoolDown > 0 then
-        o.attackCoolDown = o.attackCoolDown - dt
-    end
-
-    if o.state == 1 and o.attackTimer < 0 then
-        o.sword.active = false
-        o.state = 0
-    end
-end
-
-function Player:render(o)
-    love.graphics.setColor(255, 255, 255);
-    love.graphics.rectangle('fill', o.positionX - o.collisionW / 2,
-                            o.positionY - o.collisionH / 2,
-                            o.collisionW, o.collisionH);
-    love.graphics.setColor(255, 255, 255);
-
-    o.sword:render(o.sword, self);
-end
-
-function Player:attack(o)
-    if o.state == 0 and o.attackCoolDown <= 0 then
-        o.state = 1
-        o.sword.active = true
-        o.attackTimer = 0.2
-        o.attackCoolDown = 0.4
-    end
-end
+}
 
 return Player
