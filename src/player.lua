@@ -1,8 +1,6 @@
-local Sword = require 'src.sword';
-
 local Player = {};
 
-function Player:new(o, positionX, positionY, world)
+function Player:new(o, positionX, positionY, world, sword)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
@@ -18,7 +16,7 @@ function Player:new(o, positionX, positionY, world)
     o.attackCoolDown = 0;
 
     o.world = world;
-    o.sword = Sword:new(nil);
+    o.sword = sword;
     
     return o
 end
