@@ -1,6 +1,7 @@
 local push = require('lib.push');
 local bump = require("lib.bump.bump");
 local bump_debug = require("lib.bump.bump_debug")
+local Camera = require('lib.hump.camera')
 
 local window = require('src.window');
 local Player = require('src.player');
@@ -52,12 +53,13 @@ end
 
 local level = Level(levelString, world, player, Wall, Enemy, WallManager,
                     EnemyManager)
-
-                    
+local camera;
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setLineWidth(2)
+
+    camera = Camera(player.positionX, player.positionY, 2)
 
     window:setUpWindow(push)
 
@@ -69,18 +71,24 @@ function love.load()
     print("Heart of Woodland \003")
 end
 
-function love.update(dt) player:update(dt) end
+function love.update(dt)
+    player:update(dt)
+    local dx, dy = player.positionX - camera.x, player.positionY - camera.y
+    camera:move(dx / 2, dy / 2)
+end
 
 function love.draw()
-    push:apply("start")
-    
+    camera:attach()
+    -- push:apply("start")
+
     -- drawDebug()
     level.wallManager:renderWalls()
     level.enemyManager:renderEnemies()
 
     player:render()
 
-    push:apply("end")
+    -- push:apply("end")
+    camera:detach()
     love.graphics.setBackgroundColor(GameSettings:getDarkColor(1))
 end
 
