@@ -5,26 +5,26 @@ ROT = require 'lib.rot.rot'
 local Level = Class {
     init = function(self, levelW, levelH, world, player, Wall, Enemy,
                     WallManager, EnemyManager)
-        self.map = {}
-        
+
         self.levelW = levelW
         self.levelH = levelH
+
         self:generateLevelString()
 
         self.world = world
         self.player = player
-        
+
         self.Wall = Wall
         self.Enemy = Enemy
         self.WallManager = WallManager
         self.EnemyManager = EnemyManager
         self.wallManager, self.enemyManager = self:processLevelString()
+        self:placePlayer()
+
     end,
 
     generateLevelString = function(self)
-        local function calbak(x, y, val)
-            self.map[x .. ',' .. y] = val == 1 and '#' or '.'
-        end
+        local function calbak(x, y, val) end
 
         local function fillBlob(x, y, m, id)
             m[x][y] = id
@@ -72,6 +72,7 @@ local Level = Class {
         end
 
         for x = 1, self.levelW do
+            self.map[x] = {}
             for y = 1, self.levelH do
                 levelString = levelString ..
                                   (cl._map[x][y] == largest and '.' or '#');
@@ -82,14 +83,30 @@ local Level = Class {
     end,
 
     placePlayer = function(self)
-        local key = nil
+        local map = {} 
+        for i =1, self.levelW do
+            map[i] = {}
+            for j = 1, self.levelH do
+                map[i][j] = '.'
+            end
+        end
+        local rows = self.levelString:split('\n');
+        for i, row in pairs(rows) do
+            local count = 0
+            for c in row:gmatch "." do
+                map[i][count] = c
+                count = count + 1
+            end
+        end
+
         while true do
-            key = ROT.RNG:random(1, self.levelW) .. ',' ..
-                      ROT.RNG:random(1, self.levelH)
-            if map[key] == 0 then
-                pos = key:split(',')
-                player.x, player.y = tonumber(pos[1]), tonumber(pos[2])
-                f:write('@', player.x, player.y)
+            local x = ROT.RNG:random(1, self.levelH)
+            local y = ROT.RNG:random(1, self.levelW)
+            if map[y][x] == '.' then
+                self.player.positionX, self.player.positionY = x *
+                                                                   GameSettings.TILE_SIZE,
+                                                               y *
+                                                                   GameSettings.TILE_SIZE
                 break
             end
         end
