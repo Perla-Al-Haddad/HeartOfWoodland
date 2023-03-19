@@ -1,6 +1,6 @@
 local push = require('lib.push');
-local bump = require("lib.bump");
-local bump_debug = require("lib.bump_debug")
+local bump = require("lib.bump.bump");
+local bump_debug = require("lib.bump.bump_debug")
 
 local window = require('src.window');
 local Player = require('src.player');

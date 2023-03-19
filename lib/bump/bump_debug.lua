@@ -1,4 +1,4 @@
-local bump = require('lib.bump')
+local bump = require('lib.bump.bump')
 
 local bump_debug = {}
 
