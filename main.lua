@@ -53,6 +53,8 @@ end
 local level = Level(levelString, world, player, Wall, Enemy, WallManager,
                     EnemyManager)
 
+                    
+
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setLineWidth(2)
@@ -71,7 +73,8 @@ function love.update(dt) player:update(dt) end
 
 function love.draw()
     push:apply("start")
-
+    
+    -- drawDebug()
     level.wallManager:renderWalls()
     level.enemyManager:renderEnemies()
 

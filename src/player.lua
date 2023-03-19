@@ -21,8 +21,8 @@ Player = Class {
     end,
 
     load = function(self)
-        self.world:add(self, self.positionX - GameSettings.TILE_SIZE / 2,
-                       self.positionY - GameSettings.TILE_SIZE / 2,
+        self.world:add(self, self.positionX,
+                       self.positionY,
                        self.collisionW, self.collisionH)
     end,
 
