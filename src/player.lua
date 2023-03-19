@@ -1,14 +1,15 @@
+GameSettings = require("src.gameSettings")
 Class = require("lib.hump.class")
 
 Player = Class {
     init = function(self, positionX, positionY, world, sword)
         self.positionX = positionX;
         self.positionY = positionY;
-        self.speed = 150;
-        self.collisionW = 16;
-        self.collisionH = 16;
+        self.speed = GameSettings.PLAYER_SPEED;
+        self.collisionW = GameSettings.TILE_SIZE;
+        self.collisionH = GameSettings.TILE_SIZE;
         self.state = 0
-        self.attackDir = "right";
+        self.attackDir = GameSettings.INITIAL_PLAYER_DIR;
 
         self.attackTimer = 0;
         self.attackCoolDown = 0;
@@ -65,7 +66,7 @@ Player = Class {
     end,
 
     render = function(self)
-        love.graphics.setColor(255, 255, 255);
+        love.graphics.setColor(GameSettings:getGreenColor());
         love.graphics.rectangle('fill', self.positionX - self.collisionW / 2,
                                 self.positionY - self.collisionH / 2,
                                 self.collisionW, self.collisionH);

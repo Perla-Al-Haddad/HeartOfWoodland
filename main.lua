@@ -62,6 +62,7 @@ function love.draw()
     player:render()
 
     push:apply("end")
+    love.graphics.setBackgroundColor(GameSettings:getDarkColor())
 end
 
 function love.quit() print("Thanks for playing! Come back soon!") end

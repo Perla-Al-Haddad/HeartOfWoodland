@@ -1,3 +1,4 @@
+GameSettings = require("src.gameSettings")
 Class = require("lib.hump.class")
 
 local Sword = Class {
@@ -10,7 +11,7 @@ local Sword = Class {
 
     render = function(self, player)
         if not self.active then return; end
-        love.graphics.setColor(255, 0, 0);
+        love.graphics.setColor(GameSettings:getWhiteColor());
         local position = self:getSwordPosition(player);
 
         love.graphics.rectangle("fill", position.x, position.y, position.w,
