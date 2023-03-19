@@ -38,7 +38,7 @@ local levelString = [[
 #########################
 ]]
 
-local level = Level:new(nil, levelString, world, Wall, WallManager)
+local level = Level(levelString, world, Wall, WallManager)
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
