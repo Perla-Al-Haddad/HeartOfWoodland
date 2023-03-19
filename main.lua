@@ -8,13 +8,12 @@ local WallManager = require('src.wallManager')
 local Level = require('src.level')
 local Sword = require 'src.sword';
 
-
 TILE_SIZE = 16
 
 local world = bump.newWorld(TILE_SIZE)
 local sword = Sword:new(nil)
-local player = Player:new(nil, window.VIRTUAL_WIDTH / 2,
-                          window.VIRTUAL_HEIGHT / 2, world, sword);
+local player = Player(window.VIRTUAL_WIDTH / 2, window.VIRTUAL_HEIGHT / 2,
+                      world, sword);
 
 local levelString = [[
 #########################
@@ -48,19 +47,19 @@ function love.load()
 
     level.wallManager:loadWalls(level.wallManager)
 
-    player:load(player)
+    player:load()
 
     print("Heart of Woodland \003")
 end
 
-function love.update(dt) player:handleKeyBoardEvents(player, dt) end
+function love.update(dt) player:update(dt) end
 
 function love.draw()
     push:apply("start")
 
     level.wallManager:renderWalls(level.wallManager)
 
-    player:render(player)
+    player:render()
 
     push:apply("end")
 end
@@ -68,5 +67,6 @@ end
 function love.quit() print("Thanks for playing! Come back soon!") end
 
 function love.keypressed(key, scancode, isrepeat)
-    if key == "space" then player:attack(player) end
+    if key == "space" then player:attack() end
+    if key == "escape" then love.event.quit() end
 end

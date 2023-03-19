@@ -1,7 +1,7 @@
 local window = {}
 
-window.WINDOWS_WIDTH = 768;
-window.WINDOWS_HEIGHT = 608;
+window.WINDOWS_WIDTH = 1280;
+window.WINDOWS_HEIGHT = 780;
 window.VIRTUAL_WIDTH = 384;
 window.VIRTUAL_HEIGHT = 304;
 window.TITLE = "Heart of Woodland ♥";
@@ -14,7 +14,6 @@ function window:setUpWindow(push)
     love.window.setIcon(love.image.newImageData(self.ICON_PATH))
     push:setupScreen(self.VIRTUAL_WIDTH, self.VIRTUAL_HEIGHT,
                      self.WINDOWS_WIDTH, self.WINDOWS_HEIGHT, self.options)
-
 end
 
 return window
