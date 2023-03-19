@@ -7,7 +7,7 @@ window.VIRTUAL_HEIGHT = 304;
 window.TITLE = "Heart of Woodland ♥";
 window.ICON_PATH = 'images/boy-icon-2.png';
 
-window.options = {resizable = false, fullscreen = false, vsync = true}
+window.options = {resizable = false, fullscreen = true, vsync = true}
 
 function window:setUpWindow(push)
     love.window.setTitle(self.TITLE)

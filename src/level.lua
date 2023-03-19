@@ -3,13 +3,14 @@ Class = require('lib.hump.class')
 ROT = require 'lib.rot.rot'
 
 local Level = Class {
-    init = function(self, levelW, levelH, world, player, Wall, Enemy,
-                    WallManager, EnemyManager)
-
+    init = function(self, levelW, levelH, world, player, enemyCount, Wall,
+                    Enemy, WallManager, EnemyManager)
+        self.map = {}
         self.levelW = levelW
         self.levelH = levelH
+        self.enemyCount = enemyCount
 
-        self:generateLevelString()
+        self:generateLevelMap()
 
         self.world = world
         self.player = player
@@ -18,12 +19,11 @@ local Level = Class {
         self.Enemy = Enemy
         self.WallManager = WallManager
         self.EnemyManager = EnemyManager
-        self.wallManager, self.enemyManager = self:processLevelString()
-        self:placePlayer()
+        self.wallManager, self.enemyManager = self:processLevelMap()
 
     end,
 
-    generateLevelString = function(self)
+    generateLevelMap = function(self)
         local function calbak(x, y, val) end
 
         local function fillBlob(x, y, m, id)
@@ -51,7 +51,6 @@ local Level = Class {
         cl:randomize(.52)
         cl:create(calbak)
 
-        local levelString = '';
         local largest = 2;
         local id = 2;
         local largestCount = 0
@@ -74,69 +73,56 @@ local Level = Class {
         for x = 1, self.levelW do
             self.map[x] = {}
             for y = 1, self.levelH do
-                levelString = levelString ..
-                                  (cl._map[x][y] == largest and '.' or '#');
+                local block = (cl._map[x][y] == largest and '.' or '#')
+                self.map[x][y] = block;
             end
-            levelString = levelString .. '\n'
         end
-        self.levelString = levelString
+
+        self:placePlayer()
+        for i = 1, self.enemyCount do
+            self:placeEnemy()
+        end
     end,
 
-    placePlayer = function(self)
-        local map = {} 
-        for i =1, self.levelW do
-            map[i] = {}
-            for j = 1, self.levelH do
-                map[i][j] = '.'
-            end
-        end
-        local rows = self.levelString:split('\n');
-        for i, row in pairs(rows) do
-            local count = 0
-            for c in row:gmatch "." do
-                map[i][count] = c
-                count = count + 1
-            end
-        end
+    placePlayer = function(self) 
+        self:placeEntity('P')
+    end,
 
+    placeEnemy = function(self)
+        self:placeEntity('E')
+    end,
+
+    placeEntity = function(self, c)
         while true do
-            local x = ROT.RNG:random(1, self.levelH)
-            local y = ROT.RNG:random(1, self.levelW)
-            if map[y][x] == '.' then
-                self.player.positionX, self.player.positionY = x *
-                                                                   GameSettings.TILE_SIZE,
-                                                               y *
-                                                                   GameSettings.TILE_SIZE
+            local y = ROT.RNG:random(1, self.levelH)
+            local x = ROT.RNG:random(1, self.levelW)
+            if self.map[x][y] == '.' then
+                self.map[x][y] = c
                 break
             end
         end
     end,
 
-    processLevelString = function(self)
-        local lineCount = 0;
-        local columnCount = 0;
+    processLevelMap = function(self)
         local walls = {};
         local enemies = {};
-        for block in self.levelString:gmatch "." do
-            if block == '\n' then
-                columnCount = -1;
-                lineCount = lineCount + 1;
-            elseif block == '#' then
-                table.insert(walls,
-                             self.Wall(columnCount * GameSettings.TILE_SIZE,
-                                       lineCount * GameSettings.TILE_SIZE,
-                                       self.world))
-            elseif block == 'P' then
-                self.player.positionX = columnCount * GameSettings.TILE_SIZE
-                self.player.positionY = lineCount * GameSettings.TILE_SIZE
-            elseif block == 'X' then
-                table.insert(enemies,
-                             self.Enemy(columnCount * GameSettings.TILE_SIZE,
-                                        lineCount * GameSettings.TILE_SIZE,
-                                        self.world))
+        for x = 1, self.levelW do
+            for y = 1, self.levelH do
+                if self.map[x][y] == '#' then
+                    table.insert(walls, self.Wall(x * GameSettings.TILE_SIZE,
+                                                  y * GameSettings.TILE_SIZE,
+                                                  self.world))
+                elseif self.map[x][y] == 'P' then
+                    self.player.positionX = x * GameSettings.TILE_SIZE
+                    self.player.positionY = y * GameSettings.TILE_SIZE
+                elseif self.map[x][y] == 'E' then
+                    table.insert(enemies, self.Enemy(x * GameSettings.TILE_SIZE,
+                                                     y * GameSettings.TILE_SIZE,
+                                                     self.world))
+                end
             end
-            columnCount = columnCount + 1;
         end
+
         local wallManager = self.WallManager(walls)
         local enemyManager = self.EnemyManager(enemies)
         return wallManager, enemyManager;

@@ -29,7 +29,7 @@ local function drawDebug()
     love.graphics.printf(statistics, 0, 580, 790, 'right')
 end
 
-local level = Level(80, 120, world, player, Wall, Enemy, WallManager,
+local level = Level(80, 120, world, player, 6, Wall, Enemy, WallManager,
                     EnemyManager)
 local camera;
 
@@ -37,7 +37,7 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setLineWidth(2)
 
-    camera = Camera(player.positionX, player.positionY, 2)
+    camera = Camera(player.positionX, player.positionY, 1)
 
     window:setUpWindow(push)
 

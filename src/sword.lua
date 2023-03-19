@@ -3,9 +3,9 @@ Class = require("lib.hump.class")
 
 local Sword = Class {
     init = function(self, world)
-        self.swordW = 16
-        self.swordH = 4
-        self.swordOffset = 2
+        self.swordW = GameSettings.TILE_SIZE
+        self.swordH = GameSettings.TILE_SIZE / 4
+        self.swordOffset = GameSettings.TILE_SIZE / 8
         self.active = false
 
         self.world = world

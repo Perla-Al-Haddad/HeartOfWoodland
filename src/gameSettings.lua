@@ -1,7 +1,7 @@
 local GameSettings = {
-    TILE_SIZE = 16,
+    TILE_SIZE = 32,
 
-    PLAYER_SPEED = 220,
+    PLAYER_SPEED = 420,
     INITIAL_PLAYER_DIR = "right"
 
 }
