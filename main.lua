@@ -11,7 +11,7 @@ local Sword = require 'src.sword';
 TILE_SIZE = 16
 
 local world = bump.newWorld(TILE_SIZE)
-local sword = Sword:new(nil)
+local sword = Sword()
 local player = Player(window.VIRTUAL_WIDTH / 2, window.VIRTUAL_HEIGHT / 2,
                       world, sword);
 

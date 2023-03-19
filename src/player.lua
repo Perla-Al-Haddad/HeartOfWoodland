@@ -71,7 +71,7 @@ Player = Class {
                                 self.collisionW, self.collisionH);
         love.graphics.setColor(255, 255, 255);
 
-        self.sword:render(self.sword, self);
+        self.sword:render(self);
     end,
 
     attack = function(self)

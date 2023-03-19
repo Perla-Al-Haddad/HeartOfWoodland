@@ -1,59 +1,59 @@
-local Sword = {}
+Class = require("lib.hump.class")
 
-function Sword:new(o)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    o.swordW = 16
-    o.swordH = 4
-    o.swordOffset = 2
-    o.active = false
-    return o
-end
+local Sword = Class {
+    init = function(self)
+        self.swordW = 16
+        self.swordH = 4
+        self.swordOffset = 2
+        self.active = false
+    end,
 
-function Sword:getSwordPosition(o, player)
-    local default_position = {
-        x = player.positionX + player.collisionW / 2 + o.swordOffset,
-        y = player.positionY - o.swordH / 2,
-        w = o.swordW,
-        h = o.swordH
-    };
-    if player.attackDir == 'right' then
-        return default_position;
-    elseif player.attackDir == 'left' then
-        return {
-            x = player.positionX - player.collisionW / 2 - o.swordOffset -
-                o.swordW,
-            y = player.positionY - o.swordH / 2,
-            w = o.swordW,
-            h = o.swordH
+    render = function(self, player)
+        if not self.active then return; end
+        love.graphics.setColor(255, 0, 0);
+        local position = self:getSwordPosition(player);
+
+        love.graphics.rectangle("fill", position.x, position.y, position.w,
+                                position.h);
+        love.graphics.setColor(255, 255, 255)
+    end,
+
+    getSwordPosition = function(self, player)
+        local default_position = {
+            x = player.positionX + player.collisionW / 2 + self.swordOffset,
+            y = player.positionY - self.swordH / 2,
+            w = self.swordW,
+            h = self.swordH
         };
-    elseif player.attackDir == 'up' then
-        return {
-            x = player.positionX - o.swordH / 2,
-            y = player.positionY - player.collisionH / 2 - o.swordOffset -
-                o.swordW,
-            w = o.swordH,
-            h = o.swordW
-        };
-    elseif player.attackDir == 'down' then
-        return {
-            x = player.positionX - o.swordH / 2,
-            y = player.positionY + player.collisionH / 2 + o.swordOffset,
-            w = o.swordH,
-            h = o.swordW
-        };
+        if player.attackDir == 'right' then
+            return default_position;
+        elseif player.attackDir == 'left' then
+            return {
+                x = player.positionX - player.collisionW / 2 - self.swordOffset -
+                    self.swordW,
+                y = player.positionY - self.swordH / 2,
+                w = self.swordW,
+                h = self.swordH
+            };
+        elseif player.attackDir == 'up' then
+            return {
+                x = player.positionX - self.swordH / 2,
+                y = player.positionY - player.collisionH / 2 - self.swordOffset -
+                    self.swordW,
+                w = self.swordH,
+                h = self.swordW
+            };
+        elseif player.attackDir == 'down' then
+            return {
+                x = player.positionX - self.swordH / 2,
+                y = player.positionY + player.collisionH / 2 + self.swordOffset,
+                w = self.swordH,
+                h = self.swordW
+            };
+        end
     end
-end
+}
 
-function Sword:render(o, player)
-    if not o.active then return; end
-    love.graphics.setColor(255, 0, 0);
-    local position = o.getSwordPosition(o, o, player);
 
-    love.graphics.rectangle("fill", position.x, position.y, position.w,
-                            position.h);
-    love.graphics.setColor(255, 255, 255)
-end
 
 return Sword
