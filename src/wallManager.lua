@@ -4,11 +4,11 @@ local WallManager = Class {
     init = function(self, walls) self.walls = walls end,
 
     loadWalls = function(self)
-        for _, wall in pairs(self.walls) do wall:load(wall) end
+        for _, wall in pairs(self.walls) do wall:load() end
     end,
 
     renderWalls = function(self)
-        for _, wall in pairs(self.walls) do wall:render(wall) end
+        for _, wall in pairs(self.walls) do wall:render() end
     end
 }
 

@@ -1,16 +1,17 @@
-local push = require('lib.push')
-local bump = require("lib.bump")
+local push = require('lib.push');
+local bump = require("lib.bump");
 
-local window = require('src.window')
-local Player = require('src.player')
-local Wall = require('src.wall')
-local WallManager = require('src.wallManager')
-local Level = require('src.level')
-local Sword = require 'src.sword';
+local window = require('src.window');
+local Player = require('src.player');
+local Wall = require('src.wall');
+local WallManager = require('src.wallManager');
+local Level = require('src.level');
+local Sword = require('src.sword');
+local GameSettings = require("src.gameSettings")
+local Enemy = require('src.enemy')
+local EnemyManager = require('src.enemyManager')
 
-TILE_SIZE = 16
-
-local world = bump.newWorld(TILE_SIZE)
+local world = bump.newWorld(GameSettings.TILE_SIZE)
 local sword = Sword()
 local player = Player(window.VIRTUAL_WIDTH / 2, window.VIRTUAL_HEIGHT / 2,
                       world, sword);
@@ -22,15 +23,15 @@ local levelString = [[
 ###...................###
 ###..###############..###
 ###...................###
-###...................###
-###...................###
+###.............X.....###
+###....X..............###
 ###.............####..###
 ###................#..###
 ###................#..###
 ###................#..###
 ###.............####..###
 ###...................###
-#######...............###
+#######........P......###
 #######...............###
 #######.........#########
 #######.........#########
@@ -38,14 +39,16 @@ local levelString = [[
 #########################
 ]]
 
-local level = Level(levelString, world, Wall, WallManager)
+local level = Level(levelString, world, player, Wall, Enemy, WallManager, EnemyManager)
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
+    love.graphics.setLineWidth(2)
 
     window:setUpWindow(push)
 
-    level.wallManager:loadWalls(level.wallManager)
+    level.wallManager:loadWalls()
+    level.enemyManager:loadEnemies()
 
     player:load()
 
@@ -57,12 +60,13 @@ function love.update(dt) player:update(dt) end
 function love.draw()
     push:apply("start")
 
-    level.wallManager:renderWalls(level.wallManager)
+    level.wallManager:renderWalls()
+    level.enemyManager:renderEnemies()
 
     player:render()
 
     push:apply("end")
-    love.graphics.setBackgroundColor(GameSettings:getDarkColor())
+    love.graphics.setBackgroundColor(GameSettings:getDarkColor(1))
 end
 
 function love.quit() print("Thanks for playing! Come back soon!") end

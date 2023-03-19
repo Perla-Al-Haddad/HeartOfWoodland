@@ -66,7 +66,7 @@ Player = Class {
     end,
 
     render = function(self)
-        love.graphics.setColor(GameSettings:getGreenColor());
+        love.graphics.setColor(GameSettings:getGreenColor(1));
         love.graphics.rectangle('fill', self.positionX - self.collisionW / 2,
                                 self.positionY - self.collisionH / 2,
                                 self.collisionW, self.collisionH);

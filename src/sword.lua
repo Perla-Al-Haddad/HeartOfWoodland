@@ -11,7 +11,7 @@ local Sword = Class {
 
     render = function(self, player)
         if not self.active then return; end
-        love.graphics.setColor(GameSettings:getWhiteColor());
+        love.graphics.setColor(GameSettings:getWhiteColor(1));
         local position = self:getSwordPosition(player);
 
         love.graphics.rectangle("fill", position.x, position.y, position.w,
