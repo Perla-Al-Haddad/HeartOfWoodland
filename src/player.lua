@@ -28,6 +28,13 @@ Player = Class {
     handleMovePlayer = function(self, dt)
         local speed = self.speed
 
+        local filter = function(item, other) 
+            if other.type == 'enemy' then
+                return 'cross'
+            end
+            return 'slide'
+        end
+
         if self.state ~= 0 then return end
 
         local dx, dy = 0, 0
@@ -48,7 +55,7 @@ Player = Class {
 
         if dx ~= 0 or dy ~= 0 then
             self.positionX, self.positionY, _, _ =
-                self.world:move(self, self.positionX + dx, self.positionY + dy)
+                self.world:move(self, self.positionX + dx, self.positionY + dy, filter)
         end
     end,
 

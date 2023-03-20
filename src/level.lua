@@ -1,6 +1,9 @@
 GameSettings = require('src.gameSettings')
 Class = require('lib.hump.class')
 ROT = require 'lib.rot.rot'
+Luastar = require("lib.lua-star")
+
+local positionIsOpenFunc = nil;
 
 local Level = Class {
     init = function(self, levelW, levelH, world, player, enemyCount, Wall,
@@ -12,6 +15,17 @@ local Level = Class {
 
         self:generateLevelMap()
 
+        -- self.map = {
+        --     {'.', '.', '.', '.', '.', '.', '.', '.'},
+        --     {'.', '.', '.', '.', '#', '.', '.', '.'},
+        --     {'.', '.', '.', '#', '#', '.', '.', '.'},
+        --     {'.', 'E', '.', '#', '#', '.', '.', 'P'},
+        --     {'.', '.', '.', '#', '#', '.', '.', '.'},
+        --     {'.', '.', '.', '#', '#', '.', '.', '.'},
+        --     {'.', '.', '.', '#', '.', '.', '.', '.'},
+        --     {'.', '.', '.', '.', '.', '.', '.', '.'}
+        -- }
+
         self.world = world
         self.player = player
 
@@ -20,6 +34,31 @@ local Level = Class {
         self.WallManager = WallManager
         self.EnemyManager = EnemyManager
         self.wallManager, self.enemyManager = self:processLevelMap()
+
+        positionIsOpenFunc = function(x, y)
+            -- should return true if the position is open to walk
+            return self.map[x][y] ~= '#'
+        end
+
+        for _, enemy in pairs(self.enemyManager.enemies) do
+            local pathPoints = {}
+            local path = Luastar:find(self.levelW, self.levelH, {
+                x = enemy.positionX / GameSettings.TILE_SIZE,
+                y = enemy.positionY / GameSettings.TILE_SIZE
+            }, {
+                x = self.player.positionX / GameSettings.TILE_SIZE,
+                y = self.player.positionY / GameSettings.TILE_SIZE
+            }, positionIsOpenFunc)
+            if path then
+                for i, p in ipairs(path) do
+                    table.insert(pathPoints, {
+                        x = p.x * GameSettings.TILE_SIZE,
+                        y = p.y * GameSettings.TILE_SIZE
+                    })
+                end
+                enemy:setPath(pathPoints)
+            end
+        end
 
     end,
 
@@ -79,18 +118,12 @@ local Level = Class {
         end
 
         self:placePlayer()
-        for i = 1, self.enemyCount do
-            self:placeEnemy()
-        end
+        for i = 1, self.enemyCount do self:placeEnemy() end
     end,
 
-    placePlayer = function(self) 
-        self:placeEntity('P')
-    end,
+    placePlayer = function(self) self:placeEntity('P') end,
 
-    placeEnemy = function(self)
-        self:placeEntity('E')
-    end,
+    placeEnemy = function(self) self:placeEntity('E') end,
 
     placeEntity = function(self, c)
         while true do

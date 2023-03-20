@@ -6,10 +6,14 @@ Enemy = Class {
         self.type = 'enemy'
         self.state = 0
 
+        self.speed = GameSettings.PLAYER_SPEED;
         self.positionX = positionX;
         self.positionY = positionY;
         self.collisionW = GameSettings.TILE_SIZE;
         self.collisionH = GameSettings.TILE_SIZE;
+
+        self.path = nil;
+        self.currentPoint = 1;
 
         self.world = world;
     end,
@@ -29,6 +33,70 @@ Enemy = Class {
                                 self.collisionW, self.collisionH);
 
         love.graphics.setColor(255, 255, 255);
+
+        self:renderPath();
+    end,
+
+    update = function(self, dt)
+
+        local filter = function(item, other)
+            if other.type == 'enemy' or other.type == 'player' then
+                return 'cross'
+            end
+            return 'slide'
+        end
+
+        if self.state == -1 then
+            return
+        end
+
+        if self.path ~= nil then
+            local targetPoint = self.path[self.currentPoint]
+
+            if not targetPoint then return end
+
+            if self.positionX == targetPoint.x and
+                self.positionY == targetPoint.y then
+                -- Move on to the next point in the path
+                self.currentPoint = self.currentPoint + 1
+                if self.currentPoint > #self.path then
+                    -- The enemy has reached its destination
+                    return
+                end
+                targetPoint = self.path[self.currentPoint]
+            end
+
+            -- Calculate the distance and direction to the target point
+            local dx = targetPoint.x - self.positionX
+            local dy = targetPoint.y - self.positionY
+            local distance = math.sqrt(dx * dx + dy * dy)
+            local direction = math.atan2(dy, dx) + math.random( -0.01, 0.01 )
+
+            -- Move the enemy towards the target point
+            local moveDistance = math.min(self.speed * dt, distance)
+            self.positionX, self.positionY, _, _ =
+                self.world:move(self, self.positionX + moveDistance *
+                                    math.cos(direction), self.positionY +
+                                    moveDistance * math.sin(direction), filter)
+        end
+    end,
+
+    setPath = function(self, path)
+        print("path", path)
+        self.path = path
+    end,
+
+    renderPath = function(self)
+        if self.path then
+            for i, p in ipairs(self.path) do
+                love.graphics.setColor(0, 1, 0, 0.25)
+                love.graphics.rectangle("fill", p.x, p.y,
+                                        GameSettings.TILE_SIZE,
+                                        GameSettings.TILE_SIZE)
+                love.graphics.setColor(0, 0, 0)
+                love.graphics.print(i, (p.x), (p.y))
+            end
+        end
     end,
 
     die = function(self)

@@ -29,7 +29,7 @@ local function drawDebug()
     love.graphics.printf(statistics, 0, 580, 790, 'right')
 end
 
-local level = Level(80, 120, world, player, 6, Wall, Enemy, WallManager,
+local level = Level(120, 80, world, player, 6, Wall, Enemy, WallManager,
                     EnemyManager)
 local camera;
 
@@ -51,14 +51,20 @@ end
 
 function love.update(dt)
     player:update(dt)
+
     local dx, dy = player.positionX - camera.x, player.positionY - camera.y
     camera:move(dx / 2, dy / 2)
+
+    level.enemyManager:updateEnemies(dt)
+    -- level:updateEnemyPaths()
 end
 
 function love.draw()
     -- push:apply("start")
     -- push:apply("end")
     camera:attach()
+
+    love.graphics.setBackgroundColor(GameSettings:getDarkColor(1))
 
     -- drawDebug()
     level.wallManager:renderWalls()
@@ -67,7 +73,6 @@ function love.draw()
     player:render()
 
     camera:detach()
-    love.graphics.setBackgroundColor(GameSettings:getDarkColor(1))
 end
 
 function love.quit() print("Thanks for playing! Come back soon!") end
