@@ -29,7 +29,7 @@ local function drawDebug()
     love.graphics.printf(statistics, 0, 580, 790, 'right')
 end
 
-local level = Level(120, 80, world, player, 10, Wall, Enemy, WallManager,
+local level = Level(120, 80, world, player, 5, Wall, Enemy, WallManager,
                     EnemyManager)
 local camera;
 
@@ -37,7 +37,7 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setLineWidth(2)
 
-    camera = Camera(player.positionX, player.positionY, 1.5)
+    camera = Camera(player.positionX, player.positionY, 1)
 
     window:setUpWindow(push)
 
@@ -64,7 +64,9 @@ function love.draw()
     -- push:apply("end")
     camera:attach()
 
-    love.graphics.setBackgroundColor(GameSettings:getDarkColor(1))
+    love.graphics.setBackgroundColor(GameSettings:getBlueColor(1))
+
+    level:renderBackground()
 
     -- drawDebug()
     level.wallManager:renderWalls()
@@ -81,3 +83,11 @@ function love.keypressed(key, scancode, isrepeat)
     if key == "space" then player:attack() end
     if key == "escape" then love.event.quit() end
 end
+
+function love.keyreleased(key, scancode, isrepeat)
+    if key == 'up' or key == 'down' or key == 'left' or key == 'right' then
+        level.enemyManager:generateEnemyPaths(level.player, level.levelW,
+                                              level.levelH, level.map);
+    end
+end
+

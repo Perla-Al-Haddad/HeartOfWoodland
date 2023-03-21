@@ -1,5 +1,5 @@
-GameSettings = require("src.gameSettings")
-Class = require("lib.hump.class")
+local GameSettings = require("src.gameSettings")
+local Class = require("lib.hump.class")
 
 Enemy = Class {
     init = function(self, positionX, positionY, world)
@@ -25,7 +25,7 @@ Enemy = Class {
 
     render = function(self)
         if self.state == -1 then return end
-        self:renderPath();
+        -- self:renderPath();
 
         love.graphics.setColor(GameSettings:getPinkColor(0.75));
         love.graphics.rectangle('fill', self.positionX, self.positionY,
@@ -38,7 +38,6 @@ Enemy = Class {
     end,
 
     update = function(self, dt)
-
         local filter = function(item, other)
             if other.type == 'enemy' or other.type == 'player' then
                 return 'cross'
@@ -80,7 +79,8 @@ Enemy = Class {
     end,
 
     setPath = function(self, path)
-        self.path = path
+        self.path = path;
+        self.currentPoint = 1;
     end,
 
     renderPath = function(self)

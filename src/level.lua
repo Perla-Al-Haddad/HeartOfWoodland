@@ -1,9 +1,7 @@
-GameSettings = require('src.gameSettings')
-Class = require('lib.hump.class')
-ROT = require 'lib.rot.rot'
-Luastar = require("lib.lua-star")
+local GameSettings = require('src.gameSettings')
+local Class = require('lib.hump.class')
+local ROT = require 'lib.rot.rot'
 
-local positionIsOpenFunc = nil;
 
 local Level = Class {
     init = function(self, levelW, levelH, world, player, enemyCount, Wall,
@@ -17,11 +15,11 @@ local Level = Class {
 
         -- self.map = {
         --     {'.', '.', '.', '.', '.', '.', '#', '.'},
+        --     {'.', '.', '.', '.', '.', '.', '#', '.'},
         --     {'.', '.', '.', '.', '#', '.', '#', '.'},
-        --     {'.', '.', '.', '#', '#', '.', '#', '.'},
         --     {'.', 'E', '.', '#', '#', '.', '#', 'P'},
-        --     {'.', '.', '.', '#', '#', '.', '#', '.'},
-        --     {'.', '.', '.', '#', '#', '.', '#', '.'},
+        --     {'.', '.', '.', '#', '#', '.', '.', '.'},
+        --     {'.', '.', '.', '#', '#', '.', '.', '.'},
         --     {'.', '.', '.', '#', '.', '.', '.', '.'},
         --     {'.', '.', '.', '#', '.', '.', '#', '.'}
         -- }
@@ -35,31 +33,7 @@ local Level = Class {
         self.EnemyManager = EnemyManager
         self.wallManager, self.enemyManager = self:processLevelMap()
 
-        positionIsOpenFunc = function(x, y)
-            -- should return true if the position is open to walk
-            return self.map[x][y] ~= '#'
-        end
-
-        for _, enemy in pairs(self.enemyManager.enemies) do
-            local pathPoints = {}
-            local path = Luastar:find(self.levelW, self.levelH, {
-                x = enemy.positionX / GameSettings.TILE_SIZE,
-                y = enemy.positionY / GameSettings.TILE_SIZE
-            }, {
-                x = self.player.positionX / GameSettings.TILE_SIZE,
-                y = self.player.positionY / GameSettings.TILE_SIZE
-            }, positionIsOpenFunc, true, true)
-            if path then
-                for i, p in ipairs(path) do
-                    table.insert(pathPoints, {
-                        x = p.x * GameSettings.TILE_SIZE,
-                        y = p.y * GameSettings.TILE_SIZE
-                    })
-                end
-                enemy:setPath(pathPoints)
-            end
-        end
-
+        self.enemyManager:generateEnemyPaths(self.player, self.levelW, self.levelH, self.map);
     end,
 
     generateLevelMap = function(self)
@@ -96,7 +70,7 @@ local Level = Class {
         local largestCount = 0
         cl:randomize(rand)
 
-        for i = 1, 5 do cl:create(calbak) end
+        for i = 1, 50 do cl:create(calbak) end
         for x = 1, self.levelW do
             for y = 1, self.levelH do
                 if cl._map[x][y] == 1 then
@@ -160,6 +134,15 @@ local Level = Class {
         local wallManager = self.WallManager(walls)
         local enemyManager = self.EnemyManager(enemies)
         return wallManager, enemyManager;
+    end,
+
+    renderBackground = function(self)
+        love.graphics.setColor(GameSettings.getDarkColor(1));
+        love.graphics.rectangle("fill", GameSettings.TILE_SIZE,
+                                GameSettings.TILE_SIZE,
+                                self.levelW * GameSettings.TILE_SIZE,
+                                self.levelH * GameSettings.TILE_SIZE);
+        love.graphics.setColor(1, 1, 1);
     end
 }
 

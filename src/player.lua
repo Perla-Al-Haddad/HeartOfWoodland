@@ -1,5 +1,5 @@
-GameSettings = require("src.gameSettings")
-Class = require("lib.hump.class")
+local GameSettings = require("src.gameSettings")
+local Class = require("lib.hump.class")
 
 Player = Class {
     init = function(self, positionX, positionY, world, sword)
@@ -33,7 +33,7 @@ Player = Class {
             return 'slide'
         end
 
-        if self.state ~= 0 then return end
+        if self.state == 1 then return end
 
         local dx, dy = 0, 0
         if love.keyboard.isDown('right') then
@@ -52,9 +52,12 @@ Player = Class {
         end
 
         if dx ~= 0 or dy ~= 0 then
+            self.state = 0.5 -- moving 
             self.positionX, self.positionY, _, _ =
                 self.world:move(self, self.positionX + dx, self.positionY + dy,
                                 filter)
+        else
+            self.state = 0
         end
     end,
 
