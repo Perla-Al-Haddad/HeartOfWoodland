@@ -87,13 +87,14 @@ local Level = Class {
             return size
         end
         local cl = ROT.Map.Cellular:new(self.levelW, self.levelH)
-        cl:randomize(.52)
+        local rand = 0.59;
+        cl:randomize(rand)
         cl:create(calbak)
 
         local largest = 2;
         local id = 2;
         local largestCount = 0
-        cl:randomize(.52)
+        cl:randomize(rand)
 
         for i = 1, 5 do cl:create(calbak) end
         for x = 1, self.levelW do

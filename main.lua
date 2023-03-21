@@ -37,7 +37,7 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setLineWidth(2)
 
-    camera = Camera(player.positionX, player.positionY, 1)
+    camera = Camera(player.positionX, player.positionY, 1.5)
 
     window:setUpWindow(push)
 
