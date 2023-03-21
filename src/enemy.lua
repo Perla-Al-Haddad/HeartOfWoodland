@@ -6,7 +6,7 @@ Enemy = Class {
         self.type = 'enemy'
         self.state = 0
 
-        self.speed = GameSettings.PLAYER_SPEED;
+        self.speed = GameSettings.PLAYER_SPEED/2;
         self.positionX = positionX;
         self.positionY = positionY;
         self.collisionW = GameSettings.TILE_SIZE;
@@ -25,6 +25,8 @@ Enemy = Class {
 
     render = function(self)
         if self.state == -1 then return end
+        self:renderPath();
+
         love.graphics.setColor(GameSettings:getPinkColor(0.75));
         love.graphics.rectangle('fill', self.positionX, self.positionY,
                                 self.collisionW, self.collisionH);
@@ -33,8 +35,6 @@ Enemy = Class {
                                 self.collisionW, self.collisionH);
 
         love.graphics.setColor(255, 255, 255);
-
-        self:renderPath();
     end,
 
     update = function(self, dt)
@@ -46,17 +46,15 @@ Enemy = Class {
             return 'slide'
         end
 
-        if self.state == -1 then
-            return
-        end
+        if self.state == -1 then return end
 
         if self.path ~= nil then
             local targetPoint = self.path[self.currentPoint]
 
             if not targetPoint then return end
 
-            if self.positionX == targetPoint.x and
-                self.positionY == targetPoint.y then
+            if self.positionX == targetPoint.x and self.positionY ==
+                targetPoint.y then
                 -- Move on to the next point in the path
                 self.currentPoint = self.currentPoint + 1
                 if self.currentPoint > #self.path then
@@ -70,7 +68,7 @@ Enemy = Class {
             local dx = targetPoint.x - self.positionX
             local dy = targetPoint.y - self.positionY
             local distance = math.sqrt(dx * dx + dy * dy)
-            local direction = math.atan2(dy, dx) + math.random( -0.01, 0.01 )
+            local direction = math.atan2(dy, dx)
 
             -- Move the enemy towards the target point
             local moveDistance = math.min(self.speed * dt, distance)
@@ -82,19 +80,18 @@ Enemy = Class {
     end,
 
     setPath = function(self, path)
-        print("path", path)
         self.path = path
     end,
 
     renderPath = function(self)
         if self.path then
             for i, p in ipairs(self.path) do
-                love.graphics.setColor(0, 1, 0, 0.25)
+                love.graphics.setColor(GameSettings:getWhiteColor(0.05))
                 love.graphics.rectangle("fill", p.x, p.y,
                                         GameSettings.TILE_SIZE,
                                         GameSettings.TILE_SIZE)
                 love.graphics.setColor(0, 0, 0)
-                love.graphics.print(i, (p.x), (p.y))
+                love.graphics.print(tostring(i), (p.x), (p.y))
             end
         end
     end,

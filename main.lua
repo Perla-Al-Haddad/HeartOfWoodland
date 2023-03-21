@@ -29,7 +29,7 @@ local function drawDebug()
     love.graphics.printf(statistics, 0, 580, 790, 'right')
 end
 
-local level = Level(120, 80, world, player, 6, Wall, Enemy, WallManager,
+local level = Level(120, 80, world, player, 10, Wall, Enemy, WallManager,
                     EnemyManager)
 local camera;
 

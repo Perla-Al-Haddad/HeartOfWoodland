@@ -3,7 +3,6 @@ local GameSettings = {
 
     PLAYER_SPEED = 420,
     INITIAL_PLAYER_DIR = "right"
-
 }
 
 function GameSettings:getWhiteColor(opactiy)

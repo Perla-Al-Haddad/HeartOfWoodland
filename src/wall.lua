@@ -3,6 +3,7 @@ Class = require("lib.hump.class")
 
 local Wall = Class {
     init = function(self, positionX, positionY, world)
+        self.type = 'wall'
         self.collisionW = GameSettings.TILE_SIZE
         self.collisionH = GameSettings.TILE_SIZE
         self.world = world

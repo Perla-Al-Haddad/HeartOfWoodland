@@ -28,10 +28,8 @@ Player = Class {
     handleMovePlayer = function(self, dt)
         local speed = self.speed
 
-        local filter = function(item, other) 
-            if other.type == 'enemy' then
-                return 'cross'
-            end
+        local filter = function(item, other)
+            if other.type == 'enemy' then return 'cross' end
             return 'slide'
         end
 
@@ -55,7 +53,8 @@ Player = Class {
 
         if dx ~= 0 or dy ~= 0 then
             self.positionX, self.positionY, _, _ =
-                self.world:move(self, self.positionX + dx, self.positionY + dy, filter)
+                self.world:move(self, self.positionX + dx, self.positionY + dy,
+                                filter)
         end
     end,
 
@@ -81,8 +80,11 @@ Player = Class {
 
     render = function(self)
         love.graphics.setColor(GameSettings:getGreenColor(1));
-        love.graphics.rectangle('fill', self.positionX, self.positionY,
+        love.graphics.rectangle('line', self.positionX, self.positionY,
                                 self.collisionW, self.collisionH);
+        love.graphics.setColor(GameSettings:getGreenColor(0.75));
+        love.graphics.rectangle('fill', self.positionX, self.positionY,
+        self.collisionW, self.collisionH);
         love.graphics.setColor(255, 255, 255);
 
         self.sword:render(self);
