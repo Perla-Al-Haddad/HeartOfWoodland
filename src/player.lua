@@ -1,5 +1,8 @@
 local GameSettings = require("src.gameSettings")
 local Class = require("lib.hump.class")
+local vector = require("lib.hump.vector")
+
+local effects = require('src.effects.effect')
 
 Player = Class {
     init = function(self, positionX, positionY, world, sword)
@@ -97,7 +100,7 @@ Player = Class {
         self.sword:render(self);
     end,
 
-    renderPlayerField = function (self)
+    renderPlayerField = function(self)
         love.graphics.setColor(GameSettings:getGreenColor(0.25));
         love.graphics.circle("fill", self.positionX + self.collisionW / 2,
                              self.positionY + self.collisionH / 2,
@@ -106,11 +109,13 @@ Player = Class {
 
     attack = function(self)
         if self.state == 0 and self.attackCoolDown <= 0 then
-            self.state = 1
-            self.sword:addSwordToWorld(self)
-            self.sword.active = true
-            self.attackTimer = 0.2
-            self.attackCoolDown = 0.4
+            effects:spawn("slice", self.positionX + self.collisionW / 2,
+                          self.positionY + self.collisionH, vector(0, 1))
+            -- self.state = 1
+            -- self.sword:addSwordToWorld(self)
+            -- self.sword.active = true
+            -- self.attackTimer = 0.2
+            -- self.attackCoolDown = 0.4
         end
     end
 }

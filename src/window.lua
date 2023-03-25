@@ -5,7 +5,7 @@ window.WINDOWS_HEIGHT = 720;
 window.VIRTUAL_WIDTH = 384;
 window.VIRTUAL_HEIGHT = 304;
 window.TITLE = "Heart of Woodland ♥";
-window.ICON_PATH = 'images/boy-icon-2.png';
+window.ICON_PATH = 'sprites/boy-icon-2.png';
 
 window.options = {resizable = true, fullscreen = false, vsync = true}
 

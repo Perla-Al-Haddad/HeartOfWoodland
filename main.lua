@@ -13,6 +13,9 @@ local Sword = require('src.sword');
 local GameSettings = require("src.gameSettings")
 local Enemy = require('src.enemy')
 local EnemyManager = require('src.enemyManager')
+local SpriteManager = require("src.spriteManager")
+
+local effects = require('src.effects.effect')
 
 local world = bump.newWorld(GameSettings.TILE_SIZE)
 local sword = Sword(world)
@@ -30,7 +33,7 @@ local function drawDebug()
     love.graphics.printf(statistics, 0, 580, 790, 'right')
 end
 
-local level = Level(50, 30, world, player, 10, Wall, Enemy, WallManager,
+local level = Level(50, 30, world, player, 2, Wall, Enemy, WallManager,
                     EnemyManager)
 local camera;
 
@@ -43,6 +46,8 @@ function love.load()
     camera = Camera(player.positionX, player.positionY, 1)
 
     window:setUpWindow(push)
+
+    SpriteManager:load()
 
     level:addLevelBoundary();
     level.wallManager:loadWalls()
@@ -59,6 +64,8 @@ function love.update(dt)
     camera:move(dx / 2, dy / 2)
 
     level.enemyManager:updateEnemies(dt)
+
+    effects:update(dt)
 end
 
 function love.draw()
@@ -75,6 +82,7 @@ function love.draw()
 
     player:render()
 
+    effects:draw(0)
     camera:detach()
 
     window:drawWindowLimits();
