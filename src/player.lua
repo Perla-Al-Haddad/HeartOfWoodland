@@ -1,5 +1,5 @@
-GameSettings = require("src.gameSettings")
-Class = require("lib.hump.class")
+local GameSettings = require("src.gameSettings")
+local Class = require("lib.hump.class")
 
 Player = Class {
     init = function(self, positionX, positionY, world, sword)
@@ -12,6 +12,8 @@ Player = Class {
         self.collisionH = GameSettings.TILE_SIZE;
         self.state = 0
         self.attackDir = GameSettings.INITIAL_PLAYER_DIR;
+
+        self.activeRadius = GameSettings.TILE_SIZE * 15;
 
         self.attackTimer = 0;
         self.attackCoolDown = 0;
@@ -33,7 +35,7 @@ Player = Class {
             return 'slide'
         end
 
-        if self.state ~= 0 then return end
+        if self.state == 1 then return end
 
         local dx, dy = 0, 0
         if love.keyboard.isDown('right') then
@@ -52,9 +54,12 @@ Player = Class {
         end
 
         if dx ~= 0 or dy ~= 0 then
+            self.state = 0.5 -- moving 
             self.positionX, self.positionY, _, _ =
                 self.world:move(self, self.positionX + dx, self.positionY + dy,
                                 filter)
+        else
+            self.state = 0
         end
     end,
 
@@ -79,12 +84,17 @@ Player = Class {
     end,
 
     render = function(self)
+        love.graphics.setColor(GameSettings:getGreenColor(0.25));
+        love.graphics.circle("fill", self.positionX + self.collisionW / 2,
+                             self.positionY + self.collisionH / 2,
+                             self.activeRadius);
+
         love.graphics.setColor(GameSettings:getGreenColor(1));
         love.graphics.rectangle('line', self.positionX, self.positionY,
                                 self.collisionW, self.collisionH);
         love.graphics.setColor(GameSettings:getGreenColor(0.75));
         love.graphics.rectangle('fill', self.positionX, self.positionY,
-        self.collisionW, self.collisionH);
+                                self.collisionW, self.collisionH);
         love.graphics.setColor(255, 255, 255);
 
         self.sword:render(self);
