@@ -84,10 +84,7 @@ Player = Class {
     end,
 
     render = function(self)
-        -- love.graphics.setColor(GameSettings:getGreenColor(0.25));
-        -- love.graphics.circle("fill", self.positionX + self.collisionW / 2,
-        --                      self.positionY + self.collisionH / 2,
-        --                      self.activeRadius);
+        -- self:renderPlayerField()
 
         love.graphics.setColor(GameSettings:getGreenColor(1));
         love.graphics.rectangle('line', self.positionX, self.positionY,
@@ -98,6 +95,13 @@ Player = Class {
         love.graphics.setColor(255, 255, 255);
 
         self.sword:render(self);
+    end,
+
+    renderPlayerField = function (self)
+        love.graphics.setColor(GameSettings:getGreenColor(0.25));
+        love.graphics.circle("fill", self.positionX + self.collisionW / 2,
+                             self.positionY + self.collisionH / 2,
+                             self.activeRadius);
     end,
 
     attack = function(self)
