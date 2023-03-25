@@ -77,7 +77,7 @@ local Level = Class {
         end
     end,
 
-    drawLevelBoundary = function(self)
+    renderLevelBoundary = function(self)
         love.graphics.setColor(1, 1, 1, 0.5);
         for _, boundary in pairs(self.boundaries) do
             love.graphics.rectangle("fill", boundary.x, boundary.y, boundary.w,
@@ -120,7 +120,7 @@ local Level = Class {
         local largestCount = 0
         cl:randomize(rand)
 
-        for i = 1, 50 do cl:create(calbak) end
+        for i = 1, 20 do cl:create(calbak) end
         for x = 1, self.levelW do
             for y = 1, self.levelH do
                 if cl._map[x][y] == 1 then

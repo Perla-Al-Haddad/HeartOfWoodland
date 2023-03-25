@@ -76,7 +76,7 @@ function love.draw()
     love.graphics.setBackgroundColor(GameSettings:getBlueColor(1))
 
     level:renderBackground()
-    level:drawLevelBoundary()
+    -- level:renderLevelBoundary()
 
     -- drawDebug()
     level.wallManager:renderWalls()

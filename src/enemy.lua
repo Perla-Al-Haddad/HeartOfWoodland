@@ -28,7 +28,7 @@ Enemy = Class {
 
     render = function(self)
         if self.state == -1 then return end
-        self:renderPath();
+        -- self:renderPath();
 
         love.graphics.setColor(GameSettings:getPinkColor(0.75));
         love.graphics.rectangle('fill', self.positionX, self.positionY,
