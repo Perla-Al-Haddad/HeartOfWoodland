@@ -46,14 +46,9 @@ function love.load()
 
     level:addLevelBoundary();
     level.wallManager:loadWalls()
-    level.enemyManager:loadEnemies()
+    level.enemyManager:loadEnemies(player, level.levelW, level.levelH, level.map)
 
     player:load()
-
-    Timer.every(0.25, function()
-        level.enemyManager:generateEnemyPaths(level.player, level.levelW,
-                                              level.levelH, level.map);
-    end)
 end
 
 function love.update(dt)
@@ -64,13 +59,9 @@ function love.update(dt)
     camera:move(dx / 2, dy / 2)
 
     level.enemyManager:updateEnemies(dt)
-
-    -- 
 end
 
 function love.draw()
-    -- push:apply("start")
-    -- push:apply("end")
     camera:attach()
 
     love.graphics.setBackgroundColor(GameSettings:getBlueColor(1))
@@ -85,6 +76,8 @@ function love.draw()
     player:render()
 
     camera:detach()
+
+    window:drawWindowLimits();
 end
 
 function love.quit() print("Thanks for playing! Come back soon!") end
@@ -92,16 +85,9 @@ function love.quit() print("Thanks for playing! Come back soon!") end
 function love.keypressed(key, scancode, isrepeat)
     if key == "space" then player:attack() end
     if key == "escape" then love.event.quit() end
-    -- if key == 'up' or key == 'down' or key == 'left' or key == 'right' then
-    --     level.enemyManager:generateEnemyPaths(level.player, level.levelW,
-    --                                           level.levelH, level.map);
-    -- end
+    if key == "backspace" then push:switchFullscreen(window.WINDOWS_WIDTH, window.WINDOWS_HEIGHT); end
 end
 
 function love.keyreleased(key, scancode, isrepeat)
-    -- if key == 'up' or key == 'down' or key == 'left' or key == 'right' then
-    --     level.enemyManager:generateEnemyPaths(level.player, level.levelW,
-    --                                           level.levelH, level.map);
-    -- end
 end
 
