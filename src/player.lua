@@ -13,6 +13,8 @@ Player = Class {
         self.state = 0
         self.attackDir = GameSettings.INITIAL_PLAYER_DIR;
 
+        self.activeRadius = GameSettings.TILE_SIZE * 15;
+
         self.attackTimer = 0;
         self.attackCoolDown = 0;
 
@@ -82,12 +84,17 @@ Player = Class {
     end,
 
     render = function(self)
+        love.graphics.setColor(GameSettings:getGreenColor(0.25));
+        love.graphics.circle("fill", self.positionX + self.collisionW / 2,
+                             self.positionY + self.collisionH / 2,
+                             self.activeRadius);
+
         love.graphics.setColor(GameSettings:getGreenColor(1));
         love.graphics.rectangle('line', self.positionX, self.positionY,
                                 self.collisionW, self.collisionH);
         love.graphics.setColor(GameSettings:getGreenColor(0.75));
         love.graphics.rectangle('fill', self.positionX, self.positionY,
-        self.collisionW, self.collisionH);
+                                self.collisionW, self.collisionH);
         love.graphics.setColor(255, 255, 255);
 
         self.sword:render(self);

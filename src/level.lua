@@ -2,7 +2,6 @@ local GameSettings = require('src.gameSettings')
 local Class = require('lib.hump.class')
 local ROT = require 'lib.rot.rot'
 
-
 local Level = Class {
     init = function(self, levelW, levelH, world, player, enemyCount, Wall,
                     Enemy, WallManager, EnemyManager)
@@ -14,14 +13,14 @@ local Level = Class {
         self:generateLevelMap()
 
         -- self.map = {
-        --     {'.', '.', '.', '.', '.', '.', '#', '.'},
-        --     {'.', '.', '.', '.', '.', '.', '#', '.'},
-        --     {'.', '.', '.', '.', '#', '.', '#', '.'},
-        --     {'.', 'E', '.', '#', '#', '.', '#', 'P'},
-        --     {'.', '.', '.', '#', '#', '.', '.', '.'},
-        --     {'.', '.', '.', '#', '#', '.', '.', '.'},
+        --     {'.', '.', '.', '.', '.', '.', '.', '.'},
+        --     {'.', 'E', '.', '#', '.', '.', '.', '.'},
         --     {'.', '.', '.', '#', '.', '.', '.', '.'},
-        --     {'.', '.', '.', '#', '.', '.', '#', '.'}
+        --     {'.', '.', '.', '#', '.', '.', '.', '.'},
+        --     {'.', '.', '.', '#', '.', '.', 'P', '.'},
+        --     {'.', '.', '.', '#', '.', '.', '.', '.'},
+        --     {'.', 'E', '.', '#', '.', '.', '.', '.'},
+        --     {'.', '.', '.', '.', '.', '.', '.', '.'}
         -- }
 
         self.world = world
@@ -33,7 +32,58 @@ local Level = Class {
         self.EnemyManager = EnemyManager
         self.wallManager, self.enemyManager = self:processLevelMap()
 
-        self.enemyManager:generateEnemyPaths(self.player, self.levelW, self.levelH, self.map);
+        self.enemyManager:generateEnemyPaths(self.player, self.levelW,
+                                             self.levelH, self.map);
+
+        self.boundaries = self:initBoundaries();
+    end,
+
+    initBoundaries = function(self)
+        local boundaryWidth = 16;
+        local leftBoundary = {
+            x = GameSettings.TILE_SIZE - boundaryWidth,
+            y = GameSettings.TILE_SIZE - boundaryWidth,
+            w = boundaryWidth,
+            h = self.levelH * GameSettings.TILE_SIZE + boundaryWidth * 2
+        }
+        local rightBoundary = {
+            x = (self.levelW + 1) * GameSettings.TILE_SIZE,
+            y = GameSettings.TILE_SIZE - boundaryWidth,
+            w = boundaryWidth,
+            h = self.levelH * GameSettings.TILE_SIZE + boundaryWidth * 2
+        }
+        local topBoundary = {
+            x = GameSettings.TILE_SIZE - boundaryWidth,
+            y = GameSettings.TILE_SIZE - boundaryWidth,
+            w = self.levelW * GameSettings.TILE_SIZE + boundaryWidth * 2,
+            h = boundaryWidth
+        }
+        local bottomBoundary = {
+            x = GameSettings.TILE_SIZE - boundaryWidth,
+            y = (self.levelH + 1) * GameSettings.TILE_SIZE,
+            w = self.levelW * GameSettings.TILE_SIZE + boundaryWidth * 2,
+            h = boundaryWidth
+        }
+        local boundaries = {
+            leftBoundary, rightBoundary, topBoundary, bottomBoundary
+        };
+        return boundaries;
+    end,
+
+    addLevelBoundary = function(self)
+        for _, boundary in pairs(self.boundaries) do
+            self.world:add(boundary, boundary.x, boundary.y, boundary.w,
+                           boundary.h);
+        end
+    end,
+
+    drawLevelBoundary = function(self)
+        love.graphics.setColor(1, 1, 1, 0.5);
+        for _, boundary in pairs(self.boundaries) do
+            love.graphics.rectangle("fill", boundary.x, boundary.y, boundary.w,
+                                    boundary.h);
+        end
+        love.graphics.setColor(1, 1, 1);
     end,
 
     generateLevelMap = function(self)
