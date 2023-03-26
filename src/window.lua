@@ -6,6 +6,7 @@ window.VIRTUAL_WIDTH = 384;
 window.VIRTUAL_HEIGHT = 304;
 window.TITLE = "Heart of Woodland ♥";
 window.ICON_PATH = 'sprites/boy-icon-2.png';
+window.WINDOW_LIMITS_WIDTH_RATIO = 1 / 6;
 
 window.options = {resizable = true, fullscreen = false, vsync = true}
 
@@ -19,9 +20,12 @@ end
 function window:drawWindowLimits()
     local windowWidth = love.graphics.getWidth();
     local windowHeight = love.graphics.getHeight();
-    love.graphics.setColor(0, 0, 0);
-    love.graphics.rectangle("fill", 0, 0, windowWidth / 6, windowHeight);
-    love.graphics.rectangle("fill", windowWidth - windowWidth / 6, 0,
+    love.graphics.setColor(0, 0, 0, 1);
+    love.graphics.rectangle("fill", 0, 0,
+                            windowWidth * window.WINDOW_LIMITS_WIDTH_RATIO,
+                            windowHeight);
+    love.graphics.rectangle("fill", windowWidth - windowWidth *
+                                window.WINDOW_LIMITS_WIDTH_RATIO, 0,
                             windowWidth / 2, windowHeight);
     love.graphics.setColor(1, 1, 1);
 end

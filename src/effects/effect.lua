@@ -11,8 +11,8 @@ function effects:spawn(type, x, y, args)
     effect.y = y
     effect.rot = 0
     effect.dead = false
-    effect.scaleX = 2
-    effect.scaleY = 2
+    effect.scaleX = 3
+    effect.scaleY = 3
     effect.layer = 1
     effect.type = type
 

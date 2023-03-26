@@ -14,6 +14,7 @@ local GameSettings = require("src.gameSettings")
 local Enemy = require('src.enemy')
 local EnemyManager = require('src.enemyManager')
 local SpriteManager = require("src.spriteManager")
+local GameCamera = require("src.camera")
 
 local effects = require('src.effects.effect')
 
@@ -33,9 +34,8 @@ local function drawDebug()
     love.graphics.printf(statistics, 0, 580, 790, 'right')
 end
 
-local level = Level(50, 30, world, player, 2, Wall, Enemy, WallManager,
+local level = Level(100, 70, world, player, 5, Wall, Enemy, WallManager,
                     EnemyManager)
-local camera;
 
 function love.load()
     print("Heart of Woodland \003")
@@ -43,7 +43,7 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setLineWidth(2)
 
-    camera = Camera(player.positionX, player.positionY, 1)
+    GameCamera:load(player);
 
     window:setUpWindow(push)
 
@@ -60,8 +60,9 @@ function love.update(dt)
     Timer.update(dt)
     player:update(dt)
 
-    local dx, dy = player.positionX - camera.x, player.positionY - camera.y
-    camera:move(dx / 2, dy / 2)
+    GameCamera:update(dt, player, level)
+    -- local dx, dy = player.positionX - GameCamera.camera.x, player.positionY - GameCamera.camera.y
+    -- GameCamera.camera:move(dx / 2, dy / 2)
 
     level.enemyManager:updateEnemies(dt)
 
@@ -69,7 +70,7 @@ function love.update(dt)
 end
 
 function love.draw()
-    camera:attach()
+    GameCamera.camera:attach()
 
     love.graphics.setBackgroundColor(GameSettings:getBlueColor(1))
 
@@ -83,15 +84,21 @@ function love.draw()
     player:render()
 
     effects:draw(0)
-    camera:detach()
+    GameCamera.camera:detach()
 
     window:drawWindowLimits();
 end
 
 function love.quit() print("Thanks for playing! Come back soon!") end
 
+function love.mousepressed(x, y, button)
+    if button == 1 then
+        player:attack()
+    end
+end
+
+
 function love.keypressed(key, scancode, isrepeat)
-    if key == "space" then player:attack() end
     if key == "escape" then love.event.quit() end
     if key == "backspace" then push:switchFullscreen(window.WINDOWS_WIDTH, window.WINDOWS_HEIGHT); end
 end
