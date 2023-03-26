@@ -7,25 +7,31 @@ local Wall = Class {
         self.collisionW = GameSettings.TILE_SIZE
         self.collisionH = GameSettings.TILE_SIZE
         self.world = world
-        self.positionX = positionX
-        self.positionY = positionY
+        self.collider = self.world:newRectangleCollider(positionX, positionY,
+                                                           self.collisionW,
+                                                           self.collisionH);
+        self.collider:setType('static');
+        self.collider:setCollisionClass("Wall");
+        self.collider:setFixedRotation(true);
+
     end,
 
     render = function(self)
         love.graphics.setColor(GameSettings:getBlueColor(0.65))
-        love.graphics.rectangle("fill", self.positionX, self.positionY,
+        love.graphics.rectangle("fill",
+                                self.collider:getX() - self.collisionW / 2,
+                                self.collider:getY() - self.collisionH / 2,
                                 self.collisionW, self.collisionH)
         love.graphics.setColor(GameSettings:getBlueColor(1))
-        love.graphics.rectangle("line", self.positionX, self.positionY,
+        love.graphics.rectangle("line",
+                                self.collider:getX() - self.collisionW / 2,
+                                self.collider:getY() - self.collisionH / 2,
                                 self.collisionW, self.collisionH)
 
         love.graphics.setColor(255, 255, 255)
     end,
 
-    load = function(self)
-        self.world:add(self, self.positionX, self.positionY, self.collisionW,
-                       self.collisionH)
-    end
+    load = function(self) end
 }
 
 return Wall

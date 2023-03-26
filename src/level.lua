@@ -14,7 +14,7 @@ local Level = Class {
 
         -- self.map = {
         --     {'.', '.', '.', '.', '.', '.', '.', '.'},
-        --     {'.', 'E', '.', '#', '.', '.', '.', '.'},
+        --     {'.', '.', '.', '#', '.', '.', '.', '.'},
         --     {'.', '.', '.', '#', '.', '.', '.', '.'},
         --     {'.', '.', '.', '#', '.', '.', '.', '.'},
         --     {'.', '.', '.', '#', '.', '.', 'P', '.'},
@@ -32,8 +32,8 @@ local Level = Class {
         self.EnemyManager = EnemyManager
         self.wallManager, self.enemyManager = self:processLevelMap()
 
-        self.enemyManager:generateEnemyPaths(self.player, self.levelW,
-                                             self.levelH, self.map);
+        -- self.enemyManager:generateEnemyPaths(self.player, self.levelW,
+        --                                      self.levelH, self.map);
 
         self.boundaries = self:initBoundaries();
     end,
@@ -169,10 +169,10 @@ local Level = Class {
                 if self.map[x][y] == '#' then
                     table.insert(walls, self.Wall(x * GameSettings.TILE_SIZE,
                                                   y * GameSettings.TILE_SIZE,
-                                                  self.world))
-                elseif self.map[x][y] == 'P' then
-                    self.player.positionX = x * GameSettings.TILE_SIZE
-                    self.player.positionY = y * GameSettings.TILE_SIZE
+                                                  self.world));
+                -- elseif self.map[x][y] == 'P' then
+                --     self.player.collider:setX(x * GameSettings.TILE_SIZE);
+                --     self.player.collider:setY(y * GameSettings.TILE_SIZE);
                 elseif self.map[x][y] == 'E' then
                     table.insert(enemies, self.Enemy(x * GameSettings.TILE_SIZE,
                                                      y * GameSettings.TILE_SIZE,

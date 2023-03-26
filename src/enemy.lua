@@ -6,48 +6,47 @@ local GameSettings = require("src.gameSettings")
 
 Enemy = Class {
     init = function(self, positionX, positionY, world)
-        self.type = 'enemy';
-        self.state = 0;
+        self.world = world;
 
         self.speed = GameSettings.PLAYER_SPEED / 2;
-        self.positionX = positionX;
-        self.positionY = positionY;
         self.collisionW = GameSettings.TILE_SIZE;
         self.collisionH = GameSettings.TILE_SIZE;
+
+        self.type = 'enemy';
+
+        self.state = 0;
 
         self.path = nil;
         self.currentPoint = 1;
 
-        self.world = world;
+        self.collider = self.world:newBSGRectangleCollider(positionX, positionY,
+                                                           self.collisionW,
+                                                           self.collisionH, 10);
+        self.collider:setCollisionClass("Enemy")
+        self.collider:setFixedRotation(true)
     end,
 
-    load = function(self)
-        self.world:add(self, self.positionX, self.positionY, self.collisionW,
-                       self.collisionH);
-    end,
+    load = function(self) end,
 
     render = function(self)
         if self.state == -1 then return end
         -- self:renderPath();
 
         love.graphics.setColor(GameSettings:getPinkColor(0.75));
-        love.graphics.rectangle('fill', self.positionX, self.positionY,
+        love.graphics.rectangle('fill',
+                                self.collider:getX() - self.collisionW / 2,
+                                self.collider:getY() - self.collisionH / 2,
                                 self.collisionW, self.collisionH);
         love.graphics.setColor(GameSettings:getPinkColor(1));
-        love.graphics.rectangle('line', self.positionX, self.positionY,
+        love.graphics.rectangle('line',
+                                self.collider:getX() - self.collisionW / 2,
+                                self.collider:getY() - self.collisionH / 2,
                                 self.collisionW, self.collisionH);
 
         love.graphics.setColor(255, 255, 255);
     end,
 
     update = function(self, dt)
-        local filter = function(item, other)
-            if other.type == 'enemy' or other.type == 'player' then
-                return 'cross'
-            end
-            return 'slide'
-        end
-
         if self.state == -1 then return end
 
         if self.path ~= nil then
@@ -55,7 +54,7 @@ Enemy = Class {
 
             if not targetPoint then return end
 
-            if self.positionX == targetPoint.x and self.positionY ==
+            if self.collider:getX() == targetPoint.x and self.collider:getY() ==
                 targetPoint.y then
                 -- Move on to the next point in the path
                 self.currentPoint = self.currentPoint + 1
@@ -67,17 +66,17 @@ Enemy = Class {
             end
 
             -- Calculate the distance and direction to the target point
-            local dx = targetPoint.x - self.positionX
-            local dy = targetPoint.y - self.positionY
-            local distance = math.sqrt(dx * dx + dy * dy)
-            local direction = math.atan2(dy, dx)
+            local dx = targetPoint.x - self.collider:getX() + self.collisionW /
+                           2
+            local dy = targetPoint.y - self.collider:getY() + self.collisionH /
+                           2
 
             -- Move the enemy towards the target point
-            local moveDistance = math.min(self.speed * dt, distance)
-            self.positionX, self.positionY, _, _ =
-                self.world:move(self, self.positionX + moveDistance *
-                                    math.cos(direction), self.positionY +
-                                    moveDistance * math.sin(direction), filter)
+            -- local moveDistance = math.min(1 * dt, distance)
+            self.collider:setLinearVelocity(dx * 10, dy * 10)
+            -- self.collider:setLinearVelocity(
+            --     self.collider:getX() + moveDistance * math.cos(direction),
+            --     self.collider:getY() + moveDistance * math.sin(direction))
         end
     end,
 
@@ -100,9 +99,10 @@ Enemy = Class {
     end,
 
     canSeePlayer = function(self, player)
-        local playerDistance = utils:getDistance(self.positionX, self.positionY,
-                                                 player.positionX,
-                                                 player.positionY)
+        local playerDistance = utils:getDistance(self.collider:getX(),
+                                                 self.collider:getY(),
+                                                 player.collider:getX(),
+                                                 player.collider:getY())
         if playerDistance < player.activeRadius then return true end
         return false
     end,
@@ -116,12 +116,12 @@ Enemy = Class {
         if not self:canSeePlayer(player) then goto continue end
         local pathPoints = {}
         local path = Luastar:find(levelW, levelH, {
-            x = math.floor(self.positionX / GameSettings.TILE_SIZE),
-            y = math.floor(self.positionY / GameSettings.TILE_SIZE)
+            x = math.floor(self.collider:getX() / GameSettings.TILE_SIZE),
+            y = math.floor(self.collider:getY() / GameSettings.TILE_SIZE)
         }, {
-            x = math.floor(player.positionX / GameSettings.TILE_SIZE),
-            y = math.floor(player.positionY / GameSettings.TILE_SIZE)
-        }, positionIsOpenFunc, true, true)
+            x = math.floor(player.collider:getX() / GameSettings.TILE_SIZE),
+            y = math.floor(player.collider:getY() / GameSettings.TILE_SIZE)
+        }, positionIsOpenFunc, true)
         if path then
             for i, p in ipairs(path) do
                 if i == 1 then goto skip_first end
