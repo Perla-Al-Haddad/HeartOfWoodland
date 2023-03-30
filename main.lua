@@ -40,8 +40,8 @@ function love.load()
 
     createCollisionClasses()
 
-    player = Player(200, 200, world, sword);
-    level = Level(50, 50, world, player, 2, Wall, Enemy, WallManager,
+    player = Player(window.WINDOWS_WIDTH/2, window.WINDOWS_HEIGHT/2, world, sword);
+    level = Level(60, 45, world, player, 10, Wall, Enemy, WallManager,
                   EnemyManager)
     GameCamera:load(player);
 

@@ -13,7 +13,6 @@ local Wall = Class {
         self.collider:setType('static');
         self.collider:setCollisionClass("Wall");
         self.collider:setFixedRotation(true);
-
     end,
 
     render = function(self)

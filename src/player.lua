@@ -45,21 +45,28 @@ Player = Class {
             return
         end
 
-        local dx, dy = 0, 0
+        local dirX = 0;
+        local dirY = 0;
         if (love.keyboard.isDown('right') or love.keyboard.isDown("d")) then
-            dx = speed * dt
+            dirX = 1
         elseif love.keyboard.isDown('left') or love.keyboard.isDown("a") then
-            dx = -speed * dt
+            dirX = -1
         end
         if love.keyboard.isDown('down') or love.keyboard.isDown("s") then
-            dy = speed * dt
+            dirY = 1
         elseif love.keyboard.isDown('up') or love.keyboard.isDown("w") then
-            dy = -speed * dt
+            dirY = -1
         end
 
-        self.collider:setLinearVelocity(dx, dy);
+        local vec = vector(dirX, dirY):normalized() * self.speed;
+        if vec.x ~= 0 or vec.y ~= 0 then
+            self.collider:setLinearVelocity(vec.x, vec.y)
+        else
+            self.collider:setLinearVelocity(0, 0)
+        end
+        -- self.collider:setLinearVelocity(dx, dy);
 
-        if dx ~= 0 or dy ~= 0 then
+        if dirX ~= 0 or dirY ~= 0 then
             self.state = 0.5 -- moving
         else
             self.state = 0
@@ -167,13 +174,18 @@ Player = Class {
 
         -- love.graphics.polygon("fill", polygon);
 
-        -- local hitEnemies = world:queryPolygonArea(polygon, {'Enemy'})
-        -- for _,e in ipairs(hitEnemies) do
-        --     local knockbackDir = getPlayerToSelfVector(e:getX(), e:getY())
-        --     e.parent:hit(1, knockbackDir, 0.1)
-        -- end
-    end
+        local hitEnemies = self.world:queryPolygonArea(polygon, {'Enemy'})
+        for _, e in ipairs(hitEnemies) do
+            print("col");
+            -- local knockbackDir = self:getPlayerToSelfVector(e:getX(), e:getY())
+            -- e.parent:hit(1, knockbackDir, 0.1)
+        end
+    end,
 
+    getPlayerToSelfVector = function(self, x, y)
+        return
+            vector(x - self.collider:getX(), y - self.collider:getY()):normalized()
+    end
 }
 
 return Player
