@@ -1,0 +1,76 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "level1.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "decor_8x8.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 8,
+            "scaleInEditor": 1
+        },
+        "grass.tsx": {
+            "scaleInDock": 3,
+            "scaleInEditor": 1
+        },
+        "level1.tmx": {
+            "scale": 2,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 281.75,
+                "y": 201.75
+            }
+        },
+        "level1.tmx#decor_8x8": {
+            "scaleInDock": 1
+        },
+        "level1.tmx#grass": {
+            "scaleInDock": 1
+        },
+        "level1.tmx#plains": {
+            "scaleInDock": 1
+        },
+        "level1.tmx#walls": {
+            "scaleInDock": 2
+        },
+        "plains.tsx": {
+            "scaleInDock": 3,
+            "scaleInEditor": 1
+        },
+        "walls.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        }
+    },
+    "last.exportedFilePath": "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps",
+    "last.imagePath": "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/assets/sprites/tilesets/walls",
+    "map.lastUsedExportFilter": "Lua files (*.lua)",
+    "map.lastUsedFormat": "tmx",
+    "map.renderOrder": null,
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "openFiles": [
+        "grass.tsx",
+        "plains.tsx",
+        "level1.tmx",
+        "decor_8x8.tsx",
+        "walls.tsx"
+    ],
+    "project": "level1.tiled-project",
+    "recentFiles": [
+        "grass.tsx",
+        "plains.tsx",
+        "walls.tsx",
+        "decor_8x8.tsx",
+        "level1.tmx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

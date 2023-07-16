@@ -1,0 +1,84 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "village.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/decor_16x16.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/decor_8x8.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/grass.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/plains.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/walls.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "village.tmx": {
+            "scale": 23,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 369.78260869565213,
+                "y": 197.7173913043478
+            }
+        },
+        "village.tmx#decor_16x16": {
+            "scaleInDock": 1
+        },
+        "village.tmx#grass": {
+            "scaleInDock": 1
+        },
+        "village.tmx#plains": {
+            "scaleInDock": 1
+        },
+        "village.tmx#walls": {
+            "scaleInDock": 1
+        }
+    },
+    "last.exportedFilePath": "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/village",
+    "last.imagePath": "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/assets/sprites/tilesets",
+    "map.height": 40,
+    "map.lastUsedExportFilter": "Lua files (*.lua)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 50,
+    "openFiles": [
+        "village.tmx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/grass.tsx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/plains.tsx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/walls.tsx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/decor_16x16.tsx"
+    ],
+    "project": "village.tiled-project",
+    "recentFiles": [
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/decor_16x16.tsx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/walls.tsx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/plains.tsx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/grass.tsx",
+        "village.tmx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/decor_8x8.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
