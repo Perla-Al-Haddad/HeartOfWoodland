@@ -50,29 +50,42 @@ Player = Class {
 
     load = function(self) end,
 
-    addToBuffer = function(self, action)
-        table.insert(self.buffer, {action, 0.25})
-    end,
-
     update = function(self, dt, effectsHandler)
         self.anim:update(dt)
 
-        self:handlePlayerMovement(dt)
-        self:handleSwordSwing(dt, effectsHandler)
+        self:_handlePlayerMovement(dt)
+        self:_handleSwordSwing(dt, effectsHandler)
     end,
 
-    swingSword = function(self, camera)
+    draw = function(self)
+        local px, py = self:_getCenterPosition()
+
+        love.graphics.setColor(1, 1, 1, 1)
+
+        self.anim:draw(self.playerSheet, px, py, nil, self.collider.dirX, 1, 0,
+                       0)
+    end,
+    
+    useItem = function(self, item, camera)
+        if item == "sword" then self:_swingSword(camera) end
+    end
+
+    _addToBuffer = function(self, action)
+        table.insert(self.buffer, {action, 0.25})
+    end,
+
+    _swingSword = function(self, camera)
 
         -- The player can only swing their sword if the player.state is 0 (regular gameplay)
         if self.state ~= "default" then
-            self:addToBuffer("sword")
+            self:_addToBuffer("sword")
             return
         end
 
         player.comboCount = player.comboCount + 1
 
-        self.attackDir = self:toMouseVector(camera)
-        self:setDirFromVector(self.attackDir)
+        self.attackDir = self:_toMouseVector(camera)
+        self:_setDirFromVector(self.attackDir)
 
         self.state = "swing"
 
@@ -86,7 +99,7 @@ Player = Class {
         self.animTimer = 0.075
     end,
 
-    handleSwordSwing = function(self, dt, effectsHandler)
+    _handleSwordSwing = function(self, dt, effectsHandler)
         if not (self.state == 'swing' or self.state == 'swinging') then
             return
         end
@@ -115,7 +128,7 @@ Player = Class {
         end
     end,
 
-    handlePlayerMovement = function(self, dt)
+    _handlePlayerMovement = function(self, dt)
         if self.state ~= 'default' then return end
 
         self.prevDirX = self.dirX
@@ -163,7 +176,7 @@ Player = Class {
 
     end,
 
-    getCenterPosition = function(self)
+    _getCenterPosition = function(self)
         local px, py = self.collider:getPosition()
         px = px - self.width / 2
         py = py - self.height / 2 - self.collisionHeight
@@ -171,16 +184,7 @@ Player = Class {
         return px, py
     end,
 
-    draw = function(self)
-        local px, py = self:getCenterPosition()
-
-        love.graphics.setColor(1, 1, 1, 1)
-
-        self.anim:draw(self.playerSheet, px, py, nil, self.collider.dirX, 1, 0,
-                       0)
-    end,
-
-    setDirFromVector = function(self, vec)
+    _setDirFromVector = function(self, vec)
         local rad = math.atan2(vec.y, vec.x)
         if rad >= self.rotateMargin * -1 and rad < math.pi / 2 then
             self.dirX = 1
@@ -198,16 +202,12 @@ Player = Class {
         end
     end,
 
-    toMouseVector = function(self, camera)
-        local px, py = self:getCenterPosition()
+    _toMouseVector = function(self, camera)
+        local px, py = self:_getCenterPosition()
 
         local mx, my = camera:mousePosition()
         return Vector.new(mx - px, my - py):normalized()
     end,
-
-    useItem = function(self, key, camera)
-        if key == "sword" then self:swingSword(camera) end
-    end
 
 }
 
