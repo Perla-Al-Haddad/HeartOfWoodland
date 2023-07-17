@@ -31,6 +31,4 @@ SwingEffect = Class {
     end
 }
 
-function setDead(effect) effect.dead = true end
-
 return SwingEffect
