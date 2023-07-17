@@ -2,7 +2,7 @@ local Vector = require("lib.hump.vector")
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
 
-require("src.effects")
+local SwingEffect = require("src.Effects.SwingEffect")
 
 Player = Class {
     init = function(self, positionX, positionY, width, height, collisionWidth,
@@ -30,6 +30,7 @@ Player = Class {
                                                       self.collisionHeight, 3, {
             collision_class = "Player"
         })
+        -- self.collider:setLinearDamping(20)
 
         self.playerSheet = love.graphics.newImage(
                                '/assets/sprites/characters/player.png')
@@ -53,11 +54,11 @@ Player = Class {
         table.insert(self.buffer, {action, 0.25})
     end,
 
-    update = function(self, dt)
+    update = function(self, dt, effectsHandler)
         self.anim:update(dt)
-        
+
         self:handlePlayerMovement(dt)
-        self:handleSwordSwing(dt)
+        self:handleSwordSwing(dt, effectsHandler)
     end,
 
     swingSword = function(self, camera)
@@ -85,7 +86,7 @@ Player = Class {
         self.animTimer = 0.075
     end,
 
-    handleSwordSwing = function(self, dt) 
+    handleSwordSwing = function(self, dt, effectsHandler)
         if not (self.state == 'swing' or self.state == 'swinging') then
             return
         end
@@ -103,8 +104,11 @@ Player = Class {
                 self.state = "swinging"
                 -- animTimer for finished sword swing stance
                 self.animTimer = 0.25
-                effects:spawn("slice", self.collider:getX(),
-                              self.collider:getY() + 1, self.attackDir)
+                local swingEffect = SwingEffect(self.collider:getX(),
+                                                  self.collider:getY() + 1,
+                                                  self.attackDir,
+                                                  self.comboCount)
+                effectsHandler:addEffect(swingEffect)
             elseif self.state == "swinging" then
                 self.state = "default"
             end
