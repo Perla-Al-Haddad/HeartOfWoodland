@@ -68,7 +68,7 @@ Player = Class {
     
     useItem = function(self, item, camera)
         if item == "sword" then self:_swingSword(camera) end
-    end
+    end,
 
     _addToBuffer = function(self, action)
         table.insert(self.buffer, {action, 0.25})
