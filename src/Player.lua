@@ -65,7 +65,7 @@ Player = Class {
         self.anim:draw(self.playerSheet, px, py, nil, self.collider.dirX, 1, 0,
                        0)
     end,
-    
+
     useItem = function(self, item, camera)
         if item == "sword" then self:_swingSword(camera) end
     end,
@@ -75,14 +75,13 @@ Player = Class {
     end,
 
     _swingSword = function(self, camera)
-
-        -- The player can only swing their sword if the player.state is 0 (regular gameplay)
-        if self.state ~= "default" then
+        canSwing = self.state ~= "default"
+        if canSwing then
             self:_addToBuffer("sword")
             return
         end
 
-        player.comboCount = player.comboCount + 1
+        self.comboCount = self.comboCount + 1
 
         self.attackDir = self:_toMouseVector(camera)
         self:_setDirFromVector(self.attackDir)
@@ -100,9 +99,8 @@ Player = Class {
     end,
 
     _handleSwordSwing = function(self, dt, effectsHandler)
-        if not (self.state == 'swing' or self.state == 'swinging') then
-            return
-        end
+        isNotSwinging = not (self.state == 'swing' or self.state == 'swinging')
+        if isNotSwinging then return end
 
         self.animTimer = self.animTimer - dt
 
@@ -112,19 +110,19 @@ Player = Class {
             self.collider:setLinearVelocity(0, 0)
         end
 
-        if self.animTimer < 0 then
-            if self.state == "swing" then
-                self.state = "swinging"
-                -- animTimer for finished sword swing stance
-                self.animTimer = 0.25
-                local swingEffect = SwingEffect(self.collider:getX(),
-                                                  self.collider:getY() + 1,
-                                                  self.attackDir,
-                                                  self.comboCount)
-                effectsHandler:addEffect(swingEffect)
-            elseif self.state == "swinging" then
-                self.state = "default"
-            end
+        stillSwinging = not self.animTimer < 0
+        if stillSwinging then return end
+
+        if self.state == "swing" then
+            self.state = "swinging"
+            -- animTimer for finished sword swing stance
+            self.animTimer = 0.25
+            local swingEffect = SwingEffect(self.collider:getX(),
+                                            self.collider:getY() + 1,
+                                            self.attackDir, self.comboCount)
+            effectsHandler:addEffect(swingEffect)
+        elseif self.state == "swinging" then
+            self.state = "default"
         end
     end,
 
@@ -207,7 +205,7 @@ Player = Class {
 
         local mx, my = camera:mousePosition()
         return Vector.new(mx - px, my - py):normalized()
-    end,
+    end
 
 }
 
