@@ -26,8 +26,8 @@ SwingEffect = Class {
 
         self.layer = 0
 
-        self.positionX = self.positionX + self.attackDir.x * 15
-        self.positionY = self.positionY + self.attackDir.y * 15 - 4
+        self.positionX = self.positionX + self.attackDir.x * 25
+        self.positionY = self.positionY + self.attackDir.y * 25
     end
 }
 

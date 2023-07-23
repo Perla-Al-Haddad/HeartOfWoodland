@@ -12,7 +12,7 @@ Player = Class {
         self.dirY = 1
         self.prevDirX = 1
         self.prevDirY = 1
-        self.speed = 120
+        self.speed = 140
 
         self.state = "default"
 
@@ -105,12 +105,12 @@ Player = Class {
         self.animTimer = self.animTimer - dt
 
         if self.state == "swing" then
-            self.collider:setLinearVelocity((self.attackDir * 90):unpack())
+            self.collider:setLinearVelocity((self.attackDir * 200):unpack())
         elseif self.state == "swinging" then
-            self.collider:setLinearVelocity(0, 0)
+            self.collider:setLinearDamping(35)
         end
 
-        stillSwinging = not self.animTimer < 0
+        stillSwinging = not (self.animTimer < 0)
         if stillSwinging then return end
 
         if self.state == "swing" then
@@ -118,7 +118,7 @@ Player = Class {
             -- animTimer for finished sword swing stance
             self.animTimer = 0.25
             local swingEffect = SwingEffect(self.collider:getX(),
-                                            self.collider:getY() + 1,
+                                            self.collider:getY(),
                                             self.attackDir, self.comboCount)
             effectsHandler:addEffect(swingEffect)
         elseif self.state == "swinging" then
@@ -128,6 +128,8 @@ Player = Class {
 
     _handlePlayerMovement = function(self, dt)
         if self.state ~= 'default' then return end
+
+        self.collider:setLinearDamping(0)
 
         self.prevDirX = self.dirX
         self.prevDirY = self.dirY
