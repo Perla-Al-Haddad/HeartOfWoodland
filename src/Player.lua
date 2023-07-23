@@ -6,7 +6,7 @@ local SwingEffect = require("src.Effects.SwingEffect")
 
 Player = Class {
     init = function(self, positionX, positionY, width, height, collisionWidth,
-                    collisionHeight, world)
+                    collisionHeight, offsetHeight, world)
         self.dir = "down"
         self.dirX = 1
         self.dirY = 1
@@ -17,7 +17,9 @@ Player = Class {
         self.state = "default"
 
         self.collisionWidth = collisionWidth
-        self.collisionHeight = collisionWidth
+        self.collisionHeight = collisionHeight
+
+        self.offsetHeight = offsetHeight
 
         self.width = width
         self.height = height
@@ -32,18 +34,18 @@ Player = Class {
         })
         -- self.collider:setLinearDamping(20)
 
-        self.playerSheet = love.graphics.newImage(
+        self.animationSheet = love.graphics.newImage(
                                '/assets/sprites/characters/player.png')
         self.grid = anim8.newGrid(self.width, self.height,
-                                  self.playerSheet:getWidth(),
-                                  self.playerSheet:getHeight())
+                                  self.animationSheet:getWidth(),
+                                  self.animationSheet:getHeight())
         self.animations = {}
         self.animations.idle = anim8.newAnimation(self.grid('1-6', 2), 0.25)
         self.animations.walk = anim8.newAnimation(self.grid('1-6', 5), 0.12)
         self.animations.swing = anim8.newAnimation(self.grid('4-4', 8), 0.15)
 
-        self.anim = self.animations.idle
-        self.animTimer = 0
+        self.currentAnimation = self.animations.idle
+        self.animationTimer = 0
 
         self.buffer = {}
     end,
@@ -51,7 +53,7 @@ Player = Class {
     load = function(self) end,
 
     update = function(self, dt, effectsHandler)
-        self.anim:update(dt)
+        self.currentAnimation:update(dt)
 
         self:_handlePlayerMovement(dt)
         self:_handleSwordSwing(dt, effectsHandler)
@@ -62,7 +64,7 @@ Player = Class {
 
         love.graphics.setColor(1, 1, 1, 1)
 
-        self.anim:draw(self.playerSheet, px, py, nil, self.collider.dirX, 1, 0,
+        self.currentAnimation:draw(self.animationSheet, px, py, nil, self.collider.dirX, 1, 0,
                        0)
     end,
 
@@ -75,7 +77,7 @@ Player = Class {
     end,
 
     _swingSword = function(self, camera)
-        canSwing = self.state ~= "default"
+        canSwing = (self.state == "swing" or self.state == "swinging")
         if canSwing then
             self:_addToBuffer("sword")
             return
@@ -88,21 +90,21 @@ Player = Class {
 
         self.state = "swing"
 
-        self.anim = self.animations.swing
-        if self.dirX == -1 and not self.anim.flippedH then
-            self.anim:flipH()
-        elseif self.dirX == 1 and self.anim.flippedH then
-            self.anim:flipH()
+        self.currentAnimation = self.animations.swing
+        if self.dirX == -1 and not self.currentAnimation.flippedH then
+            self.currentAnimation:flipH()
+        elseif self.dirX == 1 and self.currentAnimation.flippedH then
+            self.currentAnimation:flipH()
         end
 
-        self.animTimer = 0.075
+        self.animationTimer = 0.075
     end,
 
     _handleSwordSwing = function(self, dt, effectsHandler)
         isNotSwinging = not (self.state == 'swing' or self.state == 'swinging')
         if isNotSwinging then return end
 
-        self.animTimer = self.animTimer - dt
+        self.animationTimer = self.animationTimer - dt
 
         if self.state == "swing" then
             self.collider:setLinearVelocity((self.attackDir * 200):unpack())
@@ -110,13 +112,13 @@ Player = Class {
             self.collider:setLinearDamping(35)
         end
 
-        stillSwinging = not (self.animTimer < 0)
+        stillSwinging = not (self.animationTimer < 0)
         if stillSwinging then return end
 
         if self.state == "swing" then
             self.state = "swinging"
-            -- animTimer for finished sword swing stance
-            self.animTimer = 0.25
+            -- animationTimer for finished sword swing stance
+            self.animationTimer = 0.25
             local swingEffect = SwingEffect(self.collider:getX(),
                                             self.collider:getY(),
                                             self.attackDir, self.comboCount)
@@ -163,15 +165,15 @@ Player = Class {
         self.collider:setLinearVelocity(vec.x, vec.y)
 
         if vec.x ~= 0 or vec.y ~= 0 then
-            self.anim = self.animations.walk
+            self.currentAnimation = self.animations.walk
         else
-            self.anim = self.animations.idle
+            self.currentAnimation = self.animations.idle
         end
 
-        if self.dirX == -1 and not self.anim.flippedH then
-            self.anim:flipH()
-        elseif self.dirX == 1 and self.anim.flippedH then
-            self.anim:flipH()
+        if self.dirX == -1 and not self.currentAnimation.flippedH then
+            self.currentAnimation:flipH()
+        elseif self.dirX == 1 and self.currentAnimation.flippedH then
+            self.currentAnimation:flipH()
         end
 
     end,
@@ -179,7 +181,7 @@ Player = Class {
     _getCenterPosition = function(self)
         local px, py = self.collider:getPosition()
         px = px - self.width / 2
-        py = py - self.height / 2 - self.collisionHeight
+        py = py - self.height / 2 - self.offsetHeight
 
         return px, py
     end,
