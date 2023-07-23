@@ -7,7 +7,8 @@ local windfield = require("lib/windfield");
 local Player = require("src.Player");
 local Camera = require("src.Camera");
 local Wall = require("src.Wall");
-local EffectsHandler = require("src.EffectsHandler")
+local EffectsHandler = require("src.EffectsHandler");
+local Enemy = require("src.Enemy");
 
 function love.load()
     love.graphics.setBackgroundColor(26 / 255, 26 / 255, 26 / 255);
@@ -16,8 +17,11 @@ function love.load()
 
     world = windfield.newWorld(0, 0, false);
 
-    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 48, 48, 12, 12, world);
-    camera = Camera(CAMERA_SCALE, player.collider:getX(), player.collider:getY());
+    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 48, 48, 12, 12, 12, world);
+    enemy = Enemy(TILE_SIZE * 32, TILE_SIZE * 32, 32, 32, 10, 9, 2, world);
+
+    camera =
+        Camera(CAMERA_SCALE, player.collider:getX(), player.collider:getY());
 
     gameMap = sti("maps/village/village.lua");
 
@@ -33,6 +37,7 @@ end
 function love.update(dt)
     world:update(dt);
     player:update(dt, effectsHandler);
+    enemy:update(dt)
     camera:update(dt, player, gameMap);
     gameMap:update(dt);
     effectsHandler:updateEffects(dt);
@@ -43,17 +48,18 @@ function love.draw()
 
     camera.camera:attach();
 
-        gameMap:drawLayer(gameMap.layers["ground"]);
-        gameMap:drawLayer(gameMap.layers["mountains"]);
-        gameMap:drawLayer(gameMap.layers["walls"]);
-        gameMap:drawLayer(gameMap.layers["decor"]);
+    gameMap:drawLayer(gameMap.layers["ground"]);
+    gameMap:drawLayer(gameMap.layers["mountains"]);
+    gameMap:drawLayer(gameMap.layers["walls"]);
+    gameMap:drawLayer(gameMap.layers["decor"]);
 
-        player:draw();
-        effectsHandler:drawEffects(0);
+    enemy:draw();
+    player:draw();
+    effectsHandler:drawEffects(0);
 
-        gameMap:drawLayer(gameMap.layers["upperWalls"]);
+    gameMap:drawLayer(gameMap.layers["upperWalls"]);
 
-        -- world:draw();
+    world:draw();
 
     camera.camera:detach();
 end
@@ -61,7 +67,5 @@ end
 function love.keypressed(key) if key == "escape" then love.event.quit(); end end
 
 function love.mousepressed(x, y, button)
-    if button == 1 then
-        player:useItem('sword', camera.camera)
-    end
+    if button == 1 then player:useItem('sword', camera.camera) end
 end
