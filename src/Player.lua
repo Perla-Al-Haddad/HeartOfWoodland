@@ -12,9 +12,9 @@ Player = Class {
     __includes = {Entity},
 
     init = function(self, positionX, positionY, width, height, speed,
-                    collisionWidth, collisionHeight, offsetHeight, world)
+                    collisionWidth, collisionHeight, heightOffset, world)
         Entity.init(self, positionX, positionY, width, height, speed, PLAYER_COLLISION_CLASS,
-                    collisionWidth, collisionHeight, offsetHeight,
+                    collisionWidth, collisionHeight, heightOffset,
                     PLAYER_SPRITE_SHEET_PATH, world)
 
         self.rotateMargin = 0.25

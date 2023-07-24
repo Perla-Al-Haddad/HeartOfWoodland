@@ -9,11 +9,11 @@ local ENEMY_COLLISION_CLASS = "Enemy"
 Enemy = Class {
     __includes = {Entity},
     init = function(self, positionX, positionY, width, height, speed,
-                    collisionWidth, collisionHeight, offsetHeight,
+                    collisionWidth, collisionHeight, heightOffset,
                     animationSheet, world)
         Entity.init(self, positionX, positionY, width, height, speed,
                     ENEMY_COLLISION_CLASS, collisionWidth, collisionHeight,
-                    offsetHeight, animationSheet, world)
+                    heightOffset, animationSheet, world)
 
         self.collider:setType('static')
 

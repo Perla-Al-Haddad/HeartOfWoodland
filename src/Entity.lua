@@ -5,7 +5,7 @@ local anim8 = require("lib.anim8.anim8")
 Entity = Class {
     init = function(self, positionX, positionY, width, height, speed,
                     collisionClass, collisionWidth, collisionHeight,
-                    offsetHeight, animationSheet, world)
+                    heightOffset, animationSheet, world)
         self.dir = "down"
         self.dirX = 1
         self.dirY = 1
@@ -18,7 +18,7 @@ Entity = Class {
         self.collisionWidth = collisionWidth
         self.collisionHeight = collisionHeight
 
-        self.offsetHeight = offsetHeight
+        self.heightOffset = heightOffset
 
         self.width = width
         self.height = height
@@ -64,7 +64,7 @@ Entity = Class {
     _getCenterPosition = function(self)
         local px, py = self.collider:getPosition()
         px = px - self.width / 2
-        py = py - self.height / 2 - self.offsetHeight
+        py = py - self.height / 2 - self.heightOffset
 
         return px, py
     end,
