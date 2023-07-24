@@ -2,70 +2,51 @@ local Vector = require("lib.hump.vector")
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
 
+local Entity = require("src.Entity")
 local SwingEffect = require("src.Effects.SwingEffect")
 
+local PLAYER_COLLISION_CLASS = "Player"
+local PLAYER_SPRITE_SHEET_PATH = "/assets/sprites/characters/player.png"
+
 Player = Class {
-    init = function(self, positionX, positionY, width, height, collisionWidth,
-                    collisionHeight, offsetHeight, world)
-        self.dir = "down"
-        self.dirX = 1
-        self.dirY = 1
-        self.prevDirX = 1
-        self.prevDirY = 1
-        self.speed = 140
+    __includes = {Entity},
 
-        self.state = "default"
-
-        self.collisionWidth = collisionWidth
-        self.collisionHeight = collisionHeight
-
-        self.offsetHeight = offsetHeight
-
-        self.width = width
-        self.height = height
+    init = function(self, positionX, positionY, width, height, speed,
+                    collisionWidth, collisionHeight, offsetHeight, world)
+        Entity.init(self, positionX, positionY, width, height, speed, PLAYER_COLLISION_CLASS,
+                    collisionWidth, collisionHeight, offsetHeight,
+                    PLAYER_SPRITE_SHEET_PATH, world)
 
         self.rotateMargin = 0.25
         self.comboCount = 0
-
-        self.collider = world:newBSGRectangleCollider(positionX, positionY,
-                                                      self.collisionWidth,
-                                                      self.collisionHeight, 3, {
-            collision_class = "Player"
-        })
-        -- self.collider:setLinearDamping(20)
-
-        self.animationSheet = love.graphics.newImage(
-                               '/assets/sprites/characters/player.png')
-        self.grid = anim8.newGrid(self.width, self.height,
-                                  self.animationSheet:getWidth(),
-                                  self.animationSheet:getHeight())
-        self.animations = {}
-        self.animations.idle = anim8.newAnimation(self.grid('1-6', 2), 0.25)
-        self.animations.walk = anim8.newAnimation(self.grid('1-6', 5), 0.12)
-        self.animations.swing = anim8.newAnimation(self.grid('4-4', 8), 0.15)
-
-        self.currentAnimation = self.animations.idle
-        self.animationTimer = 0
-
         self.buffer = {}
     end,
 
-    load = function(self) end,
+    _getAnimationsAbs = function(self)
+        animations = {}
+        animations.idle = anim8.newAnimation(self.grid('1-6', 2), 0.25)
+        animations.walk = anim8.newAnimation(self.grid('1-6', 5), 0.12)
+        animations.swing = anim8.newAnimation(self.grid('4-4', 8), 0.15)
 
-    update = function(self, dt, effectsHandler)
+        return animations
+    end,
+
+    _getCurrentAnimationAbs = function(self) return self.animations.idle end,
+
+    updateAbs = function(self, dt)
         self.currentAnimation:update(dt)
 
         self:_handlePlayerMovement(dt)
         self:_handleSwordSwing(dt, effectsHandler)
     end,
 
-    draw = function(self)
+    drawAbs = function(self)
         local px, py = self:_getCenterPosition()
 
         love.graphics.setColor(1, 1, 1, 1)
 
-        self.currentAnimation:draw(self.animationSheet, px, py, nil, self.collider.dirX, 1, 0,
-                       0)
+        self.currentAnimation:draw(self.animationSheet, px, py, nil,
+                                   self.collider.dirX, 1, 0, 0)
     end,
 
     useItem = function(self, item, camera)
@@ -176,39 +157,6 @@ Player = Class {
             self.currentAnimation:flipH()
         end
 
-    end,
-
-    _getCenterPosition = function(self)
-        local px, py = self.collider:getPosition()
-        px = px - self.width / 2
-        py = py - self.height / 2 - self.offsetHeight
-
-        return px, py
-    end,
-
-    _setDirFromVector = function(self, vec)
-        local rad = math.atan2(vec.y, vec.x)
-        if rad >= self.rotateMargin * -1 and rad < math.pi / 2 then
-            self.dirX = 1
-            self.dirY = 1
-        elseif (rad >= math.pi / 2 and rad < math.pi) or
-            (rad < (math.pi - self.rotateMargin) * -1) then
-            self.dirX = -1
-            self.dirY = 1
-        elseif rad < 0 and rad > math.pi / -2 then
-            self.dirX = 1
-            self.dirY = -1
-        else
-            self.dirX = -1
-            self.dirY = -1
-        end
-    end,
-
-    _toMouseVector = function(self, camera)
-        local px, py = self:_getCenterPosition()
-
-        local mx, my = camera:mousePosition()
-        return Vector.new(mx - px, my - py):normalized()
     end
 
 }

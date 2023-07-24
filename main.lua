@@ -17,8 +17,9 @@ function love.load()
 
     world = windfield.newWorld(0, 0, false);
 
-    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 48, 48, 12, 12, 12, world);
-    enemy = Enemy(TILE_SIZE * 32, TILE_SIZE * 32, 32, 32, 10, 9, 2, world);
+    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 48, 48, 140, 12, 12, 12,
+                    world);
+    enemy = Enemy(TILE_SIZE * 32, TILE_SIZE * 32, 32, 32, 60, 10, 9, 2, '/assets/sprites/characters/slime.png', world);
 
     camera =
         Camera(CAMERA_SCALE, player.collider:getX(), player.collider:getY());
@@ -36,8 +37,8 @@ end
 
 function love.update(dt)
     world:update(dt);
-    player:update(dt, effectsHandler);
-    enemy:update(dt)
+    player:updateAbs(dt, effectsHandler);
+    enemy:updateAbs(dt)
     camera:update(dt, player, gameMap);
     gameMap:update(dt);
     effectsHandler:updateEffects(dt);
@@ -53,8 +54,8 @@ function love.draw()
     gameMap:drawLayer(gameMap.layers["walls"]);
     gameMap:drawLayer(gameMap.layers["decor"]);
 
-    enemy:draw();
-    player:draw();
+    enemy:drawAbs();
+    player:drawAbs();
     effectsHandler:drawEffects(0);
 
     gameMap:drawLayer(gameMap.layers["upperWalls"]);

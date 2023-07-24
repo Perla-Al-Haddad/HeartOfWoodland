@@ -2,49 +2,20 @@ local Vector = require("lib.hump.vector")
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
 
+local Entity = require("src.Entity")
+
+local ENEMY_COLLISION_CLASS = "Enemy"
+
 Enemy = Class {
-    init = function(self, positionX, positionY, width, height, collisionWidth,
-                    collisionHeight, heightOffset, world)
-        self.dir = "down"
-        self.dirX = 1
-        self.dirY = 1
-        self.prevDirX = 1
-        self.prevDirY = 1
-        self.speed = 60
+    __includes = {Entity},
+    init = function(self, positionX, positionY, width, height, speed,
+                    collisionWidth, collisionHeight, offsetHeight,
+                    animationSheet, world)
+        Entity.init(self, positionX, positionY, width, height, speed,
+                    ENEMY_COLLISION_CLASS, collisionWidth, collisionHeight,
+                    offsetHeight, animationSheet, world)
 
-        self.state = "default"
-
-        self.collisionWidth = collisionWidth
-        self.collisionHeight = collisionHeight
-
-        self.heightOffset = heightOffset
-
-        self.width = width
-        self.height = height
-
-        self.rotateMargin = 0.25
-        self.comboCount = 0
-
-        self.collider = world:newBSGRectangleCollider(positionX, positionY,
-                                                      self.collisionWidth,
-                                                      self.collisionHeight, 3, {
-            collision_class = "Enemy"
-        })
         self.collider:setType('static')
-
-        self.animationSheet = love.graphics.newImage(
-                                  '/assets/sprites/characters/slime.png')
-        self.grid = anim8.newGrid(self.width, self.height,
-                                  self.animationSheet:getWidth(),
-                                  self.animationSheet:getHeight())
-
-        self.animations = {}
-        self.animations.idle = anim8.newAnimation(self.grid('1-4', 1), 0.25)
-
-        self.currentAnimation = self.animations.idle
-        self.animationTimer = 0
-
-        self.buffer = {}
 
         self.startX = positionX + 30
         self.startY = positionY + 30
@@ -56,16 +27,24 @@ Enemy = Class {
         self.wanderDir = Vector(1, 1)
     end,
 
-    update = function(self, dt)
+    _getAnimationsAbs = function(self)
+        animations = {}
+        animations.idle = anim8.newAnimation(self.grid('1-4', 1), 0.25)
+
+        return animations
+    end,
+
+    _getCurrentAnimationAbs = function(self) return self.animations.idle end,
+
+    updateAbs = function(self, dt)
         self.currentAnimation:update(dt);
         self:_wander(dt);
     end,
 
-    draw = function(self)
+    drawAbs = function(self)
         local px, py = self:_getCenterPosition()
 
         love.graphics.setColor(1, 1, 1, 1)
-
         self.currentAnimation:draw(self.animationSheet, px, py, nil,
                                    self.collider.dirX, 1, 0, 0)
     end,
@@ -74,8 +53,6 @@ Enemy = Class {
         canWander = (self.state ~= "wandering-moving" or self.state ~=
                         "wandering-stopped")
         if not canWander then return end
-
-        -- print(canWander)
 
         if self.wanderTimer > 0 then
             self.wanderTimer = self.wanderTimer - dt
@@ -87,7 +64,7 @@ Enemy = Class {
         if self.wanderTimer < 0 then
             self.state = "wandering-moving"
             self.wanderTimer = 0
-            
+
             local ex = self.collider:getX()
             local ey = self.collider:getY()
 
@@ -118,20 +95,8 @@ Enemy = Class {
                 self.wanderTimer = 1 + math.random(0.1, 0.8)
             end
         end
-    end,
-
-    _distanceBetween = function(self, x1, y1, x2, y2)
-        return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
-    end,
-
-    _getCenterPosition = function(self)
-        local px, py = self.collider:getPosition()
-        px = px - self.width / 2
-        py = py - self.height / 2 - self.heightOffset
-
-        return px, py
     end
 
 }
 
-return Enemy;
+return Enemy
