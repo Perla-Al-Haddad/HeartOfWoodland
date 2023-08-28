@@ -17,7 +17,7 @@ function love.load()
 
     world = windfield.newWorld(0, 0, false);
 
-    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 48, 48, 140, 12, 12, 12,
+    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 12,
                     world);
     enemy = Enemy(TILE_SIZE * 32, TILE_SIZE * 32, 32, 32, 60, 10, 9, 2, '/assets/sprites/characters/slime.png', world);
 
@@ -60,7 +60,7 @@ function love.draw()
 
     gameMap:drawLayer(gameMap.layers["upperWalls"]);
 
-    world:draw();
+    -- world:draw();
 
     camera.camera:detach();
 end

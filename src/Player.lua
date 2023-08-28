@@ -24,9 +24,9 @@ Player = Class {
 
     _getAnimationsAbs = function(self)
         animations = {}
-        animations.idle = anim8.newAnimation(self.grid('1-6', 2), 0.25)
-        animations.walk = anim8.newAnimation(self.grid('1-6', 5), 0.12)
-        animations.swing = anim8.newAnimation(self.grid('4-4', 8), 0.15)
+        animations.idle = anim8.newAnimation(self.grid('1-2', 1), 0.25)
+        animations.walk = anim8.newAnimation(self.grid('8-12', 1), 0.15)
+        animations.swing = anim8.newAnimation(self.grid('1-1', 1), 0.15)
 
         return animations
     end,
