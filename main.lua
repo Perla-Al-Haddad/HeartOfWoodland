@@ -8,18 +8,23 @@ local Player = require("src.Player");
 local Camera = require("src.Camera");
 local Wall = require("src.Wall");
 local EffectsHandler = require("src.EffectsHandler");
+local EnemiesHandler = require("src.EnemiesHandler");
 local Enemy = require("src.Enemy");
 
 function love.load()
     love.graphics.setBackgroundColor(26 / 255, 26 / 255, 26 / 255);
-    love.window.setMode(0, 0, {fullscreen = true});
+    love.window.setMode(0, 0, {fullscreen = false});
     love.graphics.setDefaultFilter("nearest", "nearest");
 
     world = windfield.newWorld(0, 0, false);
 
-    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 12,
-                    world);
+    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 12, world);
     enemy = Enemy(TILE_SIZE * 32, TILE_SIZE * 32, 32, 32, 60, 10, 9, 2, '/assets/sprites/characters/slime.png', world);
+    enemy2 = Enemy(TILE_SIZE * 30, TILE_SIZE * 34, 32, 32, 60, 10, 9, 2, '/assets/sprites/characters/slime.png', world);
+
+    enemiesHandler = EnemiesHandler()
+    enemiesHandler:addEnemy(enemy)
+    enemiesHandler:addEnemy(enemy2)
 
     camera =
         Camera(CAMERA_SCALE, player.collider:getX(), player.collider:getY());
@@ -37,8 +42,8 @@ end
 
 function love.update(dt)
     world:update(dt);
-    player:updateAbs(dt, effectsHandler);
-    enemy:updateAbs(dt)
+    player:updateAbs(dt, effectsHandler, enemiesHandler);
+    enemiesHandler:updateEnemies(dt)
     camera:update(dt, player, gameMap);
     gameMap:update(dt);
     effectsHandler:updateEffects(dt);
@@ -54,7 +59,7 @@ function love.draw()
     gameMap:drawLayer(gameMap.layers["walls"]);
     gameMap:drawLayer(gameMap.layers["decor"]);
 
-    enemy:drawAbs();
+    enemiesHandler:drawEnemies()
     player:drawAbs();
     effectsHandler:drawEffects(0);
 

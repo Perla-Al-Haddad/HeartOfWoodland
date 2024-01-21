@@ -8,8 +8,11 @@ local SwingEffect = require("src.Effects.SwingEffect")
 local PLAYER_COLLISION_CLASS = "Player"
 local PLAYER_SPRITE_SHEET_PATH = "/assets/sprites/characters/player.png"
 
+local funcs = require("src.utils.funcs")
+
 Player = Class {
     __includes = {Entity},
+    _world = nil,
 
     init = function(self, positionX, positionY, width, height, speed,
                     collisionWidth, collisionHeight, heightOffset, world)
@@ -17,27 +20,17 @@ Player = Class {
                     collisionWidth, collisionHeight, heightOffset,
                     PLAYER_SPRITE_SHEET_PATH, world)
 
+        _world = world
         self.rotateMargin = 0.25
         self.comboCount = 0
         self.buffer = {}
     end,
 
-    _getAnimationsAbs = function(self)
-        animations = {}
-        animations.idle = anim8.newAnimation(self.grid('1-2', 1), 0.25)
-        animations.walk = anim8.newAnimation(self.grid('8-12', 1), 0.15)
-        animations.swing = anim8.newAnimation(self.grid('1-1', 1), 0.15)
-
-        return animations
-    end,
-
-    _getCurrentAnimationAbs = function(self) return self.animations.idle end,
-
-    updateAbs = function(self, dt)
+    updateAbs = function(self, dt, effectsHandler, enemiesHander)
         self.currentAnimation:update(dt)
 
         self:_handlePlayerMovement(dt)
-        self:_handleSwordSwing(dt, effectsHandler)
+        self:_handleSwordSwing(dt, effectsHandler, enemiesHander)
     end,
 
     drawAbs = function(self)
@@ -52,6 +45,17 @@ Player = Class {
     useItem = function(self, item, camera)
         if item == "sword" then self:_swingSword(camera) end
     end,
+
+    _getAnimationsAbs = function(self)
+        animations = {}
+        animations.idle = anim8.newAnimation(self.grid('1-2', 1), 0.25)
+        animations.walk = anim8.newAnimation(self.grid('8-12', 1), 0.15)
+        animations.swing = anim8.newAnimation(self.grid('1-1', 1), 0.15)
+
+        return animations
+    end,
+
+    _getCurrentAnimationAbs = function(self) return self.animations.idle end,
 
     _addToBuffer = function(self, action)
         table.insert(self.buffer, {action, 0.25})
@@ -81,7 +85,54 @@ Player = Class {
         self.animationTimer = 0.075
     end,
 
-    _handleSwordSwing = function(self, dt, effectsHandler)
+    _swordDamage = function(self, dt, enemiesHander)
+        local px, py = self.collider:getPosition()
+        local dir = player.attackDir:normalized()
+        local rightDir = dir:rotated(math.pi/2)
+        local leftDir = dir:rotated(math.pi/-2)
+        local polygon = {
+            px + dir.x*20,
+            py + dir.y*20,
+            px + dir:rotated(math.pi/8).x*20,
+            py + dir:rotated(math.pi/8).y*20,
+            px + dir:rotated(math.pi/4).x*20,
+            py + dir:rotated(math.pi/4).y*20,
+            px + dir:rotated(3*math.pi/8).x*20,
+            py + dir:rotated(3*math.pi/8).y*20,
+            px + rightDir.x*22,
+            py + rightDir.y*22,
+            px + rightDir.x*22 + rightDir:rotated(math.pi/2).x*6,
+            py + rightDir.y*22 + rightDir:rotated(math.pi/2).y*6,
+            px + leftDir.x*22 + leftDir:rotated(math.pi/-2).x*6,
+            py + leftDir.y*22 + leftDir:rotated(math.pi/-2).y*6,
+            px + leftDir.x*22,
+            py + leftDir.y*22,
+            px + dir:rotated(3*math.pi/-8).x*20,
+            py + dir:rotated(3*math.pi/-8).y*20,
+            px + dir:rotated(math.pi/-4).x*20,
+            py + dir:rotated(math.pi/-4).y*20,
+            px + dir:rotated(math.pi/-8).x*20,
+            py + dir:rotated(math.pi/-8).y*20,
+        }
+
+        local range = math.random()/4
+
+        local hitEnemies = _world:queryPolygonArea(polygon, {'Enemy'})
+
+        for _, enemyCollider in ipairs(hitEnemies) do
+            -- funcs.print_r(e)
+            local knockbackDir = self:_getPlayerToSelfVector(enemyCollider:getX(), enemyCollider:getY())
+            enemy = enemiesHander:getEnemyByCollider(enemyCollider)
+            -- print(enemy)
+            enemy:hit(1, knockbackDir)
+        end
+    end,
+
+    _getPlayerToSelfVector = function(self, x, y)
+        return Vector(x - self.collider:getX(), y - self.collider:getY()):normalized()
+    end,
+
+    _handleSwordSwing = function(self, dt, effectsHandler, enemiesHander)
         isNotSwinging = not (self.state == 'swing' or self.state == 'swinging')
         if isNotSwinging then return end
 
@@ -93,17 +144,19 @@ Player = Class {
             self.collider:setLinearDamping(35)
         end
 
-        stillSwinging = not (self.animationTimer < 0)
+        stillSwinging = self.animationTimer >= 0
         if stillSwinging then return end
 
         if self.state == "swing" then
             self.state = "swinging"
+
             -- animationTimer for finished sword swing stance
             self.animationTimer = 0.25
             local swingEffect = SwingEffect(self.collider:getX(),
                                             self.collider:getY(),
                                             self.attackDir, self.comboCount)
             effectsHandler:addEffect(swingEffect)
+            self:_swordDamage(dt, enemiesHander)
         elseif self.state == "swinging" then
             self.state = "default"
         end

@@ -6,6 +6,10 @@ local Entity = require("src.Entity")
 
 local ENEMY_COLLISION_CLASS = "Enemy"
 
+local onLoop = function(animation)
+    animation:pauseAtEnd(3)
+end
+
 Enemy = Class {
     __includes = {Entity},
     init = function(self, positionX, positionY, width, height, speed,
@@ -15,7 +19,9 @@ Enemy = Class {
                     ENEMY_COLLISION_CLASS, collisionWidth, collisionHeight,
                     heightOffset, animationSheet, world)
 
-        self.collider:setType('static')
+        self.collider:setLinearDamping(10)
+
+        self.health = 5
 
         self.startX = positionX + 30
         self.startY = positionY + 30
@@ -30,6 +36,7 @@ Enemy = Class {
     _getAnimationsAbs = function(self)
         animations = {}
         animations.idle = anim8.newAnimation(self.grid('1-4', 1), 0.25)
+        animations.dead = anim8.newAnimation(self.grid('1-5', 5), 0.25, onLoop)
 
         return animations
     end,
@@ -51,7 +58,8 @@ Enemy = Class {
 
     _wander = function(self, dt)
         canWander = (self.state ~= "wandering-moving" or self.state ~=
-                        "wandering-stopped")
+                        "wandering-stopped") and (self.health > 0)
+
         if not canWander then return end
 
         if self.wanderTimer > 0 then
@@ -95,6 +103,23 @@ Enemy = Class {
                 self.wanderTimer = 1 + math.random(0.1, 0.8)
             end
         end
+    end,
+
+    pauseOnDeath = function(self)
+        self.currentAnimation:pause()
+    end,
+
+    hit = function(self, damage, dir)
+        self.health = self.health - damage;
+        
+        if self.health <= 0 then 
+            self.currentAnimation = self.animations.dead
+            return;
+        end
+
+        local mag = 50
+
+        self.collider:applyLinearImpulse((dir:normalized()*mag):unpack())
     end
 
 }
