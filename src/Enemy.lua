@@ -4,6 +4,8 @@ local anim8 = require("lib.anim8.anim8")
 
 local Entity = require("src.Entity")
 
+local settings = require("src.utils.settings")
+
 local ENEMY_COLLISION_CLASS = "Enemy"
 
 local onLoop = function(animation)
@@ -12,6 +14,7 @@ end
 
 Enemy = Class {
     __includes = {Entity},
+
     init = function(self, positionX, positionY, width, height, speed,
                     collisionWidth, collisionHeight, heightOffset,
                     animationSheet, world)
@@ -33,16 +36,6 @@ Enemy = Class {
         self.wanderDir = Vector(1, 1)
     end,
 
-    _getAnimationsAbs = function(self)
-        animations = {}
-        animations.idle = anim8.newAnimation(self.grid('1-4', 1), 0.25)
-        animations.dead = anim8.newAnimation(self.grid('1-5', 5), 0.25, onLoop)
-
-        return animations
-    end,
-
-    _getCurrentAnimationAbs = function(self) return self.animations.idle end,
-
     updateAbs = function(self, dt)
         self.currentAnimation:update(dt);
         self:_wander(dt);
@@ -54,7 +47,32 @@ Enemy = Class {
         love.graphics.setColor(1, 1, 1, 1)
         self.currentAnimation:draw(self.animationSheet, px, py, nil,
                                    self.collider.dirX, 1, 0, 0)
+        
+        Entity.drawAbs(self)
     end,
+
+    hit = function(self, damage, dir)
+        self.health = self.health - damage;
+        
+        if self.health <= 0 then 
+            self.currentAnimation = self.animations.dead
+            return;
+        end
+
+        local mag = 50
+
+        self.collider:applyLinearImpulse((dir:normalized()*mag):unpack())
+    end,
+
+    _getAnimationsAbs = function(self)
+        animations = {}
+        animations.idle = anim8.newAnimation(self.grid('1-4', 1), 0.25)
+        animations.dead = anim8.newAnimation(self.grid('1-5', 5), 0.25, onLoop)
+
+        return animations
+    end,
+
+    _getCurrentAnimationAbs = function(self) return self.animations.idle end,
 
     _wander = function(self, dt)
         canWander = (self.state ~= "wandering-moving" or self.state ~=
@@ -104,23 +122,6 @@ Enemy = Class {
             end
         end
     end,
-
-    pauseOnDeath = function(self)
-        self.currentAnimation:pause()
-    end,
-
-    hit = function(self, damage, dir)
-        self.health = self.health - damage;
-        
-        if self.health <= 0 then 
-            self.currentAnimation = self.animations.dead
-            return;
-        end
-
-        local mag = 50
-
-        self.collider:applyLinearImpulse((dir:normalized()*mag):unpack())
-    end
 
 }
 

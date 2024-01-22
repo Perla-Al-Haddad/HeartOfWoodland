@@ -11,6 +11,8 @@ local EffectsHandler = require("src.EffectsHandler");
 local EnemiesHandler = require("src.EnemiesHandler");
 local Enemy = require("src.Enemy");
 
+local settings = require("src.utils.settings")
+
 function love.load()
     love.graphics.setBackgroundColor(26 / 255, 26 / 255, 26 / 255);
     love.window.setMode(0, 0, {fullscreen = false});
@@ -18,7 +20,7 @@ function love.load()
 
     world = windfield.newWorld(0, 0, false);
 
-    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 12, world);
+    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 10, world);
     enemy = Enemy(TILE_SIZE * 32, TILE_SIZE * 32, 32, 32, 60, 10, 9, 2, '/assets/sprites/characters/slime.png', world);
     enemy2 = Enemy(TILE_SIZE * 30, TILE_SIZE * 34, 32, 32, 60, 10, 9, 2, '/assets/sprites/characters/slime.png', world);
 
@@ -65,7 +67,9 @@ function love.draw()
 
     gameMap:drawLayer(gameMap.layers["upperWalls"]);
 
-    -- world:draw();
+    if settings.DRAW_WORLD then
+        world:draw();
+    end
 
     camera.camera:detach();
 end

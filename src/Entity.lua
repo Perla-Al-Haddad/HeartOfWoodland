@@ -2,7 +2,10 @@ local Class = require("lib.hump.class")
 local Vector = require("lib.hump.vector")
 local anim8 = require("lib.anim8.anim8")
 
+local settings = require("src.utils.settings")
+
 Entity = Class {
+
     init = function(self, positionX, positionY, width, height, speed,
                     collisionClass, collisionWidth, collisionHeight,
                     heightOffset, animationSheet, world)
@@ -40,8 +43,14 @@ Entity = Class {
 
     end,
 
-    drawAbs = function()
-        error("drawAbs method was not implemented in subclass")
+    drawAbs = function(self)
+        if settings.DEBUG.HURT_BOXES then
+            love.graphics.setColor(1, 0, 0, 0.5)
+            love.graphics.rectangle("fill", 
+                self.collider:getX() - (self.collisionWidth/2), 
+                self.collider:getY() - (self.collisionHeight/2), 
+                self.collisionWidth, self.collisionHeight)
+        end
     end,
 
     updateAbs = function(dt)

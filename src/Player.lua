@@ -9,6 +9,7 @@ local PLAYER_COLLISION_CLASS = "Player"
 local PLAYER_SPRITE_SHEET_PATH = "/assets/sprites/characters/player.png"
 
 local funcs = require("src.utils.funcs")
+local settings = require("src.utils.settings")
 
 Player = Class {
     __includes = {Entity},
@@ -40,7 +41,16 @@ Player = Class {
         love.graphics.setColor(1, 1, 1, 1)
 
         self.currentAnimation:draw(self.animationSheet, px, py, nil,
-                                   self.collider.dirX, 1, 0, 0)
+                                    self.collider.dirX, 1, 0, 0)
+        
+        if _polygon ~= nil and settings.DEBUG.HIT_BOXES then
+            love.graphics.setColor(0, 0, 1, 0.5)
+            love.graphics.polygon("fill", _polygon)
+        end
+
+        Entity.drawAbs(self)
+
+        love.graphics.setColor(1, 1, 1, 1)
     end,
 
     useItem = function(self, item, camera)
