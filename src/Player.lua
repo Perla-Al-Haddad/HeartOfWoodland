@@ -13,6 +13,7 @@ local funcs = require("src.utils.funcs")
 Player = Class {
     __includes = {Entity},
     _world = nil,
+    _polygon = nil,
 
     init = function(self, positionX, positionY, width, height, speed,
                     collisionWidth, collisionHeight, heightOffset, world)
@@ -90,40 +91,38 @@ Player = Class {
         local dir = player.attackDir:normalized()
         local rightDir = dir:rotated(math.pi/2)
         local leftDir = dir:rotated(math.pi/-2)
-        local polygon = {
-            px + dir.x*20,
-            py + dir.y*20,
-            px + dir:rotated(math.pi/8).x*20,
-            py + dir:rotated(math.pi/8).y*20,
-            px + dir:rotated(math.pi/4).x*20,
-            py + dir:rotated(math.pi/4).y*20,
-            px + dir:rotated(3*math.pi/8).x*20,
-            py + dir:rotated(3*math.pi/8).y*20,
-            px + rightDir.x*22,
-            py + rightDir.y*22,
-            px + rightDir.x*22 + rightDir:rotated(math.pi/2).x*6,
-            py + rightDir.y*22 + rightDir:rotated(math.pi/2).y*6,
-            px + leftDir.x*22 + leftDir:rotated(math.pi/-2).x*6,
-            py + leftDir.y*22 + leftDir:rotated(math.pi/-2).y*6,
-            px + leftDir.x*22,
-            py + leftDir.y*22,
-            px + dir:rotated(3*math.pi/-8).x*20,
-            py + dir:rotated(3*math.pi/-8).y*20,
-            px + dir:rotated(math.pi/-4).x*20,
-            py + dir:rotated(math.pi/-4).y*20,
-            px + dir:rotated(math.pi/-8).x*20,
-            py + dir:rotated(math.pi/-8).y*20,
+        _polygon = {
+            px + dir.x*30,
+            py + dir.y*30,
+            px + dir:rotated(math.pi/8).x*30,
+            py + dir:rotated(math.pi/8).y*30,
+            px + dir:rotated(math.pi/4).x*30,
+            py + dir:rotated(math.pi/4).y*30,
+            px + dir:rotated(3*math.pi/8).x*30,
+            py + dir:rotated(3*math.pi/8).y*30,
+            px + rightDir.x*15,
+            py + rightDir.y*15,
+            px + rightDir.x*15 + rightDir:rotated(math.pi/2).x,
+            py + rightDir.y*15 + rightDir:rotated(math.pi/2).y,
+            px + leftDir.x*15 + leftDir:rotated(math.pi/-2).x,
+            py + leftDir.y*15 + leftDir:rotated(math.pi/-2).y,
+            px + leftDir.x*15,
+            py + leftDir.y*15,
+            px + dir:rotated(3*math.pi/-8).x*30,
+            py + dir:rotated(3*math.pi/-8).y*30,
+            px + dir:rotated(math.pi/-4).x*30,
+            py + dir:rotated(math.pi/-4).y*30,
+            px + dir:rotated(math.pi/-8).x*30,
+            py + dir:rotated(math.pi/-8).y*30,
         }
 
         local range = math.random()/4
 
-        local hitEnemies = _world:queryPolygonArea(polygon, {'Enemy'})
+        local hitEnemies = _world:queryPolygonArea(_polygon, {'Enemy'})
 
         for _, enemyCollider in ipairs(hitEnemies) do
-            -- funcs.print_r(e)
             local knockbackDir = self:_getPlayerToSelfVector(enemyCollider:getX(), enemyCollider:getY())
             enemy = enemiesHander:getEnemyByCollider(enemyCollider)
-            -- print(enemy)
             enemy:hit(1, knockbackDir)
         end
     end,
@@ -158,6 +157,7 @@ Player = Class {
             effectsHandler:addEffect(swingEffect)
             self:_swordDamage(dt, enemiesHander)
         elseif self.state == "swinging" then
+            _polygon = nil
             self.state = "default"
         end
     end,
