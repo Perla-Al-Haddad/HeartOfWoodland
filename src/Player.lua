@@ -5,6 +5,9 @@ local anim8 = require("lib.anim8.anim8")
 local Entity = require("src.Entity")
 local SwingEffect = require("src.Effects.SwingEffect")
 
+local KNOCKBACK_STRENGTH = 120
+local KNOCKBACK_TIMER = 0.075
+local STUN_TIMER = 0.075
 local PLAYER_COLLISION_CLASS = "Player"
 local PLAYER_SPRITE_SHEET_PATH = "/assets/sprites/characters/player.png"
 
@@ -29,6 +32,7 @@ Player = Class {
         self.rotateMargin = 0.25
         self.comboCount = 0
         self.buffer = {}
+        self.knockbackTimer = 0
         self.stunTimer = 0
     end,
 
@@ -37,27 +41,8 @@ Player = Class {
 
         self:_handlePlayerMovement(dt)
         self:_handleSwordSwing(dt, effectsHandler, enemiesHandler)
-
-        if self.state == "damage" then
-            self.stunTimer = self.stunTimer - dt
-
-            if self.stunTimer > 0 then
-            else
-                self.state = "default"
-            end
-        end
-
-        if self.hurtCollider:enter('EnemyHit') then
-            mag = 60
-            self.state = "damage"
-
-            collision_data = self.hurtCollider:getEnterCollisionData('EnemyHit')
-
-            knockbackDir = Vector(-_dirX, -_dirY):normalized()
-            self.hurtCollider:applyLinearImpulse((knockbackDir:normalized()*mag):unpack())
-
-            self.stunTimer = 0.15
-        end
+        self:_handleEnemyCollision(dt)
+        self:_handleStunnedDuration(dt)
     end,
 
     drawAbs = function(self)
@@ -81,9 +66,10 @@ Player = Class {
 
     _getAnimationsAbs = function(self)
         animations = {}
-        animations.idle = anim8.newAnimation(self.grid('1-2', 1), 0.25)
+        animations.idle = anim8.newAnimation(self.grid('1-6', 1), 0.15)
         animations.walk = anim8.newAnimation(self.grid('8-12', 1), 0.15)
         animations.swing = anim8.newAnimation(self.grid('1-1', 1), 0.15)
+        animations.stunned = anim8.newAnimation(self.grid('6-6', 1), 0.15)
 
         return animations
     end,
@@ -242,8 +228,47 @@ Player = Class {
             self.currentAnimation:flipH()
         end
 
-    end
+    end,
 
+    _handleEnemyCollision = function(self, dt)
+        if self.state == "damage" then
+            self.knockbackTimer = self.knockbackTimer - dt
+        
+            if self.knockbackTimer <= 0 then
+                self.state = "stunned"
+            end
+            self.stunTimer = STUN_TIMER
+        end
+
+        if not self.hurtCollider:enter('EnemyHit') then return end
+        
+        self.state = "damage"
+
+        collision_data = self.hurtCollider:getEnterCollisionData('EnemyHit')
+
+        knockbackDir = Vector(-_dirX, -_dirY):normalized()
+        self.hurtCollider:applyLinearImpulse((knockbackDir:normalized()*KNOCKBACK_STRENGTH):unpack())
+
+        self.knockbackTimer = KNOCKBACK_TIMER
+    end,
+
+    _handleStunnedDuration = function(self, dt)
+        if self.state ~= "stunned" then return end; 
+
+        self.currentAnimation = self.animations.stunned
+        if self.dirX == -1 and not self.currentAnimation.flippedH then
+            self.currentAnimation:flipH()
+        elseif self.dirX == 1 and self.currentAnimation.flippedH then
+            self.currentAnimation:flipH()
+        end
+
+        self.hurtCollider:setLinearVelocity(0, 0)
+        self.stunTimer = self.stunTimer - dt
+
+        if self.stunTimer <= 0 then
+            self.state = "default"
+        end
+    end
 }
 
 return Player

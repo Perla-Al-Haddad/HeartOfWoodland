@@ -66,7 +66,7 @@ Entity = Class {
                 self.hurtBoxWidth, self.hurtBoxHeight)
         end
 
-        if settings.DEBUG.HIT_BOXES and self.hitBoxHeight ~= nil and self.hitBoxWidth ~= nil then
+        if settings.DEBUG.HIT_BOXES and self.hitBoxHeight ~= nil and self.hitBoxWidth ~= nil and self.hitCollider ~= nil then
             love.graphics.setColor(0, 0, 1, 0.5)
             love.graphics.rectangle("fill", 
                 self.hitCollider:getX() - (self.hitBoxWidth/2), 

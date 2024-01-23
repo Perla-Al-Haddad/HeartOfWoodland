@@ -47,8 +47,10 @@ Enemy = Class {
         self.currentAnimation:update(dt);
         self:_wander(dt);
 
-        self.hitCollider:setX(self.hurtCollider:getX())
-        self.hitCollider:setY(self.hurtCollider:getY())
+        if self.hitCollider ~= nil then
+            self.hitCollider:setX(self.hurtCollider:getX())
+            self.hitCollider:setY(self.hurtCollider:getY())
+        end
     end,
 
     drawAbs = function(self)
@@ -66,6 +68,9 @@ Enemy = Class {
         
         if self.health <= 0 then 
             self.currentAnimation = self.animations.dead
+            if self.hitCollider == nil then return end;
+            self.hitCollider:destroy()
+            self.hitCollider = nil
             return;
         end
 
