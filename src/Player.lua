@@ -16,32 +16,56 @@ Player = Class {
     _world = nil,
     _polygon = nil,
 
+    _dirX = 0,
+    _dirY = 0,
+
     init = function(self, positionX, positionY, width, height, speed,
-                    collisionWidth, collisionHeight, heightOffset, world)
-        Entity.init(self, positionX, positionY, width, height, speed, PLAYER_COLLISION_CLASS,
-                    collisionWidth, collisionHeight, heightOffset,
+                    hurtBoxWidth, hurBoxHeight, heightOffset, world)
+        Entity.init(self, positionX, positionY, width, height, speed, nil, PLAYER_COLLISION_CLASS,
+                    nil, nil, hurtBoxWidth, hurBoxHeight, heightOffset,
                     PLAYER_SPRITE_SHEET_PATH, world)
 
         _world = world
         self.rotateMargin = 0.25
         self.comboCount = 0
         self.buffer = {}
+        self.stunTimer = 0
     end,
 
-    updateAbs = function(self, dt, effectsHandler, enemiesHander)
+    updateAbs = function(self, dt, effectsHandler, enemiesHandler)
         self.currentAnimation:update(dt)
 
         self:_handlePlayerMovement(dt)
-        self:_handleSwordSwing(dt, effectsHandler, enemiesHander)
+        self:_handleSwordSwing(dt, effectsHandler, enemiesHandler)
+
+        if self.state == "damage" then
+            self.stunTimer = self.stunTimer - dt
+
+            if self.stunTimer > 0 then
+            else
+                self.state = "default"
+            end
+        end
+
+        if self.hurtCollider:enter('EnemyHit') then
+            mag = 60
+            self.state = "damage"
+
+            collision_data = self.hurtCollider:getEnterCollisionData('EnemyHit')
+
+            knockbackDir = Vector(-_dirX, -_dirY):normalized()
+            self.hurtCollider:applyLinearImpulse((knockbackDir:normalized()*mag):unpack())
+
+            self.stunTimer = 0.15
+        end
     end,
 
     drawAbs = function(self)
         local px, py = self:_getCenterPosition()
-
         love.graphics.setColor(1, 1, 1, 1)
 
         self.currentAnimation:draw(self.animationSheet, px, py, nil,
-                                    self.collider.dirX, 1, 0, 0)
+                                    self.hurtCollider.dirX, 1, 0, 0)
         
         if _polygon ~= nil and settings.DEBUG.HIT_BOXES then
             love.graphics.setColor(0, 0, 1, 0.5)
@@ -49,8 +73,6 @@ Player = Class {
         end
 
         Entity.drawAbs(self)
-
-        love.graphics.setColor(1, 1, 1, 1)
     end,
 
     useItem = function(self, item, camera)
@@ -96,8 +118,8 @@ Player = Class {
         self.animationTimer = 0.075
     end,
 
-    _swordDamage = function(self, dt, enemiesHander)
-        local px, py = self.collider:getPosition()
+    _swordDamage = function(self, dt, enemiesHandler)
+        local px, py = self.hurtCollider:getPosition()
         local dir = player.attackDir:normalized()
         local rightDir = dir:rotated(math.pi/2)
         local leftDir = dir:rotated(math.pi/-2)
@@ -128,29 +150,29 @@ Player = Class {
 
         local range = math.random()/4
 
-        local hitEnemies = _world:queryPolygonArea(_polygon, {'Enemy'})
+        local hitEnemies = _world:queryPolygonArea(_polygon, {'EnemyHurt'})
 
         for _, enemyCollider in ipairs(hitEnemies) do
             local knockbackDir = self:_getPlayerToSelfVector(enemyCollider:getX(), enemyCollider:getY())
-            enemy = enemiesHander:getEnemyByCollider(enemyCollider)
+            enemy = enemiesHandler:getEnemyByCollider(enemyCollider)
             enemy:hit(1, knockbackDir)
         end
     end,
 
     _getPlayerToSelfVector = function(self, x, y)
-        return Vector(x - self.collider:getX(), y - self.collider:getY()):normalized()
+        return Vector(x - self.hurtCollider:getX(), y - self.hurtCollider:getY()):normalized()
     end,
 
-    _handleSwordSwing = function(self, dt, effectsHandler, enemiesHander)
+    _handleSwordSwing = function(self, dt, effectsHandler, enemiesHandler)
         isNotSwinging = not (self.state == 'swing' or self.state == 'swinging')
         if isNotSwinging then return end
 
         self.animationTimer = self.animationTimer - dt
 
         if self.state == "swing" then
-            self.collider:setLinearVelocity((self.attackDir * 200):unpack())
+            self.hurtCollider:setLinearVelocity((self.attackDir * 200):unpack())
         elseif self.state == "swinging" then
-            self.collider:setLinearDamping(35)
+            self.hurtCollider:setLinearDamping(35)
         end
 
         stillSwinging = self.animationTimer >= 0
@@ -161,11 +183,11 @@ Player = Class {
 
             -- animationTimer for finished sword swing stance
             self.animationTimer = 0.25
-            local swingEffect = SwingEffect(self.collider:getX(),
-                                            self.collider:getY(),
+            local swingEffect = SwingEffect(self.hurtCollider:getX(),
+                                            self.hurtCollider:getY(),
                                             self.attackDir, self.comboCount)
             effectsHandler:addEffect(swingEffect)
-            self:_swordDamage(dt, enemiesHander)
+            self:_swordDamage(dt, enemiesHandler)
         elseif self.state == "swinging" then
             _polygon = nil
             self.state = "default"
@@ -175,38 +197,38 @@ Player = Class {
     _handlePlayerMovement = function(self, dt)
         if self.state ~= 'default' then return end
 
-        self.collider:setLinearDamping(0)
+        self.hurtCollider:setLinearDamping(0)
 
         self.prevDirX = self.dirX
         self.prevDirY = self.dirY
 
-        local dirX = 0
-        local dirY = 0
+        _dirX = 0
+        _dirY = 0
 
         if love.keyboard.isDown("d") or love.keyboard.isDown("right") then
-            dirX = 1
+            _dirX = 1
             self.dirX = 1
         end
 
         if love.keyboard.isDown("a") or love.keyboard.isDown("left") then
-            dirX = -1
+            _dirX = -1
             self.dirX = -1
         end
 
         if love.keyboard.isDown("s") or love.keyboard.isDown("down") then
-            dirY = 1
+            _dirY = 1
             self.dirY = 1
         end
 
         if love.keyboard.isDown("w") or love.keyboard.isDown("up") then
-            dirY = -1
+            _dirY = -1
             self.dirY = -1
         end
 
-        if dirY == 0 and dirX ~= 0 then self.dirY = 1 end
+        if _dirY == 0 and _dirX ~= 0 then self.dirY = 1 end
 
-        local vec = Vector(dirX, dirY):normalized() * self.speed
-        self.collider:setLinearVelocity(vec.x, vec.y)
+        local vec = Vector(_dirX, _dirY):normalized() * self.speed
+        self.hurtCollider:setLinearVelocity(vec.x, vec.y)
 
         if vec.x ~= 0 or vec.y ~= 0 then
             self.currentAnimation = self.animations.walk

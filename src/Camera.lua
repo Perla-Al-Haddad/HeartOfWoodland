@@ -10,7 +10,7 @@ Camera = Class {
 
     update = function(self, dt, player, gameMap)
 
-        local camX, camY = player.collider:getPosition()
+        local camX, camY = player.hurtCollider:getPosition()
 
         -- This section prevents the camera from viewing outside the background
         -- First, get width/height of the game window, divided by the game scale

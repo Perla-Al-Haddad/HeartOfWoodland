@@ -15,21 +15,27 @@ local settings = require("src.utils.settings")
 
 function love.load()
     love.graphics.setBackgroundColor(26 / 255, 26 / 255, 26 / 255);
-    love.window.setMode(0, 0, {fullscreen = false});
+    love.window.setMode(0, 0, {fullscreen = true});
     love.graphics.setDefaultFilter("nearest", "nearest");
 
     world = windfield.newWorld(0, 0, false);
 
+    world:addCollisionClass('Ignore', {ignores = {'Ignore'}})
+    world:addCollisionClass('EnemyHurt', {ignores = {'Ignore'}})
+    world:addCollisionClass('Player', {ignores = {'Ignore', "EnemyHurt"}})
+    world:addCollisionClass('EnemyHit', {ignores = {'Ignore', "EnemyHurt"}})
+    
+
     player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 10, world);
-    enemy = Enemy(TILE_SIZE * 32, TILE_SIZE * 32, 32, 32, 60, 10, 9, 2, '/assets/sprites/characters/slime.png', world);
-    enemy2 = Enemy(TILE_SIZE * 30, TILE_SIZE * 34, 32, 32, 60, 10, 9, 2, '/assets/sprites/characters/slime.png', world);
+    enemy = Enemy(TILE_SIZE * 32, TILE_SIZE * 32, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world);
+    enemy2 = Enemy(TILE_SIZE * 30, TILE_SIZE * 34, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world);
 
     enemiesHandler = EnemiesHandler()
     enemiesHandler:addEnemy(enemy)
     enemiesHandler:addEnemy(enemy2)
 
     camera =
-        Camera(CAMERA_SCALE, player.collider:getX(), player.collider:getY());
+        Camera(CAMERA_SCALE, player.hurtCollider:getX(), player.hurtCollider:getY());
 
     gameMap = sti("maps/village/village.lua");
 
@@ -67,7 +73,7 @@ function love.draw()
 
     gameMap:drawLayer(gameMap.layers["upperWalls"]);
 
-    if settings.DRAW_WORLD then
+    if settings.DEBUG.DRAW_WORLD then
         world:draw();
     end
 

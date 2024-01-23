@@ -7,7 +7,9 @@ local settings = require("src.utils.settings")
 Entity = Class {
 
     init = function(self, positionX, positionY, width, height, speed,
-                    collisionClass, collisionWidth, collisionHeight,
+                    hitCollisionClass, hurtCollisionClass, 
+                    hitBoxWidth, hitBoxHeight,
+                    hurtBoxWidth, hurtBoxHeight,
                     heightOffset, animationSheet, world)
         self.dir = "down"
         self.dirX = 1
@@ -18,19 +20,31 @@ Entity = Class {
 
         self.state = "default"
 
-        self.collisionWidth = collisionWidth
-        self.collisionHeight = collisionHeight
+        self.hitBoxWidth = hitBoxWidth
+        self.hitBoxHeight = hitBoxHeight
+
+        self.hurtBoxWidth = hurtBoxWidth
+        self.hurtBoxHeight = hurtBoxHeight
 
         self.heightOffset = heightOffset
 
         self.width = width
         self.height = height
 
-        self.collider = world:newBSGRectangleCollider(positionX, positionY,
-                                                      self.collisionWidth,
-                                                      self.collisionHeight, 3, {
-            collision_class = collisionClass
+        if self.hitBoxHeight ~= nil and self.hitBoxWidth ~= nil then
+            self.hitCollider = world:newBSGRectangleCollider(positionX, positionY,
+                                                             self.hitBoxWidth,
+                                                             self.hitBoxHeight, 0, {
+                collision_class = hitCollisionClass
+            })
+        end
+
+        self.hurtCollider = world:newBSGRectangleCollider(positionX, positionY,
+                                                         self.hurtBoxWidth,
+                                                         self.hurtBoxHeight, 3, {
+            collision_class = hurtCollisionClass
         })
+
 
         self.animationTimer = 0
         self.animationSheet = love.graphics.newImage(animationSheet)
@@ -47,10 +61,20 @@ Entity = Class {
         if settings.DEBUG.HURT_BOXES then
             love.graphics.setColor(1, 0, 0, 0.5)
             love.graphics.rectangle("fill", 
-                self.collider:getX() - (self.collisionWidth/2), 
-                self.collider:getY() - (self.collisionHeight/2), 
-                self.collisionWidth, self.collisionHeight)
+                self.hurtCollider:getX() - (self.hurtBoxWidth/2), 
+                self.hurtCollider:getY() - (self.hurtBoxHeight/2), 
+                self.hurtBoxWidth, self.hurtBoxHeight)
         end
+
+        if settings.DEBUG.HIT_BOXES and self.hitBoxHeight ~= nil and self.hitBoxWidth ~= nil then
+            love.graphics.setColor(0, 0, 1, 0.5)
+            love.graphics.rectangle("fill", 
+                self.hitCollider:getX() - (self.hitBoxWidth/2), 
+                self.hitCollider:getY() - (self.hitBoxHeight/2), 
+                self.hitBoxWidth, self.hitBoxHeight)
+        end
+
+        love.graphics.setColor(1, 1, 1, 1)
     end,
 
     updateAbs = function(dt)
@@ -71,7 +95,7 @@ Entity = Class {
     end,
 
     _getCenterPosition = function(self)
-        local px, py = self.collider:getPosition()
+        local px, py = self.hurtCollider:getPosition()
         px = px - self.width / 2
         py = py - self.height / 2 - self.heightOffset
 

@@ -26,7 +26,7 @@ EnemiesHandler = Class {
 
     getEnemyByCollider = function(self, collider)
         for i, e in ipairs(self.enemies) do
-            if e.collider == collider then
+            if e.hurtCollider == collider then
                 return e
             end
         end

@@ -6,7 +6,8 @@ local Entity = require("src.Entity")
 
 local settings = require("src.utils.settings")
 
-local ENEMY_COLLISION_CLASS = "Enemy"
+local ENEMY_HIT_COLLISION_CLASS = "EnemyHit"
+local ENEMY_HURT_COLLISION_CLASS = "EnemyHurt"
 
 local onLoop = function(animation)
     animation:pauseAtEnd(3)
@@ -16,13 +17,19 @@ Enemy = Class {
     __includes = {Entity},
 
     init = function(self, positionX, positionY, width, height, speed,
-                    collisionWidth, collisionHeight, heightOffset,
-                    animationSheet, world)
+                    hitBoxWidth, hitBoxHeight, 
+                    hurtBoxWidth, hurtBoxHeight, 
+                    heightOffset, animationSheet, world)
         Entity.init(self, positionX, positionY, width, height, speed,
-                    ENEMY_COLLISION_CLASS, collisionWidth, collisionHeight,
+                    ENEMY_HIT_COLLISION_CLASS,
+                    ENEMY_HURT_COLLISION_CLASS,
+                    hitBoxWidth, hitBoxHeight, 
+                    hurtBoxWidth, hurtBoxHeight,
                     heightOffset, animationSheet, world)
 
-        self.collider:setLinearDamping(10)
+        self.hurtCollider:setLinearDamping(10)
+
+        self.hitCollider:setType("static")
 
         self.health = 5
 
@@ -39,6 +46,9 @@ Enemy = Class {
     updateAbs = function(self, dt)
         self.currentAnimation:update(dt);
         self:_wander(dt);
+
+        self.hitCollider:setX(self.hurtCollider:getX())
+        self.hitCollider:setY(self.hurtCollider:getY())
     end,
 
     drawAbs = function(self)
@@ -46,7 +56,7 @@ Enemy = Class {
 
         love.graphics.setColor(1, 1, 1, 1)
         self.currentAnimation:draw(self.animationSheet, px, py, nil,
-                                   self.collider.dirX, 1, 0, 0)
+                                   self.hurtCollider.dirX, 1, 0, 0)
         
         Entity.drawAbs(self)
     end,
@@ -61,7 +71,7 @@ Enemy = Class {
 
         local mag = 50
 
-        self.collider:applyLinearImpulse((dir:normalized()*mag):unpack())
+        self.hurtCollider:applyLinearImpulse((dir:normalized()*mag):unpack())
     end,
 
     _getAnimationsAbs = function(self)
@@ -91,8 +101,8 @@ Enemy = Class {
             self.state = "wandering-moving"
             self.wanderTimer = 0
 
-            local ex = self.collider:getX()
-            local ey = self.collider:getY()
+            local ex = self.hurtCollider:getX()
+            local ey = self.hurtCollider:getY()
 
             if ex < self.startX and ey < self.startY then
                 self.wanderDir = Vector(0, 1)
@@ -109,12 +119,16 @@ Enemy = Class {
         end
 
         if self.state == "wandering-moving" then
-            self.collider:setX(self.collider:getX() + self.wanderDir.x *
+            self.hurtCollider:setX(self.hurtCollider:getX() + self.wanderDir.x *
                                    self.wanderSpeed * dt)
-            self.collider:setY(self.collider:getY() + self.wanderDir.y *
+            self.hurtCollider:setY(self.hurtCollider:getY() + self.wanderDir.y *
+                                   self.wanderSpeed * dt)
+            self.hitCollider:setX(self.hitCollider:getX() + self.wanderDir.x *
+                                   self.wanderSpeed * dt)
+            self.hitCollider:setY(self.hitCollider:getY() + self.wanderDir.y *
                                    self.wanderSpeed * dt)
 
-            if self:_distanceBetween(self.collider:getX(), self.collider:getY(),
+            if self:_distanceBetween(self.hurtCollider:getX(), self.hurtCollider:getY(),
                                      self.startX, self.startY) >
                 self.wanderRadius and self.wanderBufferTimer <= 0 then
                 self.state = "wandering-stopped"
