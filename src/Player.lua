@@ -19,7 +19,6 @@ Player = Class {
     _world = nil,
     _polygon = nil,
 
-
     init = function(self, positionX, positionY, width, height, speed,
                     hurtBoxWidth, hurBoxHeight, heightOffset, world)
         Entity.init(self, positionX, positionY, width, height, speed, nil, PLAYER_COLLISION_CLASS,
@@ -27,6 +26,8 @@ Player = Class {
                     PLAYER_SPRITE_SHEET_PATH, world)
 
         _world = world
+
+        self.health = 15
 
         self.pressedDirY = 0
         self.pressedDirX = 0
@@ -245,6 +246,8 @@ Player = Class {
         if not self.hurtCollider:enter('EnemyHit') then return end
         
         self.state = "damage"
+
+        self.health = self.health - 1;
 
         collision_data = self.hurtCollider:getEnterCollisionData('EnemyHit')
 
