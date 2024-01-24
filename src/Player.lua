@@ -19,8 +19,6 @@ Player = Class {
     _world = nil,
     _polygon = nil,
 
-    _dirX = 0,
-    _dirY = 0,
 
     init = function(self, positionX, positionY, width, height, speed,
                     hurtBoxWidth, hurBoxHeight, heightOffset, world)
@@ -29,6 +27,10 @@ Player = Class {
                     PLAYER_SPRITE_SHEET_PATH, world)
 
         _world = world
+
+        self.pressedDirY = 0
+        self.pressedDirX = 0
+
         self.rotateMargin = 0.25
         self.comboCount = 0
         self.buffer = {}
@@ -188,32 +190,32 @@ Player = Class {
         self.prevDirX = self.dirX
         self.prevDirY = self.dirY
 
-        _dirX = 0
-        _dirY = 0
+        self.pressedDirX = 0
+        self.pressedDirY = 0
 
         if love.keyboard.isDown("d") or love.keyboard.isDown("right") then
-            _dirX = 1
+            self.pressedDirX = 1
             self.dirX = 1
         end
 
         if love.keyboard.isDown("a") or love.keyboard.isDown("left") then
-            _dirX = -1
+            self.pressedDirX = -1
             self.dirX = -1
         end
 
         if love.keyboard.isDown("s") or love.keyboard.isDown("down") then
-            _dirY = 1
+            self.pressedDirY = 1
             self.dirY = 1
         end
 
         if love.keyboard.isDown("w") or love.keyboard.isDown("up") then
-            _dirY = -1
+            self.pressedDirY = -1
             self.dirY = -1
         end
 
-        if _dirY == 0 and _dirX ~= 0 then self.dirY = 1 end
+        if self.pressedDirY == 0 and self.pressedDirX ~= 0 then self.dirY = 1 end
 
-        local vec = Vector(_dirX, _dirY):normalized() * self.speed
+        local vec = Vector(self.pressedDirX, self.pressedDirY):normalized() * self.speed
         self.hurtCollider:setLinearVelocity(vec.x, vec.y)
 
         if vec.x ~= 0 or vec.y ~= 0 then
@@ -246,7 +248,7 @@ Player = Class {
 
         collision_data = self.hurtCollider:getEnterCollisionData('EnemyHit')
 
-        knockbackDir = Vector(-_dirX, -_dirY):normalized()
+        knockbackDir = Vector(-self.pressedDirX, -self.pressedDirY):normalized()
         self.hurtCollider:applyLinearImpulse((knockbackDir:normalized()*KNOCKBACK_STRENGTH):unpack())
 
         self.knockbackTimer = KNOCKBACK_TIMER
