@@ -3,7 +3,7 @@ local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
 
 local Entity = require("src.Entity")
-local SwingEffect = require("src.Effects.SwingEffect")
+local SwingEffect = require("src.effects.SwingEffect")
 
 local KNOCKBACK_STRENGTH = 120
 local KNOCKBACK_TIMER = 0.075
