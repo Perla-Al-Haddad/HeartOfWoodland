@@ -1,6 +1,8 @@
 local Vector = require("lib.hump.vector")
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
+local Gamestate = require("lib.hump.gamestate");
+
 
 local Entity = require("src.Entity")
 local SwingEffect = require("src.effects.SwingEffect")
@@ -13,6 +15,7 @@ local PLAYER_SPRITE_SHEET_PATH = "/assets/sprites/characters/player.png"
 
 local funcs = require("src.utils.funcs")
 local settings = require("src.utils.settings")
+
 
 Player = Class {
     __includes = {Entity},
@@ -27,7 +30,7 @@ Player = Class {
 
         _world = world
 
-        self.health = 15
+        self.health = 3
 
         self.pressedDirY = 0
         self.pressedDirX = 0
@@ -248,6 +251,11 @@ Player = Class {
         self.state = "damage"
 
         self.health = self.health - 1;
+
+        if self.health <= 0 then
+            local menu = require("src.states.menu")
+            Gamestate.switch(menu)
+        end
 
         collision_data = self.hurtCollider:getEnterCollisionData('EnemyHit')
 

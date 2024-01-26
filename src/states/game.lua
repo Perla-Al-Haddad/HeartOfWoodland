@@ -92,9 +92,6 @@ function game:draw()
 end
 
 
-function game:keypressed(key) if key == "escape" then love.event.quit(); end end
-
-
 function game:mousepressed(x, y, button)
     if button == 1 then player:useItem('sword', camera.camera) end
 end
