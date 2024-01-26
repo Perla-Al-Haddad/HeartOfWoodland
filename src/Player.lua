@@ -12,8 +12,8 @@ local Gamestate = require("lib.hump.gamestate");
 local Entity = require("src.Entity")
 local SwingEffect = require("src.effects.SwingEffect")
 
-local funcs = require("src.utils.funcs")
-local settings = require("src.utils.settings")
+local funcs = require("src.utils.funcs");
+local settings = require("src.utils.settings");
 
 
 Player = Class {
@@ -29,7 +29,7 @@ Player = Class {
 
         _world = world
 
-        self.health = 3
+        self.health = 15
 
         self.pressedDirY = 0
         self.pressedDirX = 0
@@ -41,12 +41,12 @@ Player = Class {
         self.stunTimer = 0
     end,
 
-    updateAbs = function(self, dt, effectsHandler, enemiesHandler)
+    updateAbs = function(self, dt, effectsHandler, enemiesHandler, shake)
         self.currentAnimation:update(dt)
 
         self:_handlePlayerMovement(dt)
-        self:_handleSwordSwing(dt, effectsHandler, enemiesHandler)
-        self:_handleEnemyCollision(dt)
+        self:_handleSwordSwing(dt, effectsHandler, enemiesHandler, shake)
+        self:_handleEnemyCollision(dt, shake)
         self:_handleStunnedDuration(dt)
     end,
 
@@ -109,7 +109,7 @@ Player = Class {
         self.animationTimer = 0.075
     end,
 
-    _swordDamage = function(self, dt, enemiesHandler)
+    _swordDamage = function(self, dt, enemiesHandler, shake)
         local px, py = self.hurtCollider:getPosition()
         local dir = player.attackDir:normalized()
         local rightDir = dir:rotated(math.pi/2)
@@ -146,7 +146,7 @@ Player = Class {
         for _, enemyCollider in ipairs(hitEnemies) do
             local knockbackDir = self:_getPlayerToSelfVector(enemyCollider:getX(), enemyCollider:getY())
             enemy = enemiesHandler:getEnemyByCollider(enemyCollider)
-            enemy:hit(1, knockbackDir)
+            enemy:hit(1, knockbackDir, shake)
         end
     end,
 
@@ -154,7 +154,7 @@ Player = Class {
         return Vector(x - self.hurtCollider:getX(), y - self.hurtCollider:getY()):normalized()
     end,
 
-    _handleSwordSwing = function(self, dt, effectsHandler, enemiesHandler)
+    _handleSwordSwing = function(self, dt, effectsHandler, enemiesHandler, shake)
         isNotSwinging = not (self.state == 'swing' or self.state == 'swinging')
         if isNotSwinging then return end
 
@@ -178,7 +178,7 @@ Player = Class {
                                             self.hurtCollider:getY(),
                                             self.attackDir, self.comboCount)
             effectsHandler:addEffect(swingEffect)
-            self:_swordDamage(dt, enemiesHandler)
+            self:_swordDamage(dt, enemiesHandler, shake)
         elseif self.state == "swinging" then
             _polygon = nil
             self.state = "default"
@@ -235,7 +235,7 @@ Player = Class {
 
     end,
 
-    _handleEnemyCollision = function(self, dt)
+    _handleEnemyCollision = function(self, dt, shake)
         if self.state == "damage" then
             self.knockbackTimer = self.knockbackTimer - dt
         
@@ -260,6 +260,8 @@ Player = Class {
 
         knockbackDir = Vector(-self.pressedDirX, -self.pressedDirY):normalized()
         self.hurtCollider:applyLinearImpulse((knockbackDir:normalized()*KNOCKBACK_STRENGTH):unpack())
+
+        shake:start(0.1, 2, 0.02);
 
         self.knockbackTimer = KNOCKBACK_TIMER
     end,

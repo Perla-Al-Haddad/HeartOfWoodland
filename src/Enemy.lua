@@ -63,7 +63,7 @@ Enemy = Class {
         Entity.drawAbs(self)
     end,
 
-    hit = function(self, damage, dir)
+    hit = function(self, damage, dir, shake)
         self.health = self.health - damage;
         
         if self.health <= 0 then 
@@ -78,6 +78,7 @@ Enemy = Class {
 
         local mag = 50
 
+        shake:start(0.02, 0.9, 0.01);
         self.hurtCollider:applyLinearImpulse((dir:normalized()*mag):unpack())
     end,
 

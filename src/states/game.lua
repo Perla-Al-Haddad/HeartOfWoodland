@@ -12,6 +12,7 @@ local EnemiesHandler = require("src.EnemiesHandler");
 local Enemy = require("src.Enemy");
 local UI = require("src.UI");
 
+local Shake = require("src.utils.Shake");
 local settings = require("src.utils.settings");
 
 local game = {}
@@ -40,8 +41,8 @@ function game:enter()
     enemiesHandler:addEnemy(enemy2);
     enemiesHandler:addEnemy(enemy3);
 
-    camera =
-        Camera(CAMERA_SCALE, player.hurtCollider:getX(), player.hurtCollider:getY());
+    camera = Camera(CAMERA_SCALE, player.hurtCollider:getX(), player.hurtCollider:getY());
+    shake = Shake(camera.camera);
 
     gameMap = sti("/maps/village/village.lua");
 
@@ -57,9 +58,10 @@ end
 
 function game:update(dt)
     world:update(dt);
-    player:updateAbs(dt, effectsHandler, enemiesHandler);
+    player:updateAbs(dt, effectsHandler, enemiesHandler, shake);
     enemiesHandler:updateEnemies(dt)
     camera:update(dt, player, gameMap);
+    shake:update(dt);
     gameMap:update(dt);
     effectsHandler:updateEffects(dt);
 end
