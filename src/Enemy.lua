@@ -71,6 +71,8 @@ Enemy = Class {
             if self.hitCollider == nil then return end;
             self.hitCollider:destroy()
             self.hitCollider = nil
+
+            self.hurtCollider:applyLinearImpulse((dir:normalized()*100):unpack())
             return;
         end
 
