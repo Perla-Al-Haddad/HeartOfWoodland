@@ -12,7 +12,8 @@ UI = Class {
     end,
 
     drawPlayerLife = function(self, player)
-        for i = 0, player.health, 1 do
+        for i = 1, player.health, 1 do
+            i = i - 1
             line_no = math.floor(i / 11)
             i = i - (line_no * 11)
             self.heart:draw(self.assetsSheet, 7 + (i) * 9, 7 + 9 * line_no, nil, 1, 1, 0, 0)

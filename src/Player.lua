@@ -1,17 +1,16 @@
-local Vector = require("lib.hump.vector")
-local Class = require("lib.hump.class")
-local anim8 = require("lib.anim8.anim8")
-local Gamestate = require("lib.hump.gamestate");
-
-
-local Entity = require("src.Entity")
-local SwingEffect = require("src.effects.SwingEffect")
-
 local KNOCKBACK_STRENGTH = 120
 local KNOCKBACK_TIMER = 0.075
 local STUN_TIMER = 0.075
 local PLAYER_COLLISION_CLASS = "Player"
 local PLAYER_SPRITE_SHEET_PATH = "/assets/sprites/characters/player.png"
+
+local Vector = require("lib.hump.vector")
+local Class = require("lib.hump.class")
+local anim8 = require("lib.anim8.anim8")
+local Gamestate = require("lib.hump.gamestate");
+
+local Entity = require("src.Entity")
+local SwingEffect = require("src.effects.SwingEffect")
 
 local funcs = require("src.utils.funcs")
 local settings = require("src.utils.settings")
