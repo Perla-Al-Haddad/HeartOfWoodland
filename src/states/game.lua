@@ -18,8 +18,8 @@ local settings = require("src.utils.settings");
 
 local game = {}
 
-sound = sone.fadeInOut(sone.copy(love.sound.newSoundData("assets/sounds/music/Evening.mp3")), 5)
-music = love.audio.newSource(sound)
+local sound = sone.fadeInOut(sone.copy(love.sound.newSoundData("/assets/sounds/music/Evening.mp3")), 5)
+local music = love.audio.newSource(sound, "stream")
 music:setLooping(true)
 
 

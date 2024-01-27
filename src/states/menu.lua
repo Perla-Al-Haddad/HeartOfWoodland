@@ -1,8 +1,10 @@
 local Gamestate = require("lib.hump.gamestate");
-local audio = require("lib.wave.wave")
+local sone = require("lib.sone.sone")
 
 local menu = {}
-local music = audio:newSource("assets/sounds/music/Screen Saver.mp3", "static")
+local sound = love.sound.newSoundData("/assets/sounds/music/Screen Saver.mp3")
+local music = love.audio.newSource(sound, "stream")
+music:setLooping(true)
 
 function menu:enter()
     music:play()
