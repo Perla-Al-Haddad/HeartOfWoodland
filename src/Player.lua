@@ -8,6 +8,7 @@ local Vector = require("lib.hump.vector")
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
 local Gamestate = require("lib.hump.gamestate");
+local audio = require("lib.wave.wave")
 
 local Entity = require("src.Entity")
 local SwingEffect = require("src.effects.SwingEffect")
@@ -38,11 +39,15 @@ Player = Class {
         self.rotateMargin = 0.25
         self.comboCount = 0
         self.buffer = {}
+
         self.knockbackTimer = 0
         self.stunTimer = 0
         self.flashTimer = 0
-
-        self.dustEffectTimer = 0.25
+        self.dustEffectTimer = 0
+        self.walkSoundTimer = 0
+        
+        self.sounds.sword = audio:newSource("assets/sounds/sword.wav", "static")
+        self.sounds.walk = audio:newSource("assets/sounds/walk.wav", "static")
     end,
 
     updateAbs = function(self, dt, effectsHandler, enemiesHandler, shake)
@@ -171,6 +176,7 @@ Player = Class {
         self.animationTimer = self.animationTimer - dt
 
         if self.state == "swing" then
+            self.sounds.sword:play(true)
             self.hurtCollider:setLinearVelocity((self.attackDir * 125):unpack())
         elseif self.state == "swinging" then
             self.hurtCollider:setLinearDamping(35)
@@ -232,6 +238,7 @@ Player = Class {
         self.hurtCollider:setLinearVelocity(vec.x, vec.y)
 
         self.dustEffectTimer = self.dustEffectTimer - dt
+        self.walkSoundTimer = self.walkSoundTimer - dt
 
         if vec.x ~= 0 or vec.y ~= 0 then
             self.currentAnimation = self.animations.walk
@@ -240,6 +247,11 @@ Player = Class {
                 self.dustEffectTimer = 0.25
                 dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY()-1)
                 effectsHandler:addEffect(dustEffect)
+            end
+
+            if self.walkSoundTimer <= 0 then 
+                self.walkSoundTimer = 0.38
+                self.sounds.walk:play() 
             end
         else
             self.currentAnimation = self.animations.idle
@@ -267,9 +279,12 @@ Player = Class {
 
         if not self.hurtCollider:enter('EnemyHit') then return end
         
+        self.sounds.hurt:play(true)
+
         self.state = "damage"
         self.health = self.health - 1;
         if self.health <= 0 then
+            self.sounds.death:play(true)
             local menu = require("src.states.menu")
             Gamestate.switch(menu)
         end

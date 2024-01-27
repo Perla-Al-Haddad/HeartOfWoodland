@@ -81,7 +81,6 @@ Enemy = Class {
             self.hitCollider = nil
             
             local px, py = self.hurtCollider:getX(), self.hurtCollider:getY()
-
             self.hurtCollider:destroy()
             self.hurtCollider = world:newBSGRectangleCollider(
                 px, py,
@@ -91,10 +90,14 @@ Enemy = Class {
             self.hurtCollider:applyLinearImpulse((dir:normalized()*100):unpack())
             self.hurtCollider:setLinearDamping(10)
             self.hurtCollider:setFixedRotation(true)
+
+            self.sounds.death:play(true)
             return;
         end
 
         self.flashTimer = 0.1
+
+        self.sounds.hurt:play(true)
         
         -- shake:start(0.02, 0.9, 0.01);
         local mag = 50

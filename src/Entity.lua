@@ -1,6 +1,7 @@
 local Class = require("lib.hump.class")
 local Vector = require("lib.hump.vector")
 local anim8 = require("lib.anim8.anim8")
+local audio = require("lib.wave.wave")
 
 local settings = require("src.utils.settings")
 
@@ -45,7 +46,6 @@ Entity = Class {
             collision_class = hurtCollisionClass
         })
 
-
         self.animationTimer = 0
         self.animationSheet = love.graphics.newImage(animationSheet)
         self.grid = anim8.newGrid(self.width, self.height,
@@ -55,6 +55,9 @@ Entity = Class {
         self.animations = self:_getAnimationsAbs()
         self.currentAnimation = self:_getCurrentAnimationAbs()
 
+        self.sounds = {}
+        self.sounds.hurt = audio:newSource("assets/sounds/hitHurt.wav", "static")
+        self.sounds.death = audio:newSource("assets/sounds/death.wav", "static")
     end,
 
     drawAbs = function(self)
