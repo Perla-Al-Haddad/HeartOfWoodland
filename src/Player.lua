@@ -249,7 +249,7 @@ Player = Class {
         
         self.state = "damage"
 
-        -- self.health = self.health - 1;
+        self.health = self.health - 1;
 
         if self.health <= 0 then
             local menu = require("src.states.menu")
@@ -261,7 +261,7 @@ Player = Class {
         knockbackDir = Vector(-self.pressedDirX, -self.pressedDirY):normalized()
         self.hurtCollider:applyLinearImpulse((knockbackDir:normalized()*KNOCKBACK_STRENGTH):unpack())
 
-        shake:start(0.1, 2, 0.02);
+        shake:start(0.1, 1, 0.02);
 
         self.knockbackTimer = KNOCKBACK_TIMER
     end,
