@@ -30,16 +30,7 @@ function game:enter()
     world:addCollisionClass('EnemyHit', {ignores = {'Ignore', "EnemyHurt"}});
     
     player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 10, world);
-    enemy = Enemy(TILE_SIZE * 32, TILE_SIZE * 32, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world);
-    enemy2 = Enemy(TILE_SIZE * 30, TILE_SIZE * 34, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world);
-    enemy3 = Enemy(TILE_SIZE * 26, TILE_SIZE * 26, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world);
-
     ui = UI()
-
-    enemiesHandler = EnemiesHandler();
-    enemiesHandler:addEnemy(enemy);
-    enemiesHandler:addEnemy(enemy2);
-    enemiesHandler:addEnemy(enemy3);
 
     camera = Camera(CAMERA_SCALE, player.hurtCollider:getX(), player.hurtCollider:getY());
     shake = Shake(camera.camera);
@@ -48,6 +39,21 @@ function game:enter()
 
     effectsHandler = EffectsHandler();
 
+    -- enemy = Enemy(TILE_SIZE * 32, TILE_SIZE * 32, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world);
+    -- enemy2 = Enemy(TILE_SIZE * 30, TILE_SIZE * 34, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world);
+    -- enemy3 = Enemy(TILE_SIZE * 26, TILE_SIZE * 26, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world);
+
+    -- enemiesHandler:addEnemy(enemy);
+    -- enemiesHandler:addEnemy(enemy2);
+    -- enemiesHandler:addEnemy(enemy3);
+    
+    enemiesHandler = EnemiesHandler();
+    if gameMap.layers["Enemies"] then
+        for i, obj in pairs(gameMap.layers["Enemies"].objects) do
+            enemy = Enemy(obj.x, obj.y, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world);
+            enemiesHandler:addEnemy(enemy);
+        end
+    end
     if gameMap.layers["walls"] then
         for i, obj in pairs(gameMap.layers["Walls"].objects) do
             Wall(obj.x, obj.y, obj.width, obj.height, world);

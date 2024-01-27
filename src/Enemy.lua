@@ -78,7 +78,7 @@ Enemy = Class {
 
         local mag = 50
 
-        shake:start(0.02, 0.9, 0.01);
+        -- shake:start(0.02, 0.9, 0.01);
         self.hurtCollider:applyLinearImpulse((dir:normalized()*mag):unpack())
     end,
 
