@@ -35,11 +35,11 @@
             "scaleInEditor": 1
         },
         "village.tmx": {
-            "scale": 3,
-            "selectedLayer": 6,
+            "scale": 2,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 554.1666666666666,
-                "y": 187.5
+                "x": 560.75,
+                "y": 160.25
             }
         },
         "village.tmx#decor_16x16": {
