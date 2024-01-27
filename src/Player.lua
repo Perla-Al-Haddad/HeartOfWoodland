@@ -11,6 +11,7 @@ local Gamestate = require("lib.hump.gamestate");
 
 local Entity = require("src.Entity")
 local SwingEffect = require("src.effects.SwingEffect")
+local DustEffect = require("src.effects.DustEffect")
 
 local funcs = require("src.utils.funcs");
 local settings = require("src.utils.settings");
@@ -55,6 +56,10 @@ Player = Class {
 
     drawAbs = function(self)
         local px, py = self:_getCenterPosition()
+
+        love.graphics.setColor(0.1, 0, 0.15, 0.5)
+        love.graphics.ellipse("fill", px + self.width/2, py+self.height, self.width/5, 1.5)
+
         love.graphics.setColor(1, 1, 1, 1)
 
         if self.flashTimer > 0 then love.graphics.setShader(shaders.whiteout) end
@@ -151,7 +156,7 @@ Player = Class {
         for _, enemyCollider in ipairs(hitEnemies) do
             local knockbackDir = self:_getPlayerToSelfVector(enemyCollider:getX(), enemyCollider:getY())
             enemy = enemiesHandler:getEnemyByCollider(enemyCollider)
-            enemy:hit(1, knockbackDir, shake)
+            if enemy then enemy:hit(1, knockbackDir, shake) end
         end
     end,
 
@@ -226,8 +231,16 @@ Player = Class {
         local vec = Vector(self.pressedDirX, self.pressedDirY):normalized() * self.speed
         self.hurtCollider:setLinearVelocity(vec.x, vec.y)
 
+        self.dustEffectTimer = self.dustEffectTimer - dt
+
         if vec.x ~= 0 or vec.y ~= 0 then
             self.currentAnimation = self.animations.walk
+
+            if self.dustEffectTimer <= 0 then
+                self.dustEffectTimer = 0.25
+                dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY()-1)
+                effectsHandler:addEffect(dustEffect)
+            end
         else
             self.currentAnimation = self.animations.idle
         end
