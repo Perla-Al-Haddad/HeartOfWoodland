@@ -25,6 +25,7 @@ function game:enter()
 
     world:addCollisionClass('Ignore', {ignores = {'Ignore'}});
     world:addCollisionClass('EnemyHurt', {ignores = {'Ignore'}});
+    world:addCollisionClass('Dead', {ignores = {'Ignore'}});
     world:addCollisionClass('Wall', {ignores = {'Ignore'}});
     world:addCollisionClass('Player', {ignores = {'Ignore', "EnemyHurt"}});
     world:addCollisionClass('EnemyHit', {ignores = {'Ignore', "EnemyHurt"}});
@@ -84,6 +85,7 @@ function game:draw()
     gameMap:drawLayer(gameMap.layers["decor"]);
 
     enemiesHandler:drawEnemies();
+    effectsHandler:drawEffects(-1);
     player:drawAbs();
     effectsHandler:drawEffects(0);
 

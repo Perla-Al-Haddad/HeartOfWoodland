@@ -79,8 +79,14 @@ Enemy = Class {
             if self.hitCollider == nil then return end;
             self.hitCollider:destroy()
             self.hitCollider = nil
-
+            
+            self.hurtCollider = world:newBSGRectangleCollider(
+                self.hurtCollider:getX(), self.hurtCollider:getY(),
+                self.hurtBoxWidth, self.hurtBoxHeight, 3, 
+                {collision_class = "Dead"}
+            );
             self.hurtCollider:applyLinearImpulse((dir:normalized()*100):unpack())
+            self.hurtCollider:setLinearDamping(10)
             return;
         end
 
