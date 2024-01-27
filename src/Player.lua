@@ -16,6 +16,7 @@ local DustEffect = require("src.effects.DustEffect")
 
 local funcs = require("src.utils.funcs");
 local settings = require("src.utils.settings");
+local audio = require("src.utils.audio");
 
 
 Player = Class {
@@ -285,6 +286,7 @@ Player = Class {
         self.health = self.health - 1;
         if self.health <= 0 then
             self.sounds.death:play()
+            audio.gameMusic:stop()
             local menu = require("src.states.menu")
             Gamestate.switch(menu)
         end

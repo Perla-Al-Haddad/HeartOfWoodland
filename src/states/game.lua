@@ -15,16 +15,13 @@ local UI = require("src.UI");
 
 local Shake = require("src.utils.Shake");
 local settings = require("src.utils.settings");
+local audio = require("src.utils.audio");
 
 local game = {}
 
-local sound = sone.fadeInOut(sone.copy(love.sound.newSoundData("/assets/sounds/music/Evening.mp3")), 5)
-local music = love.audio.newSource(sound, "stream")
-music:setLooping(true)
-
 
 function game:enter()
-    music:play()
+    audio.gameMusic:play()
 
     love.graphics.print("Press Enter to continue", 10, 10)
 
