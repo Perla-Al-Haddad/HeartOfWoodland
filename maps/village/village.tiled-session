@@ -35,11 +35,11 @@
             "scaleInEditor": 1
         },
         "village.tmx": {
-            "scale": 1,
-            "selectedLayer": 5,
+            "scale": 3,
+            "selectedLayer": 6,
             "viewCenter": {
-                "x": 332,
-                "y": 394.5
+                "x": 554.1666666666666,
+                "y": 187.5
             }
         },
         "village.tmx#decor_16x16": {
@@ -49,6 +49,12 @@
             "scaleInDock": 1
         },
         "village.tmx#plains": {
+            "scaleInDock": 1
+        },
+        "village.tmx#ruins_bottom": {
+            "scaleInDock": 1
+        },
+        "village.tmx#ruins_top": {
             "scaleInDock": 1
         },
         "village.tmx#walls": {

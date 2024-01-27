@@ -29,7 +29,7 @@ Player = Class {
 
         _world = world
 
-        self.health = 15
+        self.health = 3
 
         self.pressedDirY = 0
         self.pressedDirX = 0
@@ -161,7 +161,7 @@ Player = Class {
         self.animationTimer = self.animationTimer - dt
 
         if self.state == "swing" then
-            self.hurtCollider:setLinearVelocity((self.attackDir * 200):unpack())
+            self.hurtCollider:setLinearVelocity((self.attackDir * 125):unpack())
         elseif self.state == "swinging" then
             self.hurtCollider:setLinearDamping(35)
         end
@@ -249,7 +249,7 @@ Player = Class {
         
         self.state = "damage"
 
-        self.health = self.health - 1;
+        -- self.health = self.health - 1;
 
         if self.health <= 0 then
             local menu = require("src.states.menu")
