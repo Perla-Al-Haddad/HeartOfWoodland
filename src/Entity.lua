@@ -1,9 +1,10 @@
 local Class = require("lib.hump.class")
 local Vector = require("lib.hump.vector")
 local anim8 = require("lib.anim8.anim8")
-local audio = require("lib.wave.wave")
+local sone = require("lib.sone.sone")
 
 local settings = require("src.utils.settings")
+
 
 Entity = Class {
 
@@ -56,8 +57,8 @@ Entity = Class {
         self.currentAnimation = self:_getCurrentAnimationAbs()
 
         self.sounds = {}
-        self.sounds.hurt = audio:newSource("assets/sounds/hitHurt.wav", "static")
-        self.sounds.death = audio:newSource("assets/sounds/death.wav", "static")
+        self.sounds.hurt = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/hitHurt.wav"))
+        self.sounds.death = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/death.wav"))
     end,
 
     drawAbs = function(self)

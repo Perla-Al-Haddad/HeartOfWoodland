@@ -91,13 +91,13 @@ Enemy = Class {
             self.hurtCollider:setLinearDamping(10)
             self.hurtCollider:setFixedRotation(true)
 
-            self.sounds.death:play(true)
+            self.sounds.death:play()
             return;
         end
 
         self.flashTimer = 0.1
 
-        self.sounds.hurt:play(true)
+        self.sounds.hurt:play()
         
         -- shake:start(0.02, 0.9, 0.01);
         local mag = 50

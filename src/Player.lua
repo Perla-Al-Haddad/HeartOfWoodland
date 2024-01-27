@@ -8,7 +8,7 @@ local Vector = require("lib.hump.vector")
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
 local Gamestate = require("lib.hump.gamestate");
-local audio = require("lib.wave.wave")
+local sone = require("lib.sone.sone")
 
 local Entity = require("src.Entity")
 local SwingEffect = require("src.effects.SwingEffect")
@@ -46,8 +46,8 @@ Player = Class {
         self.dustEffectTimer = 0
         self.walkSoundTimer = 0
         
-        self.sounds.sword = audio:newSource("assets/sounds/sword.wav", "static")
-        self.sounds.walk = audio:newSource("assets/sounds/walk.wav", "static")
+        self.sounds.sword = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/sword.wav"), "static")
+        self.sounds.walk = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/walk.wav"), "static")
     end,
 
     updateAbs = function(self, dt, effectsHandler, enemiesHandler, shake)
@@ -176,7 +176,7 @@ Player = Class {
         self.animationTimer = self.animationTimer - dt
 
         if self.state == "swing" then
-            self.sounds.sword:play(true)
+            self.sounds.sword:play()
             self.hurtCollider:setLinearVelocity((self.attackDir * 125):unpack())
         elseif self.state == "swinging" then
             self.hurtCollider:setLinearDamping(35)
@@ -251,7 +251,7 @@ Player = Class {
 
             if self.walkSoundTimer <= 0 then 
                 self.walkSoundTimer = 0.38
-                self.sounds.walk:play() 
+                self.sounds.walk:play()
             end
         else
             self.currentAnimation = self.animations.idle
@@ -279,12 +279,12 @@ Player = Class {
 
         if not self.hurtCollider:enter('EnemyHit') then return end
         
-        self.sounds.hurt:play(true)
+        self.sounds.hurt:play()
 
         self.state = "damage"
         self.health = self.health - 1;
         if self.health <= 0 then
-            self.sounds.death:play(true)
+            self.sounds.death:play()
             local menu = require("src.states.menu")
             Gamestate.switch(menu)
         end
