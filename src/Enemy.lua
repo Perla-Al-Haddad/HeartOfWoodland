@@ -80,13 +80,17 @@ Enemy = Class {
             self.hitCollider:destroy()
             self.hitCollider = nil
             
+            local px, py = self.hurtCollider:getX(), self.hurtCollider:getY()
+
+            self.hurtCollider:destroy()
             self.hurtCollider = world:newBSGRectangleCollider(
-                self.hurtCollider:getX(), self.hurtCollider:getY(),
+                px, py,
                 self.hurtBoxWidth, self.hurtBoxHeight, 3, 
                 {collision_class = "Dead"}
             );
             self.hurtCollider:applyLinearImpulse((dir:normalized()*100):unpack())
             self.hurtCollider:setLinearDamping(10)
+            self.hurtCollider:setFixedRotation(true)
             return;
         end
 
