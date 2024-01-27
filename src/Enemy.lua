@@ -1,3 +1,6 @@
+local ENEMY_HIT_COLLISION_CLASS = "EnemyHit"
+local ENEMY_HURT_COLLISION_CLASS = "EnemyHurt"
+
 local Vector = require("lib.hump.vector")
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
@@ -5,9 +8,8 @@ local anim8 = require("lib.anim8.anim8")
 local Entity = require("src.Entity")
 
 local settings = require("src.utils.settings")
+local shaders = require("src.utils.shaders")
 
-local ENEMY_HIT_COLLISION_CLASS = "EnemyHit"
-local ENEMY_HURT_COLLISION_CLASS = "EnemyHurt"
 
 local onLoop = function(animation)
     animation:pauseAtEnd(3)
@@ -35,17 +37,21 @@ Enemy = Class {
 
         self.startX = positionX + 30
         self.startY = positionY + 30
+        
         self.wanderRadius = 30
-
         self.wanderSpeed = 15
         self.wanderTimer = 0.5 + math.random() * 2
         self.wanderBufferTimer = 0
         self.wanderDir = Vector(1, 1)
+        
+        self.flashTimer = 0
     end,
 
     updateAbs = function(self, dt)
         self.currentAnimation:update(dt);
         self:_wander(dt);
+
+        self.flashTimer = self.flashTimer - dt
 
         if self.hitCollider ~= nil then
             self.hitCollider:setX(self.hurtCollider:getX())
@@ -57,8 +63,10 @@ Enemy = Class {
         local px, py = self:_getCenterPosition()
 
         love.graphics.setColor(1, 1, 1, 1)
+        if self.flashTimer > 0 then love.graphics.setShader(shaders.whiteout) end
         self.currentAnimation:draw(self.animationSheet, px, py, nil,
                                    self.hurtCollider.dirX, 1, 0, 0)
+        love.graphics.setShader()
         
         Entity.drawAbs(self)
     end,
@@ -76,9 +84,10 @@ Enemy = Class {
             return;
         end
 
-        local mag = 50
-
+        self.flashTimer = 0.1
+        
         -- shake:start(0.02, 0.9, 0.01);
+        local mag = 50
         self.hurtCollider:applyLinearImpulse((dir:normalized()*mag):unpack())
     end,
 

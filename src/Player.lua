@@ -39,6 +39,9 @@ Player = Class {
         self.buffer = {}
         self.knockbackTimer = 0
         self.stunTimer = 0
+        self.flashTimer = 0
+
+        self.dustEffectTimer = 0.25
     end,
 
     updateAbs = function(self, dt, effectsHandler, enemiesHandler, shake)
@@ -54,9 +57,11 @@ Player = Class {
         local px, py = self:_getCenterPosition()
         love.graphics.setColor(1, 1, 1, 1)
 
+        if self.flashTimer > 0 then love.graphics.setShader(shaders.whiteout) end
         self.currentAnimation:draw(self.animationSheet, px, py, nil,
                                     self.hurtCollider.dirX, 1, 0, 0)
-        
+        love.graphics.setShader()
+
         if _polygon ~= nil and settings.DEBUG.HIT_BOXES then
             love.graphics.setColor(0, 0, 1, 0.5)
             love.graphics.polygon("fill", _polygon)
@@ -236,6 +241,8 @@ Player = Class {
     end,
 
     _handleEnemyCollision = function(self, dt, shake)
+        self.flashTimer = self.flashTimer - dt
+
         if self.state == "damage" then
             self.knockbackTimer = self.knockbackTimer - dt
         
@@ -248,22 +255,19 @@ Player = Class {
         if not self.hurtCollider:enter('EnemyHit') then return end
         
         self.state = "damage"
-
         self.health = self.health - 1;
-
         if self.health <= 0 then
             local menu = require("src.states.menu")
             Gamestate.switch(menu)
         end
-
-        collision_data = self.hurtCollider:getEnterCollisionData('EnemyHit')
-
+        
         knockbackDir = Vector(-self.pressedDirX, -self.pressedDirY):normalized()
         self.hurtCollider:applyLinearImpulse((knockbackDir:normalized()*KNOCKBACK_STRENGTH):unpack())
 
         shake:start(0.1, 1, 0.02);
 
         self.knockbackTimer = KNOCKBACK_TIMER
+        self.flashTimer = 0.15
     end,
 
     _handleStunnedDuration = function(self, dt)
