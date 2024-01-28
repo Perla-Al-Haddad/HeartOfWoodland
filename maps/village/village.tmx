@@ -273,9 +273,9 @@
   <object id="36" x="407.25" y="631" width="7.375" height="11.375"/>
   <object id="37" x="416.125" y="624" width="45.75" height="20.125"/>
   <object id="39" x="193.625" y="618.5" width="8.25" height="30.75"/>
-  <object id="52" x="489" y="78" width="179" height="16.3333"/>
-  <object id="53" x="652" y="80.6667" width="17.3333" height="159"/>
-  <object id="56" x="595" y="223" width="103.333" height="16.6667"/>
+  <object id="52" x="489" y="76.7273" width="179" height="17.606"/>
+  <object id="53" x="652" y="80.6667" width="18.0833" height="159"/>
+  <object id="56" x="595" y="222.375" width="103.333" height="17.2917"/>
  </objectgroup>
  <objectgroup id="7" name="Enemies">
   <object id="57" x="500.333" y="153.667">
