@@ -25,6 +25,9 @@ local game = {}
 
 
 function game:enter()
+    opacity = 1;
+    windowWidth, windowHeight = love.graphics:getWidth(), love.graphics:getHeight()
+
     if settings.music then audio.gameMusic:play() end
 
     love.graphics.print("Press Enter to continue", 10, 10)
@@ -78,6 +81,8 @@ end
 
 
 function game:update(dt)
+    opacity = opacity - 0.005
+    print(opacity)
     world:update(dt);
     player:updateAbs(dt, shake);
     camera:update(dt, player, gameMap);
@@ -117,6 +122,9 @@ function game:draw()
 
     love.graphics.scale(4, 4)
     ui:drawPlayerLife(player);
+
+    love.graphics.setColor(0, 0, 0, opacity);
+    love.graphics.rectangle("fill", 0, 0, windowWidth, windowHeight)
 end
 
 function game:mousepressed(x, y, button)
