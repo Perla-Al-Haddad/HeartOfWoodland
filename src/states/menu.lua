@@ -1,12 +1,13 @@
 local Gamestate = require("lib.hump.gamestate");
 
 local audio = require("src.utils.audio");
+local settings = require("src.utils.settings");
 
 local menu = {}
 
 
 function menu:enter()
-    audio.menuMusic:play()
+    if settings.music then audio.menuMusic:play() end
 end
 
 

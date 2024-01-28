@@ -76,13 +76,31 @@ Player = Class {
         if _polygon ~= nil and settings.DEBUG.HIT_BOXES then
             love.graphics.setColor(0, 0, 1, 0.5)
             love.graphics.polygon("fill", _polygon)
+
+        end
+        if settings.DEBUG.HIT_BOXES then
+            love.graphics.setColor(0, 0, 1, 0.5)
+            love.graphics.rectangle("fill", px, py + self.heightOffset, self.width, self.height)
         end
 
         Entity.drawAbs(self)
+
     end,
 
     useItem = function(self, item, camera)
         if item == "sword" then self:_swingSword(camera) end
+    end,
+
+    interact = function(self, chestHandler)
+        local px, py = self:_getCenterPosition()
+
+        hitChests = _world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, {'Chest'});
+
+        for _, chestCollider in ipairs(hitChests) do
+            chest = chestHandler:getChestByCollider(chestCollider)
+            chest:open()
+        end
+
     end,
 
     _getAnimationsAbs = function(self)
@@ -160,8 +178,8 @@ Player = Class {
         local hitEnemies = _world:queryPolygonArea(_polygon, {'EnemyHurt'})
 
         for _, enemyCollider in ipairs(hitEnemies) do
-            local knockbackDir = self:_getPlayerToSelfVector(enemyCollider:getX(), enemyCollider:getY())
             enemy = enemiesHandler:getEnemyByCollider(enemyCollider)
+            local knockbackDir = self:_getPlayerToSelfVector(enemyCollider:getX(), enemyCollider:getY())
             if enemy then enemy:hit(1, knockbackDir, shake) end
         end
     end,
