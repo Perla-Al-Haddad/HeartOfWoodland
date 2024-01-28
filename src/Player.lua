@@ -11,8 +11,8 @@ local Gamestate = require("lib.hump.gamestate");
 local sone = require("lib.sone.sone")
 
 local Entity = require("src.Entity")
-local SwingEffect = require("src.effects.SwingEffect")
-local DustEffect = require("src.effects.DustEffect")
+local SwingEffect = require("src.Effects.SwingEffect")
+local DustEffect = require("src.Effects.DustEffect")
 
 local funcs = require("src.utils.funcs");
 local settings = require("src.utils.settings");
