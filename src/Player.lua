@@ -52,7 +52,6 @@ Player = Class {
 
     updateAbs = function(self, dt, shake)
         self.currentAnimation:update(dt)
-
         self:_handlePlayerMovement(dt)
         self:_handleSwordSwing(dt, shake)
         self:_handleEnemyCollision(dt, shake)
