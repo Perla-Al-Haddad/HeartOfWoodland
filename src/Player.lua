@@ -15,7 +15,7 @@ local SwingEffect = require("src.Effects.SwingEffect")
 local DustEffect = require("src.Effects.DustEffect")
 
 local funcs = require("src.utils.funcs");
-local settings = require("src.utils.settings");
+local conf = require("src.utils.conf");
 local audio = require("src.utils.audio");
 
 
@@ -72,12 +72,12 @@ Player = Class {
                                     self.hurtCollider.dirX, 1, 0, 0)
         love.graphics.setShader()
 
-        if _polygon ~= nil and settings.DEBUG.HIT_BOXES then
+        if _polygon ~= nil and conf.DEBUG.HIT_BOXES then
             love.graphics.setColor(0, 0, 1, 0.5)
             love.graphics.polygon("fill", _polygon)
 
         end
-        if settings.DEBUG.HIT_BOXES then
+        if conf.DEBUG.HIT_BOXES then
             love.graphics.setColor(0, 0, 1, 0.5)
             love.graphics.rectangle("fill", px, py + self.heightOffset, self.width, self.height)
         end

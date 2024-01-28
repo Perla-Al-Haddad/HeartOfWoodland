@@ -8,7 +8,6 @@ local anim8 = require("lib.anim8.anim8")
 local Entity = require("src.Entity")
 local HealthDrop = require("src.HealthDrop")
 
-local settings = require("src.utils.settings")
 local shaders = require("src.utils.shaders")
 
 

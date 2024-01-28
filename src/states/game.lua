@@ -17,9 +17,8 @@ local Chest = require("src.Chest");
 local UI = require("src.UI");
 
 local Shake = require("src.utils.Shake");
-local settings = require("src.utils.settings");
+local conf = require("src.utils.conf");
 local audio = require("src.utils.audio");
-local settings = require("src.utils.settings");
 
 local game = {}
 
@@ -28,7 +27,7 @@ function game:enter()
     opacity = 1;
     windowWidth, windowHeight = love.graphics:getWidth(), love.graphics:getHeight()
 
-    if settings.music then audio.gameMusic:play() end
+    if conf.music then audio.gameMusic:play() end
 
     love.graphics.print("Press Enter to continue", 10, 10)
 
@@ -81,8 +80,8 @@ end
 
 
 function game:update(dt)
-    opacity = opacity - 0.005
-    print(opacity)
+    if opacity > 0 then opacity = opacity - 0.005 end;
+
     world:update(dt);
     player:updateAbs(dt, shake);
     camera:update(dt, player, gameMap);
@@ -114,7 +113,7 @@ function game:draw()
 
     gameMap:drawLayer(gameMap.layers["upperWalls"]);
 
-    if settings.DEBUG.DRAW_WORLD then
+    if conf.DEBUG.DRAW_WORLD then
         world:draw();
     end
 

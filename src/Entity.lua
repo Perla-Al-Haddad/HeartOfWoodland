@@ -3,7 +3,7 @@ local Vector = require("lib.hump.vector")
 local anim8 = require("lib.anim8.anim8")
 local sone = require("lib.sone.sone")
 
-local settings = require("src.utils.settings")
+local conf = require("src.utils.conf")
 
 
 Entity = Class {
@@ -65,7 +65,7 @@ Entity = Class {
     end,
 
     drawAbs = function(self)
-        if settings.DEBUG.HURT_BOXES then
+        if conf.DEBUG.HURT_BOXES then
             love.graphics.setColor(1, 0, 0, 0.5)
             love.graphics.rectangle("fill", 
                 self.hurtCollider:getX() - (self.hurtBoxWidth/2), 
@@ -73,7 +73,7 @@ Entity = Class {
                 self.hurtBoxWidth, self.hurtBoxHeight)
         end
 
-        if settings.DEBUG.HIT_BOXES and self.hitBoxHeight ~= nil and self.hitBoxWidth ~= nil and self.hitCollider ~= nil then
+        if conf.DEBUG.HIT_BOXES and self.hitBoxHeight ~= nil and self.hitBoxWidth ~= nil and self.hitCollider ~= nil then
             love.graphics.setColor(0, 0, 1, 0.5)
             love.graphics.rectangle("fill", 
                 self.hitCollider:getX() - (self.hitBoxWidth/2), 

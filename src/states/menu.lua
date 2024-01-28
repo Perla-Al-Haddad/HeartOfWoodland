@@ -1,5 +1,6 @@
 local SCALE = 3
 local SWITCH_TIMER = 2
+local OPTIONS_MARGIN = 10;
 
 local windfield = require("lib/windfield");
 local Vector = require("lib.hump.vector")
@@ -12,12 +13,19 @@ local Player = require("src.Player");
 local EffectsHandler = require("src.EffectsHandler");
 
 local audio = require("src.utils.audio");
-local settings = require("src.utils.settings");
+local conf = require("src.utils.conf");
 
 local menu = {}
 
-
 function menu:enter()
+    cursor = {
+        x = 0,
+        y = 0,
+        current = 1
+    }
+
+    options = {"Play", "Settings", "Exit"}
+
     switchTimer = SWITCH_TIMER;
     switch = false;
 
@@ -27,13 +35,16 @@ function menu:enter()
 
     font = love.graphics.newFont("assets/fonts/Pixel Georgia Bold.ttf", 80);
     fontSmall = love.graphics.newFont("assets/fonts/Pixel Georgia Bold.ttf", 25);
-    if settings.music then audio.menuMusic:play() end
+    fontSmaller = love.graphics.newFont("assets/fonts/Pixel Georgia Bold.ttf", 20);
+    if conf.music then audio.menuMusic:play() end
 
     effectsHandler = EffectsHandler();
     
     player = Player((windowWidth/2 - 32/2)/SCALE, (windowHeight/2 + 32)/SCALE, 32, 32, 160, 12, 12, 10, world, {effects=effectsHandler});
     player._handlePlayerMovement = function(self, dt) end
 
+    sounds = {}
+    sounds.select = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/click.wav"), "static")
 end
 
 
@@ -64,10 +75,30 @@ function menu:draw()
     love.graphics.setColor(91/255, 169/255, 121/255)
     love.graphics.printf(title, windowWidth/2 - titleWidth/2, windowHeight/6, titleWidth, "center")
 
-    pressPlay = "Press space to play"
     love.graphics.setFont(fontSmall)
-    love.graphics.setColor(1,1,1)
-    love.graphics.print(pressPlay, windowWidth/2 - titleWidth/2, windowHeight - windowHeight/3)
+    love.graphics.setColor(1, 1, 1)
+    for i, option in ipairs(options) do
+        textHeight = fontSmall:getHeight(option)
+        love.graphics.print(
+            option, 
+            windowWidth/2 - titleWidth/2, 
+            windowHeight - windowHeight/3 + (textHeight + OPTIONS_MARGIN) * (i - 1))
+    end
+
+    love.graphics.circle(
+        "fill", 
+        windowWidth/2 - titleWidth/2 - 20, 
+        windowHeight - windowHeight/3 + textHeight/2 + (textHeight + OPTIONS_MARGIN) * (cursor.current - 1), 
+        textHeight/3)
+
+    love.graphics.setFont(fontSmaller)
+    love.graphics.setColor(1, 1, 1, 0.5)
+    text = "Press [E] to select"
+    textWidth = fontSmaller:getWidth(text)
+    love.graphics.print(
+        text, 
+        windowWidth/2 - textWidth/2, 
+        windowHeight - windowHeight/6)
 
     love.graphics.scale(SCALE,SCALE)
     effectsHandler:drawEffects(-1);
@@ -77,9 +108,26 @@ end
 
 
 function menu:keypressed(key)
-    if key == "space" then
-        walk()
-        switch = true
+    if key == "e" or key == "E" then
+        if cursor.current == 1 then 
+            walk()
+            switch = true
+        elseif cursor.current == 2 then
+            local settings = require("src.states.settings")
+            Gamestate.switch(settings, menu)
+        elseif cursor.current == 3 then
+            love.event.quit(); 
+        end
+    end
+    if key == "down" then
+        if cursor.current >= #options then return end;
+        cursor.current = cursor.current + 1
+        sounds.select:play()
+    end
+    if key == "up" then
+        if cursor.current <= 1 then return end;
+        cursor.current = cursor.current - 1
+        sounds.select:play()
     end
 end
 
