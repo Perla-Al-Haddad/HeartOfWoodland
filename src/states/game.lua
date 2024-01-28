@@ -32,22 +32,29 @@ function game:enter()
     world = windfield.newWorld(0, 0, false);
 
     world:addCollisionClass('Ignore', {ignores = {'Ignore'}});
-    world:addCollisionClass('EnemyHurt', {ignores = {'Ignore'}});
     world:addCollisionClass('Dead', {ignores = {'Ignore'}});
     world:addCollisionClass('Wall', {ignores = {'Ignore'}});
-    world:addCollisionClass('Chest', {ignores = {'Ignore'}});
-    world:addCollisionClass('Drops', {ignores = {'Ignore'}});
+    world:addCollisionClass('Objects', {ignores = {'Ignore'}});
+    world:addCollisionClass('Drops', {ignores = {'Ignore', "Dead"}});
+    world:addCollisionClass('EnemyHurt', {ignores = {'Ignore', "Drops"}});
     world:addCollisionClass('Player', {ignores = {'Ignore', "EnemyHurt"}});
-    world:addCollisionClass('EnemyHit', {ignores = {'Ignore', "EnemyHurt"}});
+    world:addCollisionClass('EnemyHit', {ignores = {'Ignore', "EnemyHurt", "Drops"}});
     
     effectsHandler = EffectsHandler();
     dropsHandler = DropsHandler(); 
     enemiesHandler = EnemiesHandler();
+    objectsHandler = ObjectsHandler();
 
-    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 10, world, dropsHandler);
-    chest = Chest(TILE_SIZE * 35, TILE_SIZE * 8, 16, 16, world);
+    handlers = {
+        effects = effectsHandler,
+        drops = dropsHandler,
+        enemies = enemiesHandler,
+        objects = objectsHandler
+    }
+
+    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 10, world, handlers);
     ui = UI()
-
+    
     camera = Camera(CAMERA_SCALE, player.hurtCollider:getX(), player.hurtCollider:getY());
     shake = Shake(camera.camera);
 
@@ -58,9 +65,6 @@ function game:enter()
         end
     end
 
-    chestHandler = ObjectsHandler();
-    chestHandler:addObject(chest);
-
     if gameMap.layers["Enemies"] then
         for i, obj in pairs(gameMap.layers["Enemies"].objects) do
             enemy = Enemy(obj.x, obj.y, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world, dropsHandler);
@@ -68,17 +72,19 @@ function game:enter()
         end
     end
 
+    chest = Chest(TILE_SIZE * 35, TILE_SIZE * 8, 16, 16, world);
+    objectsHandler:addObject(chest);
 end
 
 
 function game:update(dt)
     world:update(dt);
-    player:updateAbs(dt, effectsHandler, enemiesHandler, shake);
+    player:updateAbs(dt, shake);
     camera:update(dt, player, gameMap);
     shake:update(dt);
     gameMap:update(dt);
     enemiesHandler:updateEnemies(dt);
-    chestHandler:updateObjects(dt);
+    objectsHandler:updateObjects(dt);
     effectsHandler:updateEffects(dt);
     dropsHandler:updateDrops(dt);
 end
@@ -96,7 +102,7 @@ function game:draw()
 
     enemiesHandler:drawEnemies();
     effectsHandler:drawEffects(-1);
-    chestHandler:drawObjects();
+    objectsHandler:drawObjects();
     dropsHandler:drawDrops();
     player:drawAbs();
     effectsHandler:drawEffects(0);
@@ -119,7 +125,7 @@ end
 
 function game:keypressed(key)
     if key == 'e' or key == 'E' then
-        player:interact(chestHandler)
+        player:interact()
     end
 end
 

@@ -1,4 +1,4 @@
-local CHEST_COLLISION_CLASS = "Chest"
+local CHEST_COLLISION_CLASS = "Objects"
 local CHEST_ANIMATION_SHEET = "/assets/sprites/objects/chest_01.png"
 
 local Class = require("lib.hump.class")
@@ -10,6 +10,8 @@ Chest = Class {
 
     init = function(self, positionX, positionY, width, height, world) 
         _world = world
+
+        self.type = "chest"
 
         self.width = width
         self.height = height
@@ -27,7 +29,7 @@ Chest = Class {
 
         self.animations = {}
         self.animations.closed = anim8.newAnimation(self.grid('1-1', 1), 1)
-        self.animations.open = anim8.newAnimation(self.grid('1-4', 1), 0.25, function(animation) animation:pauseAtEnd(4) end)
+        self.animations.open = anim8.newAnimation(self.grid('1-4', 1), 0.1, function(animation) animation:pauseAtEnd(4) end)
 
         self.currentAnimation = self.animations.closed;
 

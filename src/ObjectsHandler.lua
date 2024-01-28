@@ -12,9 +12,8 @@ ObjectsHandler = Class {
     drawObjects = function (self)
         for _, obj in ipairs(self.objects) do obj:draw(dt) end
     end,
-
     
-    getChestByCollider = function(self, collider)
+    getObjectByCollider = function(self, collider)
         for i, obj in ipairs(self.objects) do
             if obj.collider == collider then
                 return obj

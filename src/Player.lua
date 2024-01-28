@@ -22,14 +22,14 @@ local audio = require("src.utils.audio");
 Player = Class {
     __includes = {Entity},
     _polygon = nil,
-    _dropsHandler = nil,
+    _handlers = nil,
 
     init = function(self, positionX, positionY, width, height, speed,
-                    hurtBoxWidth, hurBoxHeight, heightOffset, world, dropsHandler)
+                    hurtBoxWidth, hurBoxHeight, heightOffset, world, handlers)
         Entity.init(self, positionX, positionY, width, height, speed, nil, PLAYER_COLLISION_CLASS,
                     nil, nil, hurtBoxWidth, hurBoxHeight, heightOffset,
                     PLAYER_SPRITE_SHEET_PATH, world)
-        _dropsHandler = dropsHandler
+        _handlers = handlers
 
         self.health = 3
 
@@ -50,11 +50,11 @@ Player = Class {
         self.sounds.walk = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/walk.wav"), "static")
     end,
 
-    updateAbs = function(self, dt, effectsHandler, enemiesHandler, shake)
+    updateAbs = function(self, dt, shake)
         self.currentAnimation:update(dt)
 
         self:_handlePlayerMovement(dt)
-        self:_handleSwordSwing(dt, effectsHandler, enemiesHandler, shake)
+        self:_handleSwordSwing(dt, shake)
         self:_handleEnemyCollision(dt, shake)
         self:_handleStunnedDuration(dt)
         self:_handleDropCollision(dt)
@@ -91,16 +91,14 @@ Player = Class {
         if item == "sword" then self:_swingSword(camera) end
     end,
 
-    interact = function(self, chestHandler)
+    interact = function(self)
         local px, py = self:_getCenterPosition()
+        hitChests = _world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, {'Objects'});
 
-        hitChests = _world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, {'Chest'});
-
-        for _, chestCollider in ipairs(hitChests) do
-            chest = chestHandler:getChestByCollider(chestCollider)
-            chest:open()
+        for _, objectCollider in ipairs(hitChests) do
+            obj = _handlers.objects:getObjectByCollider(objectCollider)
+            if obj.type == "chest" then obj:open() end
         end
-
     end,
 
     _getAnimationsAbs = function(self)
@@ -143,7 +141,7 @@ Player = Class {
         self.animationTimer = 0.075
     end,
 
-    _swordDamage = function(self, dt, enemiesHandler, shake)
+    _swordDamage = function(self, dt, shake)
         local px, py = self.hurtCollider:getPosition()
         local dir = player.attackDir:normalized()
         local rightDir = dir:rotated(math.pi/2)
@@ -178,7 +176,7 @@ Player = Class {
         local hitEnemies = _world:queryPolygonArea(_polygon, {'EnemyHurt'})
 
         for _, enemyCollider in ipairs(hitEnemies) do
-            enemy = enemiesHandler:getEnemyByCollider(enemyCollider)
+            enemy = _handlers.enemies:getEnemyByCollider(enemyCollider)
             local knockbackDir = self:_getPlayerToSelfVector(enemyCollider:getX(), enemyCollider:getY())
             if enemy then enemy:hit(1, knockbackDir, shake) end
         end
@@ -188,7 +186,7 @@ Player = Class {
         return Vector(x - self.hurtCollider:getX(), y - self.hurtCollider:getY()):normalized()
     end,
 
-    _handleSwordSwing = function(self, dt, effectsHandler, enemiesHandler, shake)
+    _handleSwordSwing = function(self, dt, shake)
         isNotSwinging = not (self.state == 'swing' or self.state == 'swinging')
         if isNotSwinging then return end
 
@@ -212,8 +210,8 @@ Player = Class {
             local swingEffect = SwingEffect(self.hurtCollider:getX(),
                                             self.hurtCollider:getY(),
                                             self.attackDir, self.comboCount)
-            effectsHandler:addEffect(swingEffect)
-            self:_swordDamage(dt, enemiesHandler, shake)
+            _handlers.effects:addEffect(swingEffect)
+            self:_swordDamage(dt, shake)
         elseif self.state == "swinging" then
             _polygon = nil
             self.state = "default"
@@ -265,7 +263,7 @@ Player = Class {
             if self.dustEffectTimer <= 0 then
                 self.dustEffectTimer = 0.25
                 dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY()-1)
-                effectsHandler:addEffect(dustEffect)
+                _handlers.effects:addEffect(dustEffect)
             end
 
             if self.walkSoundTimer <= 0 then 
@@ -343,7 +341,7 @@ Player = Class {
         hitDrops = _world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, {'Drops'});
 
         for _, dropCollider in ipairs(hitDrops) do
-            drop = _dropsHandler:getDropByCollider(dropCollider)
+            drop = _handlers.drops:getDropByCollider(dropCollider)
             drop:pickUp()
             if drop.type == "heart" then self.health = self.health + 1 end
         end
