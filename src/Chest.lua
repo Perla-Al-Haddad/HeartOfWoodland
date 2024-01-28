@@ -32,6 +32,7 @@ Chest = Class {
         self.currentAnimation = self.animations.closed;
 
         self.sounds = {}
+        self.sounds.open = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/open.wav"), "static")
     end,
 
     update = function(self, dt)
@@ -47,6 +48,7 @@ Chest = Class {
 
     open = function(self)
         self.currentAnimation = self.animations.open;
+        self.sounds.open:play()
     end,
     
     _getCenterPosition = function(self)
