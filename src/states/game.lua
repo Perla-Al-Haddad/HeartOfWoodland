@@ -10,8 +10,9 @@ local Camera = require("src.Camera");
 local Wall = require("src.Wall");
 local EffectsHandler = require("src.EffectsHandler");
 local EnemiesHandler = require("src.EnemiesHandler");
+local ObjectsHandler = require("src.ObjectsHandler");
+local DropsHandler = require("src.DropsHandler");
 local Enemy = require("src.Enemy");
-local ObjectsHandler = require("src.ObjectsHandler")
 local Chest = require("src.Chest");
 local UI = require("src.UI");
 
@@ -35,10 +36,15 @@ function game:enter()
     world:addCollisionClass('Dead', {ignores = {'Ignore'}});
     world:addCollisionClass('Wall', {ignores = {'Ignore'}});
     world:addCollisionClass('Chest', {ignores = {'Ignore'}});
+    world:addCollisionClass('Drops', {ignores = {'Ignore'}});
     world:addCollisionClass('Player', {ignores = {'Ignore', "EnemyHurt"}});
     world:addCollisionClass('EnemyHit', {ignores = {'Ignore', "EnemyHurt"}});
     
-    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 10, world);
+    effectsHandler = EffectsHandler();
+    dropsHandler = DropsHandler(); 
+    enemiesHandler = EnemiesHandler();
+
+    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 10, world, dropsHandler);
     chest = Chest(TILE_SIZE * 35, TILE_SIZE * 8, 16, 16, world);
     ui = UI()
 
@@ -46,36 +52,35 @@ function game:enter()
     shake = Shake(camera.camera);
 
     gameMap = sti("/maps/village/village.lua");
-
-    chestHandler = ObjectsHandler()
-    chestHandler:addObject(chest)
-
-    effectsHandler = EffectsHandler();
-    
-    enemiesHandler = EnemiesHandler();
-    if gameMap.layers["Enemies"] then
-        for i, obj in pairs(gameMap.layers["Enemies"].objects) do
-            enemy = Enemy(obj.x, obj.y, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world);
-            enemiesHandler:addEnemy(enemy);
-        end
-    end
     if gameMap.layers["walls"] then
         for i, obj in pairs(gameMap.layers["Walls"].objects) do
             Wall(obj.x, obj.y, obj.width, obj.height, world);
         end
     end
+
+    chestHandler = ObjectsHandler();
+    chestHandler:addObject(chest);
+
+    if gameMap.layers["Enemies"] then
+        for i, obj in pairs(gameMap.layers["Enemies"].objects) do
+            enemy = Enemy(obj.x, obj.y, 32, 32, 60, 5, 5, 10, 10, 3, '/assets/sprites/characters/slime.png', world, dropsHandler);
+            enemiesHandler:addEnemy(enemy);
+        end
+    end
+
 end
 
 
 function game:update(dt)
     world:update(dt);
     player:updateAbs(dt, effectsHandler, enemiesHandler, shake);
-    enemiesHandler:updateEnemies(dt)
-    chestHandler:updateObjects(dt);
     camera:update(dt, player, gameMap);
     shake:update(dt);
     gameMap:update(dt);
+    enemiesHandler:updateEnemies(dt);
+    chestHandler:updateObjects(dt);
     effectsHandler:updateEffects(dt);
+    dropsHandler:updateDrops(dt);
 end
 
 
@@ -92,6 +97,7 @@ function game:draw()
     enemiesHandler:drawEnemies();
     effectsHandler:drawEffects(-1);
     chestHandler:drawObjects();
+    dropsHandler:drawDrops();
     player:drawAbs();
     effectsHandler:drawEffects(0);
 

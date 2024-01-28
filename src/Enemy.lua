@@ -6,34 +6,33 @@ local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
 
 local Entity = require("src.Entity")
+local HealthDrop = require("src.HealthDrop")
 
 local settings = require("src.utils.settings")
 local shaders = require("src.utils.shaders")
 
 
-local onLoop = function(animation)
-    animation:pauseAtEnd(3)
-end
-
 Enemy = Class {
     __includes = {Entity},
+    _dropsHandler = nil,
 
     init = function(self, positionX, positionY, width, height, speed,
                     hitBoxWidth, hitBoxHeight, 
                     hurtBoxWidth, hurtBoxHeight, 
-                    heightOffset, animationSheet, world)
+                    heightOffset, animationSheet, world, dropsHandler)
         Entity.init(self, positionX, positionY, width, height, speed,
                     ENEMY_HIT_COLLISION_CLASS,
                     ENEMY_HURT_COLLISION_CLASS,
                     hitBoxWidth, hitBoxHeight, 
                     hurtBoxWidth, hurtBoxHeight,
                     heightOffset, animationSheet, world)
+        _dropsHandler = dropsHandler
 
         self.hurtCollider:setLinearDamping(10)
 
         self.hitCollider:setType("static")
 
-        self.health = 5
+        self.health = 3
 
         self.startX = positionX + 30
         self.startY = positionY + 30
@@ -75,23 +74,7 @@ Enemy = Class {
         self.health = self.health - damage;
         
         if self.health <= 0 then 
-            self.currentAnimation = self.animations.dead
-            if self.hitCollider == nil then return end;
-            self.hitCollider:destroy()
-            self.hitCollider = nil
-            
-            local px, py = self.hurtCollider:getX(), self.hurtCollider:getY()
-            self.hurtCollider:destroy()
-            self.hurtCollider = world:newBSGRectangleCollider(
-                px, py,
-                self.hurtBoxWidth, self.hurtBoxHeight, 3, 
-                {collision_class = "Dead"}
-            );
-            self.hurtCollider:applyLinearImpulse((dir:normalized()*100):unpack())
-            self.hurtCollider:setLinearDamping(10)
-            self.hurtCollider:setFixedRotation(true)
-
-            self.sounds.death:play()
+            self:_die(dir)
             return;
         end
 
@@ -104,10 +87,32 @@ Enemy = Class {
         self.hurtCollider:applyLinearImpulse((dir:normalized()*mag):unpack())
     end,
 
+    _die = function(self, dir)
+        self.currentAnimation = self.animations.dead
+        if self.hitCollider == nil then return end;
+        self.hitCollider:destroy()
+        self.hitCollider = nil
+        
+        local px, py = self.hurtCollider:getX(), self.hurtCollider:getY()
+        self.hurtCollider:destroy()
+        self.hurtCollider = _world:newBSGRectangleCollider(
+            px, py,
+            self.hurtBoxWidth, self.hurtBoxHeight, 3, 
+            {collision_class = "Dead"}
+        );
+        self.hurtCollider:applyLinearImpulse((dir:normalized()*100):unpack())
+        self.hurtCollider:setLinearDamping(10)
+        self.hurtCollider:setFixedRotation(true)
+
+        self.sounds.death:play()
+
+        if math.random(1,10) > 5 then _dropsHandler:addDrop(HealthDrop(px, py, _world)) end
+    end,
+
     _getAnimationsAbs = function(self)
         animations = {}
         animations.idle = anim8.newAnimation(self.grid('1-4', 1), 0.25)
-        animations.dead = anim8.newAnimation(self.grid('1-5', 5), 0.25, onLoop)
+        animations.dead = anim8.newAnimation(self.grid('1-5', 5), 0.25, function(animation) animation:pauseAtEnd(3) end)
 
         return animations
     end,

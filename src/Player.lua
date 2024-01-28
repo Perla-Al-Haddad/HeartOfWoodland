@@ -21,16 +21,15 @@ local audio = require("src.utils.audio");
 
 Player = Class {
     __includes = {Entity},
-    _world = nil,
     _polygon = nil,
+    _dropsHandler = nil,
 
     init = function(self, positionX, positionY, width, height, speed,
-                    hurtBoxWidth, hurBoxHeight, heightOffset, world)
+                    hurtBoxWidth, hurBoxHeight, heightOffset, world, dropsHandler)
         Entity.init(self, positionX, positionY, width, height, speed, nil, PLAYER_COLLISION_CLASS,
                     nil, nil, hurtBoxWidth, hurBoxHeight, heightOffset,
                     PLAYER_SPRITE_SHEET_PATH, world)
-
-        _world = world
+        _dropsHandler = dropsHandler
 
         self.health = 3
 
@@ -58,6 +57,7 @@ Player = Class {
         self:_handleSwordSwing(dt, effectsHandler, enemiesHandler, shake)
         self:_handleEnemyCollision(dt, shake)
         self:_handleStunnedDuration(dt)
+        self:_handleDropCollision(dt)
     end,
 
     drawAbs = function(self)
@@ -334,6 +334,20 @@ Player = Class {
         if self.stunTimer <= 0 then
             self.state = "default"
         end
+    end,
+
+    _handleDropCollision = function(self, dt)
+        if not self.hurtCollider:enter('Drops') then return end
+
+        local px, py = self:_getCenterPosition()
+        hitDrops = _world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, {'Drops'});
+
+        for _, dropCollider in ipairs(hitDrops) do
+            drop = _dropsHandler:getDropByCollider(dropCollider)
+            drop:pickUp()
+            if drop.type == "heart" then self.health = self.health + 1 end
+        end
+
     end
 }
 
