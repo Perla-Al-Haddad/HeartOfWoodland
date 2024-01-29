@@ -1,13 +1,18 @@
 local Gamestate = require("lib.hump.gamestate");
+local push = require("lib.push");
 
-local game = require("src.states.game")
-local menu = require("src.states.menu")
+local menu = require("src.states.menu");
+local conf = require("src.utils.conf");
+
 
 function love.load()
     math.randomseed(os.time())
 
-    love.graphics.setBackgroundColor(26 / 255, 26 / 255, 26 / 255);
-    love.window.setMode(0, 0, {fullscreen = true});
+    local windowWidth, windowHeight = love.window.getDesktopDimensions();
+    push:setupScreen(conf.gameWidth, conf.gameHeight, windowWidth, windowHeight, {
+        fullscreen = true,
+      })
+
     love.graphics.setDefaultFilter("nearest", "nearest");
 
     Gamestate.registerEvents()

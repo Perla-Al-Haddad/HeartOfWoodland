@@ -142,7 +142,7 @@ Player = Class {
 
     _swordDamage = function(self, dt, shake)
         local px, py = self.hurtCollider:getPosition()
-        local dir = player.attackDir:normalized()
+        local dir = self.attackDir:normalized()
         local rightDir = dir:rotated(math.pi/2)
         local leftDir = dir:rotated(math.pi/-2)
         _polygon = {

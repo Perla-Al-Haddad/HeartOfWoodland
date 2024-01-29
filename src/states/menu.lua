@@ -5,8 +5,7 @@ local OPTIONS_MARGIN = 10;
 local windfield = require("lib/windfield");
 local Vector = require("lib.hump.vector")
 local Gamestate = require("lib.hump.gamestate");
-local anim8 = require("lib.anim8.anim8")
-local sti = require("lib/sti/sti");
+local push = require("lib.push");
 
 local Camera = require("src.Camera");
 local Player = require("src.Player");
@@ -67,7 +66,7 @@ end
 
 
 function menu:draw()
-    love.graphics.setBackgroundColor(0,0,0);
+    push:start()
 
     title = "Heart \nof \nWoodland"
     titleWidth = font:getWidth(title)
@@ -104,6 +103,8 @@ function menu:draw()
     effectsHandler:drawEffects(-1);
     player:drawAbs()
     effectsHandler:drawEffects(0)
+
+    push:finish()
 end
 
 

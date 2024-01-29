@@ -1,6 +1,9 @@
 local HumpCamera = require("lib/hump/camera")
 local Class = require("lib.hump.class")
 
+local conf = require("src.utils.conf")
+
+
 Camera = Class {
     init = function(self, scale, originX, originY)
         self.scale = scale
@@ -14,8 +17,8 @@ Camera = Class {
 
         -- This section prevents the camera from viewing outside the background
         -- First, get width/height of the game window, divided by the game scale
-        local w = love.graphics.getWidth() / self.scale
-        local h = love.graphics.getHeight() / self.scale
+        local w = conf.gameWidth / self.scale
+        local h = conf.gameHeight / self.scale
 
         -- Get width/height of background
         local mapW = gameMap.width * gameMap.tilewidth
