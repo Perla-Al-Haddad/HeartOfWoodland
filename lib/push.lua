@@ -121,8 +121,7 @@ function push:initValues()
     self._OFFSET = {x = 0, y = 0}
   else
     local scale = math.min(self._SCALE.x, self._SCALE.y)
-    print("SCALE", scale)
-    -- if scale < 1 then scale = 1 end;
+    print(scale)
     if self._pixelperfect then scale = math.floor(scale) end
     
     self._OFFSET = {x = (self._SCALE.x - scale) * (self._WWIDTH/2), y = (self._SCALE.y - scale) * (self._WHEIGHT/2)}
