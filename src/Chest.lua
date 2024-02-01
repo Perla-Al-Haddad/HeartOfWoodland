@@ -6,17 +6,16 @@ local anim8 = require("lib.anim8.anim8")
 
 
 Chest = Class {
-    _world = nil,
 
     init = function(self, positionX, positionY, width, height, world) 
-        _world = world
+        self._world = world
 
         self.type = "chest"
 
         self.width = width
         self.height = height
 
-        self.collider = world:newBSGRectangleCollider(positionX, positionY,
+        self.collider = self._world:newBSGRectangleCollider(positionX, positionY,
                                                     self.width,
                                                     self.height, 0, 
                                                     {collision_class = CHEST_COLLISION_CLASS})

@@ -3,7 +3,9 @@ local Class = require("lib.hump.class")
 EffectsHandler = Class {
     init = function(self) self.effects = {} end,
 
-    addEffect = function(self, effect) table.insert(self.effects, effect) end,
+    addEffect = function(self, effect) 
+        table.insert(self.effects, effect)
+    end,
 
     updateEffects = function(self, dt)
         for _, e in ipairs(self.effects) do e.anim:update(dt) end

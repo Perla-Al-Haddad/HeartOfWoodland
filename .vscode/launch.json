@@ -11,7 +11,7 @@
             "program": {
                 "command": "lovec"
             },
-            "args": ["${workspaceFolder}"],
+            "args": ["${workspaceFolder}", "debug"],
             "stopOnEntry": true,
             // "justMyCode": false
         }

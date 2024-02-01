@@ -10,15 +10,14 @@ local anim8 = require("lib.anim8.anim8")
 
 
 HealthDrop = Class {
-    _world = nil,
 
     init = function(self, positionX, positionY, world) 
-        _world = world
+        self._world = world
         self.type = "heart"
 
         self.pickedUp = false;
 
-        self.collider = world:newBSGRectangleCollider(positionX, positionY,
+        self.collider = self._world:newBSGRectangleCollider(positionX, positionY,
                                                     COLLIDER_DIM, COLLIDER_DIM, 0, 
                                                     {collision_class = DROP_COLLISION_CLASS})
         self.collider:setType("static")

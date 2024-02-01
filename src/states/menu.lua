@@ -1,20 +1,23 @@
-local SCALE = 3
-local SWITCH_TIMER = 2
-local OPTIONS_MARGIN = 10;
+local SCALE = 2
+local SWITCH_TIMER = 0.5
 
 local windfield = require("lib/windfield");
 local Vector = require("lib.hump.vector")
 local Gamestate = require("lib.hump.gamestate");
 local push = require("lib.push");
 
-local Camera = require("src.Camera");
 local Player = require("src.Player");
 local EffectsHandler = require("src.EffectsHandler");
 
 local audio = require("src.utils.audio");
 local conf = require("src.utils.conf");
+local fonts = require("src.utils.fonts");
+local globalFuncs = require("src.utils.globalFuncs");
 
 local menu = {}
+
+local cursor, options, switchTimer, switch, menuWorld,
+    effectsHandler, player, sounds, walk;
 
 function menu:enter()
     cursor = {
@@ -23,23 +26,18 @@ function menu:enter()
         current = 1
     }
 
-    options = {"Play", "Settings", "Exit"}
+    options = {"PLAY", "SETTINGS", "EXIT"}
 
     switchTimer = SWITCH_TIMER;
     switch = false;
 
-    world = windfield.newWorld(0, 0, false);
+    menuWorld = windfield.newWorld(0, 0, false);
 
-    windowWidth, windowHeight = love.graphics:getWidth(), love.graphics:getHeight()
-
-    font = love.graphics.newFont("assets/fonts/Pixel Georgia Bold.ttf", 80);
-    fontSmall = love.graphics.newFont("assets/fonts/Pixel Georgia Bold.ttf", 25);
-    fontSmaller = love.graphics.newFont("assets/fonts/Pixel Georgia Bold.ttf", 20);
-    if conf.music then audio.menuMusic:play() end
+    if conf.MUSIC then audio.menuMusic:play() end
 
     effectsHandler = EffectsHandler();
-    
-    player = Player((windowWidth/2 - 32/2)/SCALE, (windowHeight/2 + 32)/SCALE, 32, 32, 160, 12, 12, 10, world, {effects=effectsHandler});
+
+    player = Player((conf.gameWidth/2 - 16)/SCALE, (conf.gameHeight/2 + 16)/SCALE, 32, 32, 160, 12, 12, 10, menuWorld, {effects=effectsHandler});
     player._handlePlayerMovement = function(self, dt) end
 
     sounds = {}
@@ -48,19 +46,20 @@ end
 
 
 function menu:update(dt)
+
     if switch then 
         audio:fadeOut(audio.menuMusic, switchTimer)
-        switchTimer = switchTimer - dt 
+        switchTimer = switchTimer - dt
     end;
 
-    world:update(dt);
+    menuWorld:update(dt);
     player:updateAbs(dt, nil);
     player.currentAnimation = player.animations.walk;
     effectsHandler:updateEffects(dt);
 
     if switchTimer < 0 then
-        local game = require("src.states.game")
-        Gamestate.switch(game)
+        local forestLevel = require("src.states.forestLevel")
+        Gamestate.switch(forestLevel)
     end
 end
 
@@ -68,56 +67,62 @@ end
 function menu:draw()
     push:start()
 
-    title = "Heart \nof \nWoodland"
-    titleWidth = font:getWidth(title)
-    love.graphics.setFont(font)
+    local title = "HEART\nOF\nWOODLAND"
+    local titleWidth = fonts.title:getWidth(title)
+    love.graphics.setFont(fonts.title)
     love.graphics.setColor(91/255, 169/255, 121/255)
-    love.graphics.printf(title, windowWidth/2 - titleWidth/2, windowHeight/6, titleWidth, "center")
+    love.graphics.printf(title, conf.gameWidth/2 - titleWidth/2, conf.gameHeight/7, titleWidth, "center")
 
-    love.graphics.setFont(fontSmall)
+    love.graphics.setFont(fonts.small)
     love.graphics.setColor(1, 1, 1)
+    local textHeight;
     for i, option in ipairs(options) do
-        textHeight = fontSmall:getHeight(option)
+        textHeight = fonts.small:getHeight(option)
         love.graphics.print(
-            option, 
-            windowWidth/2 - titleWidth/2, 
-            windowHeight - windowHeight/3 + (textHeight + OPTIONS_MARGIN) * (i - 1))
+            option,
+            conf.gameWidth/2 - titleWidth/2,
+            conf.gameHeight - conf.gameHeight/3 + (textHeight + fonts.OPTIONS_MARGIN) * (i - 1))
     end
 
     love.graphics.circle(
-        "fill", 
-        windowWidth/2 - titleWidth/2 - 20, 
-        windowHeight - windowHeight/3 + textHeight/2 + (textHeight + OPTIONS_MARGIN) * (cursor.current - 1), 
+        "fill",
+        conf.gameWidth/2 - titleWidth/2 - 20,
+        conf.gameHeight - conf.gameHeight/3 + textHeight/2 + (textHeight + fonts.OPTIONS_MARGIN) * (cursor.current - 1),
         textHeight/3)
 
-    love.graphics.setFont(fontSmaller)
-    love.graphics.setColor(1, 1, 1, 0.5)
-    text = "Press [E] to select"
-    textWidth = fontSmaller:getWidth(text)
+    love.graphics.setFont(fonts.smaller)
+    love.graphics.setColor(1, 1, 1, 0.7)
+    local text = "PRESS [E] TO SELECT"
+    local textWidth = fonts.smaller:getWidth(text)
     love.graphics.print(
-        text, 
-        windowWidth/2 - textWidth/2, 
-        windowHeight - windowHeight/6)
+        text,
+        conf.gameWidth/2 - textWidth/2, 
+        conf.gameHeight - conf.gameHeight/6)
 
-    love.graphics.scale(SCALE,SCALE)
+    love.graphics.push()
+    love.graphics.scale(SCALE)
+    love.graphics.setColor(1, 1, 1, 1)
     effectsHandler:drawEffects(-1);
     player:drawAbs()
     effectsHandler:drawEffects(0)
+    love.graphics.pop()
 
     push:finish()
 end
 
 
 function menu:keypressed(key)
+    globalFuncs.keypressed(key)
+
     if key == "e" or key == "E" then
-        if cursor.current == 1 then 
+        if cursor.current == 1 then
             walk()
             switch = true
         elseif cursor.current == 2 then
             local settings = require("src.states.settings")
-            Gamestate.switch(settings, menu)
+            Gamestate.switch(settings)
         elseif cursor.current == 3 then
-            love.event.quit(); 
+            love.event.quit();
         end
     end
     if key == "down" then
@@ -133,7 +138,7 @@ function menu:keypressed(key)
 end
 
 
-function walk() 
+walk = function()
     player._handlePlayerMovement = function(self, dt)
         if self.state ~= 'default' then return end
 
@@ -161,11 +166,11 @@ function walk()
 
             if self.dustEffectTimer <= 0 then
                 self.dustEffectTimer = 0.25
-                dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY()-1)
-                _handlers.effects:addEffect(dustEffect)
+                local dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY()-1)
+                self._handlers.effects:addEffect(dustEffect)
             end
 
-            if self.walkSoundTimer <= 0 then 
+            if self.walkSoundTimer <= 0 then
                 self.walkSoundTimer = 0.38
                 self.sounds.walk:play()
             end

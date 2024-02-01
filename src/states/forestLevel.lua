@@ -18,16 +18,18 @@ local Chest = require("src.Chest");
 local UI = require("src.UI");
 
 local Shake = require("src.utils.Shake");
+local funcs = require("src.utils.funcs");
 local conf = require("src.utils.conf");
 local audio = require("src.utils.audio");
 local globalFuncs = require("src.utils.globalFuncs");
 
-local game = {}
+local forestLevel = {}
 local world, opacity, player, ui, camera, shake, gameMap;
 
 local entitesNull = true
 
-function game:initEntities()
+
+function forestLevel:initEntities()
     entitesNull = false
 
     world = windfield.newWorld(0, 0, false);
@@ -57,15 +59,15 @@ function game:initEntities()
         objects = objectsHandler
     }
 
-    player = Player(TILE_SIZE * 30, TILE_SIZE * 30, 32, 32, 140, 12, 12, 10, world, handlers);
+    player = Player(TILE_SIZE * 15, TILE_SIZE * 15, 32, 32, 140, 12, 12, 10, world, handlers);
     ui = UI()
 
     camera = Camera(CAMERA_SCALE, player.hurtCollider:getX(), player.hurtCollider:getY());
     shake = Shake(camera.camera);
 
-    gameMap = sti("/maps/village/village.lua");
-    if gameMap.layers["walls"] then
-        for _, obj in pairs(gameMap.layers["Walls"].objects) do
+    gameMap = sti("/maps/forest/forest.lua");
+    if gameMap.layers["wallObjects"] then
+        for _, obj in pairs(gameMap.layers["wallObjects"].objects) do
             Wall(obj.x, obj.y, obj.width, obj.height, world);
         end
     end
@@ -77,21 +79,18 @@ function game:initEntities()
         end
     end
 
-    local chest = Chest(TILE_SIZE * 35, TILE_SIZE * 8, 16, 16, world);
-    objectsHandler:addObject(chest);
 end
 
 
-
-function game:enter()
+function forestLevel:enter()
     if conf.MUSIC then audio.gameMusic:play() end
     if entitesNull then
-        game:initEntities()
+        forestLevel:initEntities()
     end
 end
 
 
-function game:update(dt)
+function forestLevel:update(dt)
     if opacity > 0 then opacity = opacity - dt end;
 
     world:update(dt);
@@ -106,7 +105,7 @@ function game:update(dt)
 end
 
 
-function game:draw()
+function forestLevel:draw()
     push:start()
 
     love.graphics.setColor(1, 1, 1);
@@ -114,9 +113,9 @@ function game:draw()
     camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
     gameMap:drawLayer(gameMap.layers["ground"]);
-    gameMap:drawLayer(gameMap.layers["mountains"]);
     gameMap:drawLayer(gameMap.layers["walls"]);
     gameMap:drawLayer(gameMap.layers["decor"]);
+    gameMap:drawLayer(gameMap.layers["treesBottom"]);
 
     player._handlers.enemies:drawEnemies();
     player._handlers.effects:drawEffects(-1);
@@ -126,6 +125,7 @@ function game:draw()
     player._handlers.effects:drawEffects(0);
 
     gameMap:drawLayer(gameMap.layers["upperWalls"]);
+    gameMap:drawLayer(gameMap.layers["treesTop"]);
 
     if conf.DEBUG.DRAW_WORLD then
         world:draw();
@@ -141,11 +141,11 @@ function game:draw()
     push:finish()
 end
 
-function game:mousepressed(x, y, button)
+function forestLevel:mousepressed(x, y, button)
     if button == 1 then player:useItem('sword', camera.camera) end
 end
 
-function game:keypressed(key)
+function forestLevel:keypressed(key)
     globalFuncs.keypressed(key)
 
     if key == 'e' or key == 'E' then
@@ -157,4 +157,4 @@ function game:keypressed(key)
     end
 end
 
-return game
+return forestLevel

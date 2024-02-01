@@ -21,16 +21,15 @@ local audio = require("src.utils.audio");
 
 Player = Class {
     __includes = {Entity},
-    _polygon = nil,
-    _handlers = nil,
 
     init = function(self, positionX, positionY, width, height, speed,
                     hurtBoxWidth, hurBoxHeight, heightOffset, world, handlers)
         Entity.init(self, positionX, positionY, width, height, speed, nil, PLAYER_COLLISION_CLASS,
                     nil, nil, hurtBoxWidth, hurBoxHeight, heightOffset,
                     PLAYER_SPRITE_SHEET_PATH, world)
-        _handlers = handlers
+        self._handlers = handlers
 
+        self.polygon = nil
         self.health = 3
 
         self.pressedDirY = 0
@@ -72,10 +71,9 @@ Player = Class {
                                     self.hurtCollider.dirX, 1, 0, 0)
         love.graphics.setShader()
 
-        if _polygon ~= nil and conf.DEBUG.HIT_BOXES then
+        if self.polygon ~= nil and conf.DEBUG.HIT_BOXES then
             love.graphics.setColor(0, 0, 1, 0.5)
-            love.graphics.polygon("fill", _polygon)
-
+            love.graphics.polygon("fill", self.polygon)
         end
         if conf.DEBUG.HIT_BOXES then
             love.graphics.setColor(0, 0, 1, 0.5)
@@ -92,16 +90,16 @@ Player = Class {
 
     interact = function(self)
         local px, py = self:_getCenterPosition()
-        hitChests = _world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, {'Objects'});
+        local hitChests = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, {'Objects'});
 
         for _, objectCollider in ipairs(hitChests) do
-            obj = _handlers.objects:getObjectByCollider(objectCollider)
+            local obj = self._handlers.objects:getObjectByCollider(objectCollider)
             if obj.type == "chest" then obj:open() end
         end
     end,
 
     _getAnimationsAbs = function(self)
-        animations = {}
+        local animations = {}
         animations.idle = anim8.newAnimation(self.grid('1-6', 1), 0.15)
         animations.walk = anim8.newAnimation(self.grid('8-12', 1), 0.15)
         animations.swing = anim8.newAnimation(self.grid('1-1', 1), 0.15)
@@ -117,7 +115,7 @@ Player = Class {
     end,
 
     _swingSword = function(self, camera)
-        canSwing = (self.state == "swing" or self.state == "swinging")
+        local canSwing = (self.state == "swing" or self.state == "swinging")
         if canSwing then
             self:_addToBuffer("sword")
             return
@@ -145,7 +143,7 @@ Player = Class {
         local dir = self.attackDir:normalized()
         local rightDir = dir:rotated(math.pi/2)
         local leftDir = dir:rotated(math.pi/-2)
-        _polygon = {
+        self.polygon = {
             px + dir.x*30,
             py + dir.y*30,
             px + dir:rotated(math.pi/8).x*30,
@@ -170,12 +168,12 @@ Player = Class {
             py + dir:rotated(math.pi/-8).y*30,
         }
 
-        local range = math.random()/4
+        -- local range = math.random()/4
 
-        local hitEnemies = _world:queryPolygonArea(_polygon, {'EnemyHurt'})
+        local hitEnemies = self._world:queryPolygonArea(self.polygon, {'EnemyHurt'})
 
         for _, enemyCollider in ipairs(hitEnemies) do
-            enemy = _handlers.enemies:getEnemyByCollider(enemyCollider)
+            local enemy = self._handlers.enemies:getEnemyByCollider(enemyCollider)
             local knockbackDir = self:_getPlayerToSelfVector(enemyCollider:getX(), enemyCollider:getY())
             if enemy then enemy:hit(1, knockbackDir, shake) end
         end
@@ -186,7 +184,7 @@ Player = Class {
     end,
 
     _handleSwordSwing = function(self, dt, shake)
-        isNotSwinging = not (self.state == 'swing' or self.state == 'swinging')
+        local isNotSwinging = not (self.state == 'swing' or self.state == 'swinging')
         if isNotSwinging then return end
 
         self.animationTimer = self.animationTimer - dt
@@ -198,7 +196,7 @@ Player = Class {
             self.hurtCollider:setLinearDamping(35)
         end
 
-        stillSwinging = self.animationTimer >= 0
+        local stillSwinging = self.animationTimer >= 0
         if stillSwinging then return end
 
         if self.state == "swing" then
@@ -209,10 +207,10 @@ Player = Class {
             local swingEffect = SwingEffect(self.hurtCollider:getX(),
                                             self.hurtCollider:getY(),
                                             self.attackDir, self.comboCount)
-            _handlers.effects:addEffect(swingEffect)
+            self._handlers.effects:addEffect(swingEffect)
             self:_swordDamage(dt, shake)
         elseif self.state == "swinging" then
-            _polygon = nil
+            self.polygon = nil
             self.state = "default"
         end
     end,
@@ -261,8 +259,8 @@ Player = Class {
 
             if self.dustEffectTimer <= 0 then
                 self.dustEffectTimer = 0.25
-                dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY()-1)
-                _handlers.effects:addEffect(dustEffect)
+                local dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY()-1)
+                self._handlers.effects:addEffect(dustEffect)
             end
 
             if self.walkSoundTimer <= 0 then 
@@ -303,10 +301,12 @@ Player = Class {
             self.sounds.death:play()
             audio.gameMusic:stop()
             local menu = require("src.states.menu")
+            local game = require("src.states.game")
+            game:initEntities()
             Gamestate.switch(menu)
         end
         
-        knockbackDir = Vector(-self.pressedDirX, -self.pressedDirY):normalized()
+        local knockbackDir = Vector(-self.pressedDirX, -self.pressedDirY):normalized()
         self.hurtCollider:applyLinearImpulse((knockbackDir:normalized()*KNOCKBACK_STRENGTH):unpack())
 
         shake:start(0.1, 1, 0.02);
@@ -337,10 +337,10 @@ Player = Class {
         if not self.hurtCollider:enter('Drops') then return end
 
         local px, py = self:_getCenterPosition()
-        hitDrops = _world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, {'Drops'});
+        local hitDrops = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, {'Drops'});
 
         for _, dropCollider in ipairs(hitDrops) do
-            drop = _handlers.drops:getDropByCollider(dropCollider)
+            local drop = self._handlers.drops:getDropByCollider(dropCollider)
             drop:pickUp()
             if drop.type == "heart" then self.health = self.health + 1 end
         end

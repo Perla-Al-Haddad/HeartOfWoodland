@@ -7,14 +7,12 @@ local conf = require("src.utils.conf")
 
 
 Entity = Class {
-    _world = nil;
-    
     init = function(self, positionX, positionY, width, height, speed,
                     hitCollisionClass, hurtCollisionClass, 
                     hitBoxWidth, hitBoxHeight,
                     hurtBoxWidth, hurtBoxHeight,
                     heightOffset, animationSheet, world)
-        _world = world
+        self._world = world
 
         self.dir = "down"
         self.dirX = 1
@@ -37,14 +35,14 @@ Entity = Class {
         self.height = height
 
         if self.hitBoxHeight ~= nil and self.hitBoxWidth ~= nil then
-            self.hitCollider = _world:newBSGRectangleCollider(positionX, positionY,
+            self.hitCollider = self._world:newBSGRectangleCollider(positionX, positionY,
                                                              self.hitBoxWidth,
                                                              self.hitBoxHeight, 0, {
                 collision_class = hitCollisionClass
             })
         end
 
-        self.hurtCollider = _world:newBSGRectangleCollider(positionX, positionY,
+        self.hurtCollider = self._world:newBSGRectangleCollider(positionX, positionY,
                                                          self.hurtBoxWidth,
                                                          self.hurtBoxHeight, 3, {
             collision_class = hurtCollisionClass

@@ -13,7 +13,6 @@ local shaders = require("src.utils.shaders")
 
 Enemy = Class {
     __includes = {Entity},
-    _dropsHandler = nil,
 
     init = function(self, positionX, positionY, width, height, speed,
                     hitBoxWidth, hitBoxHeight, 
@@ -25,7 +24,7 @@ Enemy = Class {
                     hitBoxWidth, hitBoxHeight, 
                     hurtBoxWidth, hurtBoxHeight,
                     heightOffset, animationSheet, world)
-        _dropsHandler = dropsHandler
+        self._dropsHandler = dropsHandler
 
         self.hurtCollider:setLinearDamping(10)
 
@@ -94,7 +93,7 @@ Enemy = Class {
         
         local px, py = self.hurtCollider:getX(), self.hurtCollider:getY()
         self.hurtCollider:destroy()
-        self.hurtCollider = _world:newBSGRectangleCollider(
+        self.hurtCollider = self._world:newBSGRectangleCollider(
             px, py,
             self.hurtBoxWidth, self.hurtBoxHeight, 3, 
             {collision_class = "Dead"}
@@ -105,11 +104,11 @@ Enemy = Class {
 
         self.sounds.death:play()
 
-        if math.random(1,10) > 5 then _dropsHandler:addDrop(HealthDrop(px, py, _world)) end
+        if math.random(1,10) > 5 then self._dropsHandler:addDrop(HealthDrop(px, py, self._world)) end
     end,
 
     _getAnimationsAbs = function(self)
-        animations = {}
+        local animations = {}
         animations.idle = anim8.newAnimation(self.grid('1-4', 1), 0.25)
         animations.dead = anim8.newAnimation(self.grid('1-5', 5), 0.25, function(animation) animation:pauseAtEnd(3) end)
 
@@ -119,7 +118,7 @@ Enemy = Class {
     _getCurrentAnimationAbs = function(self) return self.animations.idle end,
 
     _wander = function(self, dt)
-        canWander = (self.state ~= "wandering-moving" or self.state ~=
+        local canWander = (self.state ~= "wandering-moving" or self.state ~=
                         "wandering-stopped") and (self.health > 0)
 
         if not canWander then return end
