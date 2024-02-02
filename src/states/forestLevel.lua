@@ -1,10 +1,9 @@
-local TILE_SIZE = 16;
 local CAMERA_SCALE = 1;
 
 local sti = require("lib/sti/sti");
 local windfield = require("lib/windfield");
 local push = require("lib.push");
-local Gamestate = require("lib.hump.gamestate");
+local Gamestate = require("lib.hump.gamestate"); 
 
 local Player = require("src.Player");
 local Camera = require("src.Camera");
@@ -59,15 +58,21 @@ function forestLevel:initEntities()
         objects = objectsHandler
     }
 
-    player = Player(TILE_SIZE * 15, TILE_SIZE * 15, 32, 32, 140, 12, 12, 10, world, handlers);
+    gameMap = sti("/maps/forest/forest.lua");
+
+    if gameMap.layers["Player"] then
+        for _, obj in pairs(gameMap.layers["Player"].objects) do
+            player = Player(obj.x, obj.y, 32, 32, 140, 12, 12, 10, world, handlers);
+        end
+    end
+
     ui = UI()
 
     camera = Camera(CAMERA_SCALE, player.hurtCollider:getX(), player.hurtCollider:getY());
     shake = Shake(camera.camera);
 
-    gameMap = sti("/maps/forest/forest.lua");
-    if gameMap.layers["wallObjects"] then
-        for _, obj in pairs(gameMap.layers["wallObjects"].objects) do
+    if gameMap.layers["Walls"] then
+        for _, obj in pairs(gameMap.layers["Walls"].objects) do
             Wall(obj.x, obj.y, obj.width, obj.height, world);
         end
     end
@@ -112,20 +117,22 @@ function forestLevel:draw()
 
     camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
-    gameMap:drawLayer(gameMap.layers["ground"]);
-    gameMap:drawLayer(gameMap.layers["walls"]);
-    gameMap:drawLayer(gameMap.layers["decor"]);
-    gameMap:drawLayer(gameMap.layers["treesBottom"]);
-
-    player._handlers.enemies:drawEnemies();
-    player._handlers.effects:drawEffects(-1);
-    player._handlers.objects:drawObjects();
-    player._handlers.drops:drawDrops();
-    player:drawAbs();
-    player._handlers.effects:drawEffects(0);
-
-    gameMap:drawLayer(gameMap.layers["upperWalls"]);
-    gameMap:drawLayer(gameMap.layers["treesTop"]);
+    for _, layer in ipairs(gameMap.layers) do
+		if layer.visible and layer.opacity > 0 then
+            if layer.name == "Player" then
+                player._handlers.enemies:drawEnemies();
+                player._handlers.effects:drawEffects(-1);
+                player._handlers.objects:drawObjects();
+                player._handlers.drops:drawDrops();
+                player:drawAbs();
+                player._handlers.effects:drawEffects(0);
+            else
+                if layer.type == "tilelayer" then
+                    gameMap:drawLayer(layer)
+                end
+            end 
+		end
+	end
 
     if conf.DEBUG.DRAW_WORLD then
         world:draw();

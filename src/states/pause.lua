@@ -7,11 +7,12 @@ local fonts = require("src.utils.fonts");
 
 local settings = {}
 
-local options, cursor, sounds, _gameState, _gameMap, _player, _camera;
+local options, cursor, sounds, _prevState, _gameMap, _player, _camera, _levelState;
 
 
-function settings:enter(gameState, camera, gameMap, player)
-    _gameState = gameState
+function settings:enter(prevState, camera, gameMap, player, levelState)
+    _levelState = levelState
+    _prevState = prevState
     _camera = camera
     _gameMap = gameMap
     _player = player
@@ -33,19 +34,22 @@ function settings:draw()
 
     _camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
-    _gameMap:drawLayer(_gameMap.layers["ground"]);
-    _gameMap:drawLayer(_gameMap.layers["mountains"]);
-    _gameMap:drawLayer(_gameMap.layers["walls"]);
-    _gameMap:drawLayer(_gameMap.layers["decor"]);
-
-    _player._handlers.enemies:drawEnemies();
-    _player._handlers.effects:drawEffects(-1);
-    _player._handlers.objects:drawObjects();
-    _player._handlers.drops:drawDrops();
-    _player:drawAbs();
-    _player._handlers.effects:drawEffects(0);
-
-    _gameMap:drawLayer(_gameMap.layers["upperWalls"]);
+    for _, layer in ipairs(_gameMap.layers) do
+		if layer.visible and layer.opacity > 0 then
+            if layer.name == "Player" then
+                _player._handlers.enemies:drawEnemies();
+                _player._handlers.effects:drawEffects(-1);
+                _player._handlers.objects:drawObjects();
+                _player._handlers.drops:drawDrops();
+                _player:drawAbs();
+                _player._handlers.effects:drawEffects(0);
+            else
+                if layer.type == "tilelayer" then
+                    _gameMap:drawLayer(layer)
+                end
+            end 
+		end
+	end
 
     _camera.camera:detach();
 
@@ -81,23 +85,32 @@ end
 
 function settings:keypressed(key)
     if key == "q" or key == "Q" then 
-        local game = require("src.states.game")
-        Gamestate.switch(game)
+        local state;
+        if _levelState ~= nil then
+            state = _levelState
+        else
+            state = _prevState
+        end 
+        Gamestate.switch(state)
     end;
     if key == "e" or key == "E" then
+        local state;
+        if _levelState ~= nil then
+            state = _levelState
+        else
+            state = _prevState
+        end 
         if cursor.current == 1 then 
-            local game = require("src.states.game")
-            Gamestate.switch(game)
+            Gamestate.switch(state)
         elseif cursor.current == 2 then
             love.event.quit()
         elseif cursor.current == 3 then
             local menu = require("src.states.menu")
-            local game = require("src.states.game")
-            game:initEntities()
+            state:initEntities()
             Gamestate.switch(menu)
         elseif cursor.current == 4 then
             local settings = require("src.states.settings")
-            Gamestate.switch(settings, _camera, _gameMap, _player)
+            Gamestate.switch(settings, _camera, _gameMap, _player, _prevState)
         end
     end
     if key == "down" then

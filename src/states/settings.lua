@@ -8,10 +8,11 @@ local fonts = require("src.utils.fonts");
 local settings = {}
 local _prevState = nil;
 
-local options, cursor, sounds, _gameMap, _player, _camera;
+local options, cursor, sounds, _gameMap, _player, _camera, _levelState;
 
 
-function settings:enter(prevState, camera, gameMap, player)
+function settings:enter(prevState, camera, gameMap, player, levelState)
+    _levelState = levelState
     _prevState = prevState
     _camera = camera
     _gameMap = gameMap
@@ -35,19 +36,22 @@ function settings:draw()
     if _camera ~= nil then
         _camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
     
-        _gameMap:drawLayer(_gameMap.layers["ground"]);
-        _gameMap:drawLayer(_gameMap.layers["mountains"]);
-        _gameMap:drawLayer(_gameMap.layers["walls"]);
-        _gameMap:drawLayer(_gameMap.layers["decor"]);
-    
-        _player._handlers.enemies:drawEnemies();
-        _player._handlers.effects:drawEffects(-1);
-        _player._handlers.objects:drawObjects();
-        _player._handlers.drops:drawDrops();
-        _player:drawAbs();
-        _player._handlers.effects:drawEffects(0);
-    
-        _gameMap:drawLayer(_gameMap.layers["upperWalls"]);
+        for _, layer in ipairs(_gameMap.layers) do
+            if layer.visible and layer.opacity > 0 then
+                if layer.name == "Player" then
+                    _player._handlers.enemies:drawEnemies();
+                    _player._handlers.effects:drawEffects(-1);
+                    _player._handlers.objects:drawObjects();
+                    _player._handlers.drops:drawDrops();
+                    _player:drawAbs();
+                    _player._handlers.effects:drawEffects(0);
+                else
+                    if layer.type == "tilelayer" then
+                        _gameMap:drawLayer(layer)
+                    end
+                end
+            end
+        end
 
         _camera.camera:detach();
 
@@ -56,7 +60,7 @@ function settings:draw()
         love.graphics.setColor(1,1,1,1)
     end
 
-    local title = "Settings"
+    local title = "SETTINGS"
     local titleWidth = fonts.title:getWidth(title)
     love.graphics.setFont(fonts.title)
     love.graphics.setColor(91/255, 169/255, 121/255)
@@ -84,11 +88,11 @@ end
 
 function settings:keypressed(key)
     if key == "q" or key == "Q" then 
-        Gamestate.switch(_prevState, _camera, _gameMap, _player)
+        Gamestate.switch(_prevState, _camera, _gameMap, _player, _levelState)
     end;
     if key == "e" or key == "E" then
         if cursor.current == 1 then
-            Gamestate.switch(_prevState, _camera, _gameMap, _player)
+            Gamestate.switch(_prevState, _camera, _gameMap, _player, _levelState)
         end
     end
     if key == "down" then

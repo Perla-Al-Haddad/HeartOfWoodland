@@ -9,8 +9,8 @@ return {
   height = 50,
   tilewidth = 16,
   tileheight = 16,
-  nextlayerid = 13,
-  nextobjectid = 135,
+  nextlayerid = 14,
+  nextobjectid = 136,
   properties = {},
   tilesets = {
     {
@@ -470,6 +470,35 @@ return {
       }
     },
     {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 13,
+      name = "Player",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 135,
+          name = "",
+          type = "",
+          shape = "point",
+          x = 239,
+          y = 193,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        }
+      }
+    },
+    {
       type = "tilelayer",
       x = 0,
       y = 0,
@@ -613,7 +642,7 @@ return {
       type = "objectgroup",
       draworder = "topdown",
       id = 7,
-      name = "wallObjects",
+      name = "Walls",
       class = "",
       visible = true,
       opacity = 1,
