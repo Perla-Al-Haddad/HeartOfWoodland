@@ -13,7 +13,7 @@ local function linear(t, b, c, d)
 end
 
 function audio:fadeOut(sound, timer)
-    volume = linear(timer, -1, 1, 1)
+    local volume = linear(timer, 0, 1, 1)
     sound:setVolume(volume);
     if sound:getVolume() <= 0.01 then
         sound:setVolume(1)

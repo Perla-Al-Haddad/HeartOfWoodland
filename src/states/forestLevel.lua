@@ -65,8 +65,6 @@ function forestLevel:initEntities()
         end
     end
 
-    print(gameMap.layers["treesBottom"].objects)
-
     ui = UI()
 
     camera = Camera(CAMERA_SCALE, player.hurtCollider:getX(), player.hurtCollider:getY());
