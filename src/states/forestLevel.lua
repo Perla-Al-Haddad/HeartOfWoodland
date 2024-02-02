@@ -149,13 +149,16 @@ function forestLevel:draw()
     push:finish()
 end
 
-function forestLevel:mousepressed(x, y, button)
-    if button == 1 then player:useItem('sword', camera.camera) end
-end
+-- function forestLevel:mousepressed(x, y, button)
+--     if button == 1 then player:useItem('sword', camera.camera) end
+-- end
 
 function forestLevel:keypressed(key)
     globalFuncs.keypressed(key)
 
+    if key == 'h' or key == 'H' then
+        player:useItem('sword', camera.camera)
+    end
     if key == 'e' or key == 'E' then
         player:interact()
     end

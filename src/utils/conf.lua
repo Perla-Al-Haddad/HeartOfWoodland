@@ -5,7 +5,7 @@ conf.DEBUG.HURT_BOXES = false
 conf.DEBUG.HIT_BOXES = false
 conf.DEBUG.DRAW_WORLD = false
 
-conf.MUSIC = false
+conf.MUSIC = true
 conf.FULLSCREEN = true
 
 local dpi_scale = love.window.getDPIScale()

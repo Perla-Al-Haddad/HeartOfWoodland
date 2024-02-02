@@ -33,7 +33,7 @@ function menu:enter()
 
     menuWorld = windfield.newWorld(0, 0, false);
 
-    if conf.MUSIC then audio.menuMusic:play() end
+    -- if conf.MUSIC then audio.menuMusic:play() end
 
     effectsHandler = EffectsHandler();
 
@@ -48,6 +48,7 @@ end
 function menu:update(dt)
 
     if switch then 
+        print("SWITHED")
         audio:fadeOut(audio.menuMusic, switchTimer)
         switchTimer = switchTimer - dt
     end;

@@ -34,6 +34,7 @@ Player = Class {
 
         self.pressedDirY = 0
         self.pressedDirX = 0
+        self.lastPressed = "horizontal" -- horizontal or vertical
 
         self.rotateMargin = 0.25
         self.comboCount = 0
@@ -123,7 +124,17 @@ Player = Class {
 
         self.comboCount = self.comboCount + 1
 
-        self.attackDir = self:_toMouseVector(camera)
+        if self.pressedDirX == 0 and self.pressedDirY == 0 then
+            if self.lastPressed == "horizontal" then
+                self.attackDir = Vector(self.dirX, 0)
+            else
+                self.attackDir = Vector(0, self.dirY)
+            end
+        else
+            self.attackDir = Vector(self.pressedDirX, self.pressedDirY)
+        end
+
+        -- self.attackDir = self:_toMouseVector(camera)
         self:_setDirFromVector(self.attackDir)
 
         self.state = "swing"
@@ -229,21 +240,25 @@ Player = Class {
         if love.keyboard.isDown("d") or love.keyboard.isDown("right") then
             self.pressedDirX = 1
             self.dirX = 1
+            self.lastPressed = "horizontal"
         end
 
         if love.keyboard.isDown("a") or love.keyboard.isDown("left") then
             self.pressedDirX = -1
             self.dirX = -1
+            self.lastPressed = "horizontal"
         end
 
         if love.keyboard.isDown("s") or love.keyboard.isDown("down") then
             self.pressedDirY = 1
             self.dirY = 1
+            self.lastPressed = "vertical"
         end
 
         if love.keyboard.isDown("w") or love.keyboard.isDown("up") then
             self.pressedDirY = -1
             self.dirY = -1
+            self.lastPressed = "vertical"
         end
 
         if self.pressedDirY == 0 and self.pressedDirX ~= 0 then self.dirY = 1 end
