@@ -19,6 +19,38 @@
         "#trees_top": {
             "scaleInDock": 2
         },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forest/forest.tmx": {
+            "scale": 1.0378749999999999,
+            "selectedLayer": 6,
+            "viewCenter": {
+                "x": 240.39503793809473,
+                "y": 400.3372275081296
+            }
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forest/forest.tmx#bush": {
+            "scaleInDock": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forest/forest.tmx#decor_16x16": {
+            "scaleInDock": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forest/forest.tmx#grass": {
+            "scaleInDock": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forest/forest.tmx#objects": {
+            "scaleInDock": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forest/forest.tmx#ruins_bottom": {
+            "scaleInDock": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forest/forest.tmx#ruins_top": {
+            "scaleInDock": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forest/forest.tmx#trees_bottom": {
+            "scaleInDock": 1
+        },
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forest/forest.tmx#trees_top": {
+            "scaleInDock": 1
+        },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/decor_16x16.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -87,8 +119,8 @@
             "scale": 1,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 628.5,
-                "y": 132.5
+                "x": 626.5,
+                "y": 131.5
             }
         },
         "village.tmx#decor_16x16": {

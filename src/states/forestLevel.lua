@@ -59,17 +59,13 @@ function forestLevel:initEntities()
     }
 
     gameMap = sti("/maps/forest/forest.lua");
-    for i, tileLayer in ipairs(gameMap.tileInstances) do
-        for _, tile in ipairs(tileLayer) do
-            print(tile.layer.name)
-        end
-    end
-
     if gameMap.layers["Player"] then
         for _, obj in pairs(gameMap.layers["Player"].objects) do
             player = Player(obj.x, obj.y, 32, 32, 140, 12, 12, 10, world, handlers);
         end
     end
+
+    print(gameMap.layers["treesBottom"].objects)
 
     ui = UI()
 

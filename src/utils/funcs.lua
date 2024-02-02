@@ -40,4 +40,17 @@ function funcs.print_r (t, fd)
 end
 
 
+function funcs.printKeys(tab)
+    local keyset={}
+    local n=0
+
+    for k,v in pairs(tab) do
+    n=n+1
+    keyset[n]=k
+    end
+
+    print(table.concat(keyset, ", "))
+end
+
+
 return funcs;
