@@ -15,12 +15,8 @@
  <tileset firstgid="138" name="decor_16x16" tilewidth="16" tileheight="16" tilecount="20" columns="4">
   <image source="../../assets/sprites/tilesets/decor_16x16.png" width="64" height="80"/>
  </tileset>
- <tileset firstgid="158" name="ruins_bottom" tilewidth="219" tileheight="213" tilecount="1" columns="1">
-  <image source="../../assets/sprites/tilesets/ruins_bottom.png" width="219" height="213"/>
- </tileset>
- <tileset firstgid="159" name="ruins_top" tilewidth="219" tileheight="213" tilecount="1" columns="1">
-  <image source="../../assets/sprites/tilesets/ruins_top.png" width="219" height="213"/>
- </tileset>
+ <tileset firstgid="158" source="../tilesets/ruins_bottom.tsx"/>
+ <tileset firstgid="159" source="../tilesets/ruins_top.tsx"/>
  <layer id="1" name="ground" width="50" height="40">
   <data encoding="csv">
 137,137,137,137,137,137,137,8,9,10,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,137,
