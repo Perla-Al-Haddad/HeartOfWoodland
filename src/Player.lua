@@ -47,7 +47,7 @@ Player = Class {
         self.walkSoundTimer = 0
         
         self.sounds.sword = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/sword.wav"), "static")
-        self.sounds.walk = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/walk.wav"), "static")
+        self.sounds.walk = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/walk_quiet.wav"), "static")
     end,
 
     updateAbs = function(self, dt, shake)
