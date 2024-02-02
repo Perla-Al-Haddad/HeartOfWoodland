@@ -45,7 +45,7 @@ Player = Class {
         self.flashTimer = 0
         self.dustEffectTimer = 0
         self.walkSoundTimer = 0
-        
+
         self.sounds.sword = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/sword.wav"), "static")
         self.sounds.walk = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/walk_quiet.wav"), "static")
     end,
@@ -299,7 +299,7 @@ Player = Class {
 
         if self.state == "damage" then
             self.knockbackTimer = self.knockbackTimer - dt
-        
+
             if self.knockbackTimer <= 0 then
                 self.state = "stunned"
             end
@@ -307,7 +307,7 @@ Player = Class {
         end
 
         if not self.hurtCollider:enter('EnemyHit') then return end
-        
+
         self.sounds.hurt:play()
 
         self.state = "damage"
@@ -321,7 +321,7 @@ Player = Class {
             game:initEntities()
             Gamestate.switch(menu)
         end
-        
+
         local knockbackDir = Vector(-self.pressedDirX, -self.pressedDirY):normalized()
         self.hurtCollider:applyLinearImpulse((knockbackDir:normalized()*KNOCKBACK_STRENGTH):unpack())
 
