@@ -10,6 +10,7 @@ function love.load()
     if arg[2] == "debug" then require("lldebugger").start() end
     math.randomseed(os.time())
 
+    love.mouse.setVisible(false)
     love.graphics.setDefaultFilter("nearest", "nearest") --disable blurry scaling
 
     push:setupScreen(conf.gameWidth, conf.gameHeight, conf.windowWidth, conf.windowHeight, {
