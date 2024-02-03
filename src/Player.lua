@@ -316,9 +316,8 @@ Player = Class {
             self.sounds.death:play()
             audio.gameMusic:stop()
             local menu = require("src.states.menu")
-            -- ! AAAAAAAAAAAAAAAAAAAAAAAAH 
-            local game = require("src.states.game")
-            game:initEntities()
+            local forestLevel = require("src.states.forestLevel")
+            forestLevel:initEntities()
             Gamestate.switch(menu)
         end
 
