@@ -11,7 +11,7 @@ function love.load()
     math.randomseed(os.time())
 
     love.mouse.setVisible(false)
-    love.graphics.setDefaultFilter("nearest", "nearest") --disable blurry scaling
+    love.graphics.setDefaultFilter("nearest", "nearest") -- disable blurry scaling
 
     push:setupScreen(conf.gameWidth, conf.gameHeight, conf.windowWidth, conf.windowHeight, {
         fullscreen = false,

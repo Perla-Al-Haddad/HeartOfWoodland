@@ -40,7 +40,7 @@ function menu:enter()
 
     effectsHandler = EffectsHandler();
 
-    player = Player((conf.gameWidth/2 - 16)/SCALE, (conf.gameHeight/2 + 16)/SCALE, 32, 32, 160, 12, 12, 10, menuWorld, {effects=effectsHandler});
+    player = Player((conf.gameWidth/2 - 16)/SCALE, (conf.gameHeight/2 + 16)/SCALE, menuWorld, {effects=effectsHandler});
     player._handlePlayerMovement = function(self, dt) end
 
     sounds = {}
@@ -61,7 +61,7 @@ function menu:update(dt)
     effectsHandler:updateEffects(dt);
 
     if switchTimer < 0 then
-        local forestLevel = require("src.states.forestLevel")
+        local forestLevel = require("src.states.levels.forestLevel")
         Gamestate.switch(forestLevel)
     end
 end

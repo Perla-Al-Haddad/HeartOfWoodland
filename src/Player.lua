@@ -1,14 +1,7 @@
-local KNOCKBACK_STRENGTH = 120
-local KNOCKBACK_TIMER = 0.075
-local STUN_TIMER = 0.075
-local PLAYER_COLLISION_CLASS = "Player"
-local PLAYER_SPRITE_SHEET_PATH = "/assets/sprites/characters/player.png"
-
 local Vector = require("lib.hump.vector")
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
 local Gamestate = require("lib.hump.gamestate");
-local sone = require("lib.sone.sone")
 
 local Entity = require("src.Entity")
 local SwingEffect = require("src.Effects.SwingEffect")
@@ -20,14 +13,17 @@ local audio = require("src.utils.audio");
 
 
 Player = Class {
-    __includes = {Entity},
+    __includes = { Entity },
 
-    init = function(self, positionX, positionY, width, height, speed,
-                    hurtBoxWidth, hurBoxHeight, heightOffset, world, handlers)
-        Entity.init(self, positionX, positionY, width, height, speed, nil, PLAYER_COLLISION_CLASS,
-                    nil, nil, hurtBoxWidth, hurBoxHeight, heightOffset,
-                    PLAYER_SPRITE_SHEET_PATH, world)
+    init = function(self, positionX, positionY, world, handlers, currentLevel)
+        Entity.init(self, positionX, positionY, conf.PLAYER.TILE_SIZE,
+            conf.PLAYER.TILE_SIZE, conf.PLAYER.SPEED, nil, conf.PLAYER.COLLISION_CLASS,
+            nil, nil, conf.PLAYER.HURT_BOX_WIDTH, conf.PLAYER.HURT_BOX_HEIGHT,
+            conf.PLAYER.HEIGHT_OFFSET, conf.PLAYER.SPRITE_SHEET_PATH, world)
+
         self._handlers = handlers
+
+        self.currentLevel = currentLevel
 
         self.polygon = nil
         self.health = 3
@@ -57,19 +53,20 @@ Player = Class {
         self:_handleEnemyCollision(dt, shake)
         self:_handleStunnedDuration(dt)
         self:_handleDropCollision(dt)
+        self:_handleLevelTransition()
     end,
 
     drawAbs = function(self)
         local px, py = self:_getCenterPosition()
 
         love.graphics.setColor(0.1, 0, 0.15, 0.5)
-        love.graphics.ellipse("fill", px + self.width/2, py+self.height, self.width/5, 1.5)
+        love.graphics.ellipse("fill", px + self.width / 2, py + self.height, self.width / 5, 1.5)
 
         love.graphics.setColor(1, 1, 1, 1)
 
         if self.flashTimer > 0 then love.graphics.setShader(shaders.whiteout) end
         self.currentAnimation:draw(self.animationSheet, px, py, nil,
-                                    self.hurtCollider.dirX, 1, 0, 0)
+            self.hurtCollider.dirX, 1, 0, 0)
         love.graphics.setShader()
 
         if self.polygon ~= nil and conf.DEBUG.HIT_BOXES then
@@ -82,7 +79,6 @@ Player = Class {
         end
 
         Entity.drawAbs(self)
-
     end,
 
     useItem = function(self, item, camera)
@@ -91,7 +87,8 @@ Player = Class {
 
     interact = function(self)
         local px, py = self:_getCenterPosition()
-        local hitChests = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, {'Objects'});
+        local hitChests = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height,
+            { 'Objects' });
 
         for _, objectCollider in ipairs(hitChests) do
             local obj = self._handlers.objects:getObjectByCollider(objectCollider)
@@ -112,10 +109,10 @@ Player = Class {
     _getCurrentAnimationAbs = function(self) return self.animations.idle end,
 
     _addToBuffer = function(self, action)
-        table.insert(self.buffer, {action, 0.25})
+        table.insert(self.buffer, { action, 0.25 })
     end,
 
-    _swingSword = function(self, camera)
+    _swingSword = function(self)
         local canSwing = (self.state == "swing" or self.state == "swinging")
         if canSwing then
             self:_addToBuffer("sword")
@@ -152,36 +149,36 @@ Player = Class {
     _swordDamage = function(self, dt, shake)
         local px, py = self.hurtCollider:getPosition()
         local dir = self.attackDir:normalized()
-        local rightDir = dir:rotated(math.pi/2)
-        local leftDir = dir:rotated(math.pi/-2)
+        local rightDir = dir:rotated(math.pi / 2)
+        local leftDir = dir:rotated(math.pi / -2)
         self.polygon = {
-            px + dir.x*30,
-            py + dir.y*30,
-            px + dir:rotated(math.pi/8).x*30,
-            py + dir:rotated(math.pi/8).y*30,
-            px + dir:rotated(math.pi/4).x*30,
-            py + dir:rotated(math.pi/4).y*30,
-            px + dir:rotated(3*math.pi/8).x*30,
-            py + dir:rotated(3*math.pi/8).y*30,
-            px + rightDir.x*15,
-            py + rightDir.y*15,
-            px + rightDir.x*15 + rightDir:rotated(math.pi/2).x,
-            py + rightDir.y*15 + rightDir:rotated(math.pi/2).y,
-            px + leftDir.x*15 + leftDir:rotated(math.pi/-2).x,
-            py + leftDir.y*15 + leftDir:rotated(math.pi/-2).y,
-            px + leftDir.x*15,
-            py + leftDir.y*15,
-            px + dir:rotated(3*math.pi/-8).x*30,
-            py + dir:rotated(3*math.pi/-8).y*30,
-            px + dir:rotated(math.pi/-4).x*30,
-            py + dir:rotated(math.pi/-4).y*30,
-            px + dir:rotated(math.pi/-8).x*30,
-            py + dir:rotated(math.pi/-8).y*30,
+            px + dir.x * 30,
+            py + dir.y * 30,
+            px + dir:rotated(math.pi / 8).x * 30,
+            py + dir:rotated(math.pi / 8).y * 30,
+            px + dir:rotated(math.pi / 4).x * 30,
+            py + dir:rotated(math.pi / 4).y * 30,
+            px + dir:rotated(3 * math.pi / 8).x * 30,
+            py + dir:rotated(3 * math.pi / 8).y * 30,
+            px + rightDir.x * 15,
+            py + rightDir.y * 15,
+            px + rightDir.x * 15 + rightDir:rotated(math.pi / 2).x,
+            py + rightDir.y * 15 + rightDir:rotated(math.pi / 2).y,
+            px + leftDir.x * 15 + leftDir:rotated(math.pi / -2).x,
+            py + leftDir.y * 15 + leftDir:rotated(math.pi / -2).y,
+            px + leftDir.x * 15,
+            py + leftDir.y * 15,
+            px + dir:rotated(3 * math.pi / -8).x * 30,
+            py + dir:rotated(3 * math.pi / -8).y * 30,
+            px + dir:rotated(math.pi / -4).x * 30,
+            py + dir:rotated(math.pi / -4).y * 30,
+            px + dir:rotated(math.pi / -8).x * 30,
+            py + dir:rotated(math.pi / -8).y * 30,
         }
 
         -- local range = math.random()/4
 
-        local hitEnemies = self._world:queryPolygonArea(self.polygon, {'EnemyHurt'})
+        local hitEnemies = self._world:queryPolygonArea(self.polygon, { 'EnemyHurt' })
 
         for _, enemyCollider in ipairs(hitEnemies) do
             local enemy = self._handlers.enemies:getEnemyByCollider(enemyCollider)
@@ -216,8 +213,8 @@ Player = Class {
             -- animationTimer for finished sword swing stance
             self.animationTimer = 0.25
             local swingEffect = SwingEffect(self.hurtCollider:getX(),
-                                            self.hurtCollider:getY(),
-                                            self.attackDir, self.comboCount)
+                self.hurtCollider:getY(),
+                self.attackDir, self.comboCount)
             self._handlers.effects:addEffect(swingEffect)
             self:_swordDamage(dt, shake)
         elseif self.state == "swinging" then
@@ -274,11 +271,11 @@ Player = Class {
 
             if self.dustEffectTimer <= 0 then
                 self.dustEffectTimer = 0.25
-                local dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY()-1)
+                local dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY() - 1)
                 self._handlers.effects:addEffect(dustEffect)
             end
 
-            if self.walkSoundTimer <= 0 then 
+            if self.walkSoundTimer <= 0 then
                 self.walkSoundTimer = 0.38
                 self.sounds.walk:play()
             end
@@ -291,7 +288,18 @@ Player = Class {
         elseif self.dirX == 1 and self.currentAnimation.flippedH then
             self.currentAnimation:flipH()
         end
+    end,
 
+    _handleLevelTransition = function(self)
+        if not self.hurtCollider:enter('LevelTransition') then return end
+
+        local px, py = self:_getCenterPosition()
+        local hitTransitions = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, { 'LevelTransition' })
+
+        for _, transitionCollider in ipairs(hitTransitions) do
+            local level = require("src.states.levels." .. transitionCollider.stateName)
+            Gamestate.switch(level)
+        end
     end,
 
     _handleEnemyCollision = function(self, dt, shake)
@@ -303,7 +311,7 @@ Player = Class {
             if self.knockbackTimer <= 0 then
                 self.state = "stunned"
             end
-            self.stunTimer = STUN_TIMER
+            self.stunTimer = conf.PLAYER.STUN_TIMER
         end
 
         if not self.hurtCollider:enter('EnemyHit') then return end
@@ -316,22 +324,22 @@ Player = Class {
             self.sounds.death:play()
             audio.gameMusic:stop()
             local menu = require("src.states.menu")
-            local forestLevel = require("src.states.forestLevel")
+            local forestLevel = require("src.states.levels.forestLevel")
             forestLevel:initEntities()
             Gamestate.switch(menu)
         end
 
         local knockbackDir = Vector(-self.pressedDirX, -self.pressedDirY):normalized()
-        self.hurtCollider:applyLinearImpulse((knockbackDir:normalized()*KNOCKBACK_STRENGTH):unpack())
+        self.hurtCollider:applyLinearImpulse((knockbackDir:normalized() * conf.PLAYER.KNOCKBACK_STRENGTH):unpack())
 
         shake:start(0.1, 1, 0.02);
 
-        self.knockbackTimer = KNOCKBACK_TIMER
+        self.knockbackTimer = conf.PLAYER.KNOCKBACK_TIMER
         self.flashTimer = 0.15
     end,
 
     _handleStunnedDuration = function(self, dt)
-        if self.state ~= "stunned" then return end; 
+        if self.state ~= "stunned" then return end;
 
         self.currentAnimation = self.animations.stunned
         if self.dirX == -1 and not self.currentAnimation.flippedH then
@@ -352,14 +360,13 @@ Player = Class {
         if not self.hurtCollider:enter('Drops') then return end
 
         local px, py = self:_getCenterPosition()
-        local hitDrops = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, {'Drops'});
+        local hitDrops = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, { 'Drops' });
 
         for _, dropCollider in ipairs(hitDrops) do
             local drop = self._handlers.drops:getDropByCollider(dropCollider)
             drop:pickUp()
             if drop.type == "heart" then self.health = self.health + 1 end
         end
-
     end
 }
 

@@ -9,8 +9,8 @@ return {
   height = 50,
   tilewidth = 16,
   tileheight = 16,
-  nextlayerid = 14,
-  nextobjectid = 163,
+  nextlayerid = 15,
+  nextobjectid = 170,
   properties = {},
   tilesets = {
     {
@@ -1195,14 +1195,14 @@ return {
         0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0,
         0, 23, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 34, 35, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 34, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23,
-        0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0
+        0, 0, 0, 41, 42, 0, 0, 0, 0, 34, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 34, 35, 0, 0, 0, 0, 0, 23,
+        0, 0, 0, 48, 49, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 23, 0, 0, 0, 0, 41, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 48, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 34, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        34, 35, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0,
+        0, 41, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 48, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
       }
     },
     {
@@ -1363,15 +1363,15 @@ return {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 24,
         0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 27, 28, 0, 0, 24, 0, 0, 0, 0,
-        0, 24, 0, 0, 24, 0, 0, 0, 0, 27, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 24, 0, 0, 24, 0, 0, 0, 0, 27, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 27, 28, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24,
         0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 27, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        27, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
       }
     },
     {
@@ -1948,19 +1948,6 @@ return {
           properties = {}
         },
         {
-          id = 50,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 164,
-          y = 763,
-          width = 24,
-          height = 15,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
           id = 51,
           name = "",
           type = "",
@@ -1974,51 +1961,12 @@ return {
           properties = {}
         },
         {
-          id = 52,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 340,
-          y = 763,
-          width = 24,
-          height = 15,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 53,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 324,
-          y = 731,
-          width = 24,
-          height = 15,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
           id = 54,
           name = "",
           type = "",
           shape = "rectangle",
           x = 388,
           y = 699,
-          width = 24,
-          height = 15,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 55,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 388,
-          y = 779,
           width = 24,
           height = 15,
           rotation = 0,
@@ -2819,19 +2767,6 @@ return {
           properties = {}
         },
         {
-          id = 120,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = -16,
-          y = 800,
-          width = 523,
-          height = 20,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
           id = 122,
           name = "",
           type = "",
@@ -3103,6 +3038,84 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
+        },
+        {
+          id = 164,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 52,
+          y = 680,
+          width = 24,
+          height = 15,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 165,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 99,
+          y = 712,
+          width = 24,
+          height = 15,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 166,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 20,
+          y = 776,
+          width = 24,
+          height = 15,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 167,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 80,
+          y = 733,
+          width = 32,
+          height = 19,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 168,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 0,
+          y = 749,
+          width = 32,
+          height = 19,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 169,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 352,
+          y = 669,
+          width = 32,
+          height = 19,
+          rotation = 0,
+          visible = true,
+          properties = {}
         }
       }
     },
@@ -3121,25 +3134,12 @@ return {
       properties = {},
       objects = {
         {
-          id = 125,
-          name = "",
-          type = "",
-          shape = "point",
-          x = 232,
-          y = 607,
-          width = 0,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
           id = 126,
           name = "",
           type = "",
           shape = "point",
-          x = 186,
-          y = 617,
+          x = 144,
+          y = 576,
           width = 0,
           height = 0,
           rotation = 0,
@@ -3151,21 +3151,8 @@ return {
           name = "",
           type = "",
           shape = "point",
-          x = 131,
-          y = 537,
-          width = 0,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 128,
-          name = "",
-          type = "",
-          shape = "point",
-          x = 310,
-          y = 443,
+          x = 192,
+          y = 496,
           width = 0,
           height = 0,
           rotation = 0,
@@ -3177,21 +3164,8 @@ return {
           name = "",
           type = "",
           shape = "point",
-          x = 339,
-          y = 549,
-          width = 0,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 130,
-          name = "",
-          type = "",
-          shape = "point",
-          x = 259,
-          y = 509,
+          x = 272,
+          y = 528,
           width = 0,
           height = 0,
           rotation = 0,
@@ -3203,52 +3177,44 @@ return {
           name = "",
           type = "",
           shape = "point",
-          x = 259,
-          y = 707,
+          x = 224,
+          y = 704,
           width = 0,
           height = 0,
           rotation = 0,
           visible = true,
           properties = {}
-        },
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 14,
+      name = "LevelTransition",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
         {
-          id = 132,
+          id = 163,
           name = "",
           type = "",
-          shape = "point",
-          x = 121,
-          y = 746,
-          width = 0,
-          height = 0,
+          shape = "rectangle",
+          x = 0,
+          y = 800,
+          width = 480,
+          height = 16,
           rotation = 0,
           visible = true,
-          properties = {}
-        },
-        {
-          id = 133,
-          name = "",
-          type = "",
-          shape = "point",
-          x = 78,
-          y = 715,
-          width = 0,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 134,
-          name = "",
-          type = "",
-          shape = "point",
-          x = 412,
-          y = 388,
-          width = 0,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          properties = {}
+          properties = {
+            ["level"] = "game"
+          }
         }
       }
     }
