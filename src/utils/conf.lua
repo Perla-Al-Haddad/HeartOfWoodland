@@ -3,10 +3,10 @@ local conf = {}
 conf.DEBUG = {}
 conf.DEBUG.HURT_BOXES = false
 conf.DEBUG.HIT_BOXES = false
-conf.DEBUG.DRAW_WORLD = true
+conf.DEBUG.DRAW_WORLD = false
 
-conf.MUSIC = false
-conf.FULLSCREEN = false
+conf.MUSIC = true
+conf.FULLSCREEN = true
 
 conf.PLAYER = {}
 conf.PLAYER.TILE_SIZE = 32
