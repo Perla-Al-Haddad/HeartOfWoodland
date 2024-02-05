@@ -12,7 +12,9 @@ Camera = Class {
     end,
 
     update = function(self, dt, player, gameMap)
-
+        if player.hurtCollider == nil then
+            return
+        end
         local camX, camY = player.hurtCollider:getPosition()
 
         -- This section prevents the camera from viewing outside the background

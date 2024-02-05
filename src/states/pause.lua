@@ -105,8 +105,9 @@ function settings:keypressed(key)
         elseif cursor.current == 2 then
             love.event.quit()
         elseif cursor.current == 3 then
-            local menu = require("src.states.menu")
+            _player:destroySelf()
             state:initEntities()
+            local menu = require("src.states.menu")
             Gamestate.switch(menu)
         elseif cursor.current == 4 then
             local settings = require("src.states.settings")

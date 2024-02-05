@@ -47,13 +47,15 @@ Player = Class {
     end,
 
     updateAbs = function(self, dt, shake)
+        if self.hurtCollider == nil then return end
+
         self.currentAnimation:update(dt)
         self:_handlePlayerMovement(dt)
         self:_handleSwordSwing(dt, shake)
-        self:_handleEnemyCollision(dt, shake)
         self:_handleStunnedDuration(dt)
         self:_handleDropCollision(dt)
         self:_handleLevelTransition()
+        self:_handleEnemyCollision(dt, shake)
     end,
 
     drawAbs = function(self)
@@ -94,6 +96,11 @@ Player = Class {
             local obj = self._handlers.objects:getObjectByCollider(objectCollider)
             if obj.type == "chest" then obj:open() end
         end
+    end,
+
+    destroySelf = function(self)
+        self.hurtCollider:destroy()
+        self.hurtCollider = nil
     end,
 
     _getAnimationsAbs = function(self)
@@ -276,7 +283,7 @@ Player = Class {
             end
 
             if self.walkSoundTimer <= 0 then
-                self.walkSoundTimer = 0.38
+                self.walkSoundTimer = 0.45
                 self.sounds.walk:play()
             end
         else
@@ -297,12 +304,16 @@ Player = Class {
         local hitTransitions = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, { 'LevelTransition' })
 
         for _, transitionCollider in ipairs(hitTransitions) do
+            self:destroySelf()
             local level = require("src.states.levels." .. transitionCollider.stateName)
-            Gamestate.switch(level)
+            Gamestate.switch(level, Gamestate.current().name)
         end
     end,
 
     _handleEnemyCollision = function(self, dt, shake)
+        if self.hurtCollider == nil then
+            return
+        end
         self.flashTimer = self.flashTimer - dt
 
         if self.state == "damage" then
@@ -324,9 +335,11 @@ Player = Class {
             self.sounds.death:play()
             audio.gameMusic:stop()
             local menu = require("src.states.menu")
-            local forestLevel = require("src.states.levels.forestLevel")
-            forestLevel:initEntities()
+            local state = Gamestate.current()
+            state:initEntities()
+            self:destroySelf()
             Gamestate.switch(menu)
+            return
         end
 
         local knockbackDir = Vector(-self.pressedDirX, -self.pressedDirY):normalized()

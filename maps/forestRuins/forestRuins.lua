@@ -10,7 +10,7 @@ return {
   tilewidth = 16,
   tileheight = 16,
   nextlayerid = 15,
-  nextobjectid = 170,
+  nextobjectid = 174,
   properties = {},
   tilesets = {
     {
@@ -1230,7 +1230,24 @@ return {
           height = 0,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["cameFrom"] = "menu"
+          }
+        },
+        {
+          id = 173,
+          name = "",
+          type = "",
+          shape = "point",
+          x = 240,
+          y = 776,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["cameFrom"] = "connector"
+          }
         }
       }
     },
@@ -3177,8 +3194,8 @@ return {
           name = "",
           type = "",
           shape = "point",
-          x = 224,
-          y = 704,
+          x = 240,
+          y = 640,
           width = 0,
           height = 0,
           rotation = 0,
@@ -3213,7 +3230,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["level"] = "game"
+            ["level"] = "connector"
           }
         }
       }

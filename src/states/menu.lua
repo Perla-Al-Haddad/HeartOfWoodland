@@ -49,7 +49,6 @@ end
 
 
 function menu:update(dt)
-
     if switch then 
         audio:fadeOut(audio.menuMusic, switchTimer)
         switchTimer = switchTimer - dt
@@ -61,8 +60,9 @@ function menu:update(dt)
     effectsHandler:updateEffects(dt);
 
     if switchTimer < 0 then
-        local forestLevel = require("src.states.levels.forestLevel")
-        Gamestate.switch(forestLevel)
+        local forestRuins = require("src.states.levels.forestRuins")
+        -- forestRuins:initEntities("menu")
+        Gamestate.switch(forestRuins, "menu")
     end
 end
 

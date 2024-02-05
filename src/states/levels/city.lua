@@ -23,13 +23,22 @@ local funcs = require("src.utils.funcs");
 local audio = require("src.utils.audio");
 local globalFuncs = require("src.utils.globalFuncs");
 
-local forestLevel = {}
-local world, opacity, player, ui, camera, shake, gameMap;
+local level = {name=funcs.get_file_name(debug.getinfo(1,'S').source)}
+local world, opacity, player, ui, camera, shake, gameMap, playerLayer, handlers;
 
 local entitesNull = true
 
+function level:spawnPlayer(cameFrom)
+    if not playerLayer then return end
+    for _, obj in pairs(playerLayer.objects) do
+        if obj.properties.cameFrom == cameFrom then
+            player = Player(obj.x, obj.y, world, handlers);
+            break
+        end
+    end
+end
 
-function forestLevel:initEntities()
+function level:initEntities(cameFrom)
     entitesNull = false
 
     world = windfield.newWorld(0, 0, false);
@@ -45,24 +54,20 @@ function forestLevel:initEntities()
     world:addCollisionClass('EnemyHit', { ignores = { 'Ignore', "EnemyHurt", "Drops" } });
     world:addCollisionClass('LevelTransition', { ignores = { 'Ignore', "EnemyHurt", "Drops", "Objects", "Wall", "EnemyHit", "Dead" } });
 
-    local handlers = {
+    handlers = {
         effects = EffectsHandler(),
         drops = DropsHandler(),
         enemies = EnemiesHandler(),
         objects = ObjectsHandler()
     }
 
-    gameMap = sti("/maps/forest/forest.lua");
-    local playerLayer = gameMap.layers["Player"]
+    gameMap = sti("/maps/" .. level.name .. "/" .. level.name .. ".lua");
+    playerLayer = gameMap.layers["Player"]
     local enemiesLayer = gameMap.layers["Enemies"]
     local wallLayer = gameMap.layers["Walls"]
     local levelTransitionLayer = gameMap.layers["LevelTransition"]
 
-    if playerLayer then
-        for _, obj in pairs(playerLayer.objects) do
-            player = Player(obj.x, obj.y, world, handlers);
-        end
-    end
+    level:spawnPlayer(cameFrom)
 
     if wallLayer then
         for _, obj in pairs(wallLayer.objects) do
@@ -79,7 +84,6 @@ function forestLevel:initEntities()
 
     if levelTransitionLayer then
         for _, obj in pairs(levelTransitionLayer.objects) do
-            print(obj.properties.level)
             local transitionCollider = world:newBSGRectangleCollider(obj.x, obj.y, obj.width, obj.height, 0, { collision_class = "LevelTransition" })
             transitionCollider:setType("static")
             transitionCollider.stateName = obj.properties.level
@@ -88,18 +92,27 @@ function forestLevel:initEntities()
 
     ui = UI()
 
+    if player.hurtCollider == nil then return end
+    
     camera = Camera(CAMERA_SCALE, player.hurtCollider:getX(), player.hurtCollider:getY());
     shake = Shake(camera.camera);
 end
 
-function forestLevel:enter()
+function level:enter(_, cameFrom)
     if conf.MUSIC then audio.gameMusic:play() end
+
+    level:spawnPlayer(cameFrom)
     if entitesNull then
-        forestLevel:initEntities()
+        level:initEntities(cameFrom)
     end
+
+    opacity = 1
 end
 
-function forestLevel:update(dt)
+function level:update(dt)
+    if player.hurtCollider == nil then
+        return
+    end
     if opacity > 0 then opacity = opacity - dt end;
 
     world:update(dt);
@@ -113,7 +126,7 @@ function forestLevel:update(dt)
     player._handlers.drops:updateDrops(dt);
 end
 
-function forestLevel:draw()
+function level:draw()
     push:start()
 
     love.graphics.setColor(1, 1, 1);
@@ -151,11 +164,7 @@ function forestLevel:draw()
     push:finish()
 end
 
--- function forestLevel:mousepressed(x, y, button)
---     if button == 1 then player:useItem('sword', camera.camera) end
--- end
-
-function forestLevel:keypressed(key)
+function level:keypressed(key)
     globalFuncs.keypressed(key)
 
     if key == 'h' or key == 'H' then
@@ -166,9 +175,10 @@ function forestLevel:keypressed(key)
     end
     if key == "escape" then
         local pause = require("src.states.pause")
+        print(player.hurtCollider)
         Gamestate.switch(pause, camera, gameMap, player)
     end
 end
 
-return forestLevel
+return level
 

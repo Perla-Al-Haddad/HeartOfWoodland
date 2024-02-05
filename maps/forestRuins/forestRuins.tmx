@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="15" nextobjectid="170">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="15" nextobjectid="174">
  <editorsettings>
-  <export target="forest.lua" format="lua"/>
+  <export target="forestRuins.lua" format="lua"/>
  </editorsettings>
  <tileset firstgid="1" name="ruins_bottom" tilewidth="219" tileheight="213" tilecount="1" columns="1">
   <image source="../../assets/sprites/tilesets/ruins_bottom.png" width="219" height="213"/>
@@ -359,6 +359,15 @@
  </layer>
  <objectgroup id="13" name="Player">
   <object id="135" x="240" y="192">
+   <properties>
+    <property name="cameFrom" value="menu"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="173" x="240" y="776">
+   <properties>
+    <property name="cameFrom" value="connector"/>
+   </properties>
    <point/>
   </object>
  </objectgroup>
@@ -615,14 +624,14 @@
   <object id="129" x="272" y="528">
    <point/>
   </object>
-  <object id="131" x="224" y="704">
+  <object id="131" x="240" y="640">
    <point/>
   </object>
  </objectgroup>
  <objectgroup id="14" name="LevelTransition">
   <object id="163" x="0" y="800" width="480" height="16">
    <properties>
-    <property name="level" value="game"/>
+    <property name="level" value="connector"/>
    </properties>
   </object>
  </objectgroup>
