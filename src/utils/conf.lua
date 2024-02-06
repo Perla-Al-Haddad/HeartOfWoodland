@@ -30,6 +30,9 @@ conf.windowHeight = windowHeight / dpi_scale
 
 local ratio = conf.windowWidth / conf.windowHeight
 
-conf.gameWidth, conf.gameHeight = math.floor(288 * (tonumber(tostring(ratio):match("%d*%.?%d.")) - 0.1)), 288   --fixed game resolution
+local test = 32 * 8
+-- conf.gameWidth, conf.gameHeight = math.floor(288 * (tonumber(tostring(ratio):match("%d*%.?%d.")) - 0.1)), 288   --fixed game resolution
+conf.gameWidth, conf.gameHeight = 480, 288
+-- conf.gameWidth, conf.gameHeight = test + 64*3, test
 
 return conf
