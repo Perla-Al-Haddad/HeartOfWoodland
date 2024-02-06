@@ -1,3 +1,4 @@
+local tlfres = require("lib.tlfres");
 local Gamestate = require("lib.hump.gamestate");
 local push = require("lib.push");
 
@@ -31,59 +32,63 @@ function settings:enter(prevState, camera, gameMap, player, levelState)
 end
 
 function settings:draw() 
-    push:start()
+    tlfres.beginRendering(conf.gameWidth, conf.gameHeight)
 
-    if _camera ~= nil then
-        _camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
+    -- if _camera ~= nil then
+    --     _camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight, true);
     
-        for _, layer in ipairs(_gameMap.layers) do
-            if layer.visible and layer.opacity > 0 then
-                if layer.name == "Player" then
-                    _player._handlers.enemies:drawEnemies();
-                    _player._handlers.effects:drawEffects(-1);
-                    _player._handlers.objects:drawObjects();
-                    _player._handlers.drops:drawDrops();
-                    _player:drawAbs();
-                    _player._handlers.effects:drawEffects(0);
-                else
-                    if layer.type == "tilelayer" then
-                        _gameMap:drawLayer(layer)
-                    end
-                end
-            end
-        end
+    --     for _, layer in ipairs(_gameMap.layers) do
+    --         if layer.visible and layer.opacity > 0 then
+    --             if layer.name == "Player" then
+    --                 _player._handlers.enemies:drawEnemies();
+    --                 _player._handlers.effects:drawEffects(-1);
+    --                 _player._handlers.objects:drawObjects();
+    --                 _player._handlers.drops:drawDrops();
+    --                 _player:drawAbs();
+    --                 _player._handlers.effects:drawEffects(0);
+    --             else
+    --                 if layer.type == "tilelayer" then
+    --                     _gameMap:drawLayer(layer)
+    --                 end
+    --             end
+    --         end
+    --     end
 
-        _camera.camera:detach();
+    --     if conf.DEBUG.DRAW_WORLD then
+    --         world:draw();
+    --     end
 
-        love.graphics.setColor(0,0,0,0.5)
-        love.graphics.rectangle("fill", 0,0,conf.gameWidth, conf.gameHeight)
-        love.graphics.setColor(1,1,1,1)
-    end
+    --     _camera.camera:detach();
 
-    local title = "SETTINGS"
-    local titleWidth = fonts.title:getWidth(title)
-    love.graphics.setFont(fonts.title)
-    love.graphics.setColor(91/255, 169/255, 121/255)
-    love.graphics.printf(title, conf.gameWidth/2 - titleWidth/2, conf.gameHeight/6, titleWidth, "center")
+    --     love.graphics.setColor(0,0,0,0.5)
+    --     love.graphics.rectangle("fill", 0,0,conf.gameWidth, conf.gameHeight)
+    --     love.graphics.setColor(1,1,1,1)
+    -- end
 
-    love.graphics.setFont(fonts.small)
-    love.graphics.setColor(1, 1, 1)
-    local textHeight;
-    for i, option in ipairs(options) do
-        textHeight = fonts.small:getHeight(option)
-        love.graphics.print(
-            option, 
-            conf.gameWidth/2 - titleWidth/2, 
-            conf.gameHeight - conf.gameHeight/3 - (textHeight + fonts.OPTIONS_MARGIN) * (i - 1))
-    end
+    -- local title = "SETTINGS"
+    -- local titleWidth = fonts.title:getWidth(title)
+    -- love.graphics.setFont(fonts.title)
+    -- love.graphics.setColor(91/255, 169/255, 121/255)
+    -- love.graphics.printf(title, conf.gameWidth/2 - titleWidth/2, conf.gameHeight/6, titleWidth, "center")
 
-    love.graphics.circle(
-        "fill",
-        conf.gameWidth/2 - titleWidth/2 - 20, 
-        conf.gameHeight - conf.gameHeight/3 + textHeight/2 - (textHeight + fonts.OPTIONS_MARGIN) * (cursor.current - 1), 
-        textHeight/3)
+    -- love.graphics.setFont(fonts.small)
+    -- love.graphics.setColor(1, 1, 1)
+    -- local textHeight;
+    -- for i, option in ipairs(options) do
+    --     textHeight = fonts.small:getHeight(option)
+    --     love.graphics.print(
+    --         option, 
+    --         conf.gameWidth/2 - titleWidth/2, 
+    --         conf.gameHeight - conf.gameHeight/3 - (textHeight + fonts.OPTIONS_MARGIN) * (i - 1))
+    -- end
+
+    -- love.graphics.circle(
+    --     "fill",
+    --     conf.gameWidth/2 - titleWidth/2 - 20, 
+    --     conf.gameHeight - conf.gameHeight/3 + textHeight/2 - (textHeight + fonts.OPTIONS_MARGIN) * (cursor.current - 1), 
+    --     textHeight/3)
    
-    push:finish()
+    tlfres.endRendering()
 end
 
 function settings:keypressed(key)

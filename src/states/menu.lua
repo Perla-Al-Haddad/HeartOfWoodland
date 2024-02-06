@@ -1,6 +1,8 @@
 local SCALE = 2
 local SWITCH_TIMER = 1.5
 
+local tlfres = require("lib.tlfres");
+
 local windfield = require("lib/windfield");
 local Vector = require("lib.hump.vector")
 local Gamestate = require("lib.hump.gamestate");
@@ -68,7 +70,10 @@ end
 
 
 function menu:draw()
-    push:start()
+    tlfres.beginRendering(conf.gameWidth, conf.gameHeight)
+
+    love.graphics.setColor(0, 0, 1)
+    love.graphics.rectangle("fill", 0,0, conf.gameWidth, conf.gameHeight)
 
     local title = "HEART\nOF\nWOODLAND"
     local titleWidth = fonts.title:getWidth(title)
@@ -110,7 +115,7 @@ function menu:draw()
     effectsHandler:drawEffects(0)
     love.graphics.pop()
 
-    push:finish()
+    tlfres.endRendering()
 end
 
 

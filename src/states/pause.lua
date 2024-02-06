@@ -1,3 +1,4 @@
+local tlfres = require("lib.tlfres");
 local Gamestate = require("lib.hump.gamestate");
 local push = require("lib.push");
 
@@ -30,12 +31,12 @@ function settings:enter(prevState, camera, gameMap, player, levelState)
 end
 
 function settings:draw()
-    push:start()
+    tlfres.beginRendering(conf.gameWidth, conf.gameHeight)
 
-    _camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
+    _camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight, true);
 
     for _, layer in ipairs(_gameMap.layers) do
-		if layer.visible and layer.opacity > 0 then
+        if layer.visible and layer.opacity > 0 then
             if layer.name == "Player" then
                 _player._handlers.enemies:drawEnemies();
                 _player._handlers.effects:drawEffects(-1);
@@ -47,9 +48,13 @@ function settings:draw()
                 if layer.type == "tilelayer" then
                     _gameMap:drawLayer(layer)
                 end
-            end 
-		end
-	end
+            end
+        end
+    end
+
+    if conf.DEBUG.DRAW_WORLD then
+        world:draw();
+    end
 
     _camera.camera:detach();
 
@@ -80,7 +85,7 @@ function settings:draw()
         conf.gameHeight - conf.gameHeight/3 + textHeight/2 - (textHeight + fonts.OPTIONS_MARGIN) * (cursor.current - 1), 
         textHeight/3)
 
-    push:finish()
+    tlfres.endRendering()
 end
 
 function settings:keypressed(key)

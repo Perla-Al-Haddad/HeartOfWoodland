@@ -4,6 +4,7 @@ local sti = require("lib/sti/sti");
 local windfield = require("lib/windfield");
 local push = require("lib.push");
 local Gamestate = require("lib.hump.gamestate");
+local tlfres = require("lib.tlfres");
 
 local Player = require("src.Player");
 local Camera = require("src.Camera");
@@ -127,11 +128,11 @@ function level:update(dt)
 end
 
 function level:draw()
-    push:start()
+    tlfres.beginRendering(conf.gameWidth, conf.gameHeight)
 
     love.graphics.setColor(1, 1, 1);
 
-    camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
+    camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight, true);
 
     for _, layer in ipairs(gameMap.layers) do
         if layer.visible and layer.opacity > 0 then
@@ -156,12 +157,10 @@ function level:draw()
 
     camera.camera:detach();
 
-    ui:drawPlayerLife(player);
-
     love.graphics.setColor(0, 0, 0, opacity);
     love.graphics.rectangle("fill", 0, 0, conf.gameWidth, conf.gameHeight)
 
-    push:finish()
+    tlfres.endRendering()
 end
 
 function level:keypressed(key)
@@ -175,7 +174,6 @@ function level:keypressed(key)
     end
     if key == "escape" then
         local pause = require("src.states.pause")
-        print(player.hurtCollider)
         Gamestate.switch(pause, camera, gameMap, player)
     end
 end

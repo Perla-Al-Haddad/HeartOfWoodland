@@ -7,7 +7,7 @@ local conf = require("src.utils.conf")
 Camera = Class {
     init = function(self, scale, originX, originY)
         self.scale = scale
-        self.camera = HumpCamera(originX, originY, self.scale)
+        self.camera = HumpCamera(originX, originY)
         -- self.camera.smoother = HumpCamera.smooth.damped(10)
     end,
 
@@ -20,7 +20,7 @@ Camera = Class {
         -- This section prevents the camera from viewing outside the background
         -- First, get width/height of the game window, divided by the game scale
         local w = conf.gameWidth / self.scale
-        local h = conf.gameHeight / self.scale
+        local h = conf.gameWidth / self.scale
 
         -- Get width/height of background
         local mapW = gameMap.width * gameMap.tilewidth
