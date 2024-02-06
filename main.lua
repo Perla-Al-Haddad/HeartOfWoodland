@@ -13,15 +13,13 @@ function love.load()
     love.mouse.setVisible(false)
     love.graphics.setDefaultFilter("nearest", "nearest") -- disable blurry scaling
 
-    push:setupScreen(conf.gameWidth, conf.gameHeight, conf.windowWidth, conf.windowHeight, {
-        fullscreen = false,
-        resizable = true,
-        pixelperfect = true
-    })
-
     if conf.FULLSCREEN then
         love.window.setMode(0, 0, {fullscreen = true});
     end
+
+    push:setupScreen(conf.gameWidth, conf.gameHeight, conf.windowWidth, conf.windowHeight, {
+        pixelperfect = true
+    })
 
     Gamestate.registerEvents()
     Gamestate.switch(menu)
