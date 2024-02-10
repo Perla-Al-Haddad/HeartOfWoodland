@@ -24,14 +24,14 @@
         },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/city/city.tmx": {
             "expandedObjectLayers": [
-                3,
-                2
+                2,
+                3
             ],
             "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 236.25,
-                "y": 139.25
+                "x": 235.25,
+                "y": 135
             }
         },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/city/city.tmx#grass": {
@@ -39,16 +39,16 @@
         },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/connector/connector.tmx": {
             "expandedObjectLayers": [
-                10,
+                7,
                 11,
-                8,
-                7
+                10,
+                8
             ],
-            "scale": 1.5,
-            "selectedLayer": 5,
+            "scale": 1,
+            "selectedLayer": 8,
             "viewCenter": {
-                "x": 428.3333333333333,
-                "y": 255.66666666666663
+                "x": 501.5,
+                "y": 231
             }
         },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/connector/connector.tmx#decor": {
@@ -107,16 +107,16 @@
         },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins/forestRuins.tmx": {
             "expandedObjectLayers": [
-                12,
                 13,
                 7,
-                14
+                14,
+                12
             ],
-            "scale": 2,
+            "scale": 1.5,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 191.75,
-                "y": 671.75
+                "x": 221.33333333333331,
+                "y": 194
             }
         },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins/forestRuins.tmx#bush": {
@@ -212,8 +212,8 @@
             "scale": 1,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 400,
-                "y": 319.5
+                "x": 399.5,
+                "y": 320
             }
         },
         "village.tmx#decor_16x16": {
