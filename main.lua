@@ -14,7 +14,7 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest") -- disable blurry scaling
 
     if conf.FULLSCREEN then
-        love.window.setMode(0, 0, {fullscreen = true, fullscreentype  = "exclusive"});
+        love.window.setMode(0, 0, {fullscreentype  = "exclusive"});
     end
 
     push:setupScreen(conf.gameWidth, conf.gameHeight, conf.windowWidth, conf.windowHeight, {
