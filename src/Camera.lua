@@ -8,7 +8,7 @@ Camera = Class {
     init = function(self, scale, originX, originY)
         self.scale = scale
         self.camera = HumpCamera(originX, originY, self.scale)
-        -- self.camera.smoother = HumpCamera.smooth.damped(10)
+        -- self.camera.smoother = HumpCamera.smooth.damped(15)
     end,
 
     update = function(self, dt, player, gameMap)
