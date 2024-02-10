@@ -4,16 +4,18 @@ local I_PIXEL_U_PATH = "assets/fonts/I-pixel-u.ttf";
 
 local fonts = {}
 
-fonts.title = love.graphics.newFont(I_PIXEL_U_PATH, 32)
+fonts.title = love.graphics.newFont(I_PIXEL_U_PATH, 36)
 fonts.title:setFilter("nearest", "nearest")
 fonts.title:setLineHeight(0.7)
 
 fonts.small = love.graphics.newFont(I_PIXEL_U_PATH, 12)
 fonts.small:setFilter("nearest", "nearest")
+fonts.small:setLineHeight(0.3)
 
 fonts.smaller = love.graphics.newFont(I_PIXEL_U_PATH, 8)
 fonts.smaller:setFilter("nearest", "nearest")
+fonts.smaller:setLineHeight(0.7)
 
-fonts.OPTIONS_MARGIN = 2;
+fonts.OPTIONS_MARGIN = 1;
 
 return fonts;

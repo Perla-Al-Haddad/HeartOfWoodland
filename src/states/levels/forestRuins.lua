@@ -129,7 +129,9 @@ end
 function level:draw()
     push:start()
 
+    
     love.graphics.setColor(1, 1, 1);
+    love.graphics.rectangle("fill", 0,0,conf.gameWidth, conf.gameHeight)
 
     camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 

@@ -26,7 +26,7 @@ function menu:enter()
         current = 1
     }
 
-    options = {"PLAY", "SETTINGS", "EXIT"}
+    options = {"PLAY", "SETTINGS", "CREDITS", "EXIT"}
 
     switchTimer = SWITCH_TIMER;
     switch = false;
@@ -34,14 +34,17 @@ function menu:enter()
     menuWorld = windfield.newWorld(0, 0, false);
 
     if conf.MUSIC then 
-        audio.gameMusic:stop() 
-        audio.menuMusic:play() 
+        audio.gameMusic:stop()
+        audio.menuMusic:play()
     end
 
     effectsHandler = EffectsHandler();
 
-    player = Player((conf.gameWidth/2 - 16)/SCALE, (conf.gameHeight/2 + 16)/SCALE, menuWorld, {effects=effectsHandler});
-    player._handlePlayerMovement = function(self, dt) end
+    player = Player(
+        (conf.gameWidth/2 - conf.PLAYER.TILE_SIZE/2)/SCALE,
+        (conf.gameHeight/2 + conf.PLAYER.TILE_SIZE/2)/SCALE + 9,
+        menuWorld, {effects=effectsHandler});
+    player._handlePlayerMovement = function(_, _) end
 
     sounds = {}
     sounds.select = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/click.wav"), "static")
@@ -49,7 +52,7 @@ end
 
 
 function menu:update(dt)
-    if switch then 
+    if switch then
         audio:fadeOut(audio.menuMusic, switchTimer)
         switchTimer = switchTimer - dt
     end;
@@ -74,7 +77,7 @@ function menu:draw()
     local titleWidth = fonts.title:getWidth(title)
     love.graphics.setFont(fonts.title)
     love.graphics.setColor(91/255, 169/255, 121/255)
-    love.graphics.printf(title, conf.gameWidth/2 - titleWidth/2, conf.gameHeight/7, titleWidth, "center")
+    love.graphics.printf(title, conf.gameWidth/2 - titleWidth/2, conf.gameHeight/12, titleWidth, "center")
 
     love.graphics.setFont(fonts.small)
     love.graphics.setColor(1, 1, 1)
@@ -84,14 +87,15 @@ function menu:draw()
         love.graphics.print(
             option,
             conf.gameWidth/2 - titleWidth/2,
-            conf.gameHeight - conf.gameHeight/3 + (textHeight + fonts.OPTIONS_MARGIN) * (i - 1))
+            conf.gameHeight/2 - conf.PLAYER.TILE_SIZE / 2 + 12 + (textHeight + fonts.OPTIONS_MARGIN) * (i - 1)
+        )
     end
 
     love.graphics.circle(
         "fill",
         conf.gameWidth/2 - titleWidth/2 - 20,
-        conf.gameHeight - conf.gameHeight/3 + textHeight/2 + (textHeight + fonts.OPTIONS_MARGIN) * (cursor.current - 1),
-        textHeight/3)
+        conf.gameHeight/2 - conf.PLAYER.TILE_SIZE / 2 + 20 + (textHeight + fonts.OPTIONS_MARGIN) * (cursor.current - 1),
+        textHeight/4)
 
     love.graphics.setFont(fonts.smaller)
     love.graphics.setColor(1, 1, 1, 0.7)
@@ -99,8 +103,8 @@ function menu:draw()
     local textWidth = fonts.smaller:getWidth(text)
     love.graphics.print(
         text,
-        conf.gameWidth/2 - textWidth/2, 
-        conf.gameHeight - conf.gameHeight/6)
+        conf.gameWidth/2 - textWidth/2,
+        conf.gameHeight - conf.gameHeight/8)
 
     love.graphics.push()
     love.graphics.scale(SCALE)
@@ -109,6 +113,8 @@ function menu:draw()
     player:drawAbs()
     effectsHandler:drawEffects(0)
     love.graphics.pop()
+
+    -- love.graphics.line(conf.gameWidth/2, 0, conf.gameWidth/2, conf.gameHeight)
 
     push:finish()
 end
@@ -125,6 +131,9 @@ function menu:keypressed(key)
             local settings = require("src.states.settings")
             Gamestate.switch(settings)
         elseif cursor.current == 3 then
+            local credits = require("src.states.credits")
+            Gamestate.switch(credits)
+        elseif cursor.current == 4 then
             love.event.quit();
         end
     end
