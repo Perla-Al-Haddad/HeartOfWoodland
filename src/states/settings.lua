@@ -5,10 +5,12 @@ local audio = require("src.utils.audio");
 local conf = require("src.utils.conf");
 local fonts = require("src.utils.fonts");
 
-local settings = {}
+local settings = {
+    options = {"BACK", "AUDIO", "DISPLAY", "CONTROLS"}
+}
 local _prevState = nil;
 
-local options, cursor, sounds, _gameMap, _player, _camera, _levelState;
+local cursor, sounds, _gameMap, _player, _camera, _levelState;
 
 
 function settings:enter(prevState, camera, gameMap, player, levelState)
@@ -18,7 +20,7 @@ function settings:enter(prevState, camera, gameMap, player, levelState)
     _gameMap = gameMap
     _player = player
 
-    options = {"BACK", "AUDIO", "DISPLAY", "CONTROLS"}
+    
 
     cursor = {
         x = 0,
@@ -69,7 +71,7 @@ function settings:draw()
     love.graphics.setFont(fonts.small)
     love.graphics.setColor(1, 1, 1)
     local textHeight;
-    for i, option in ipairs(options) do
+    for i, option in ipairs(self.options) do
         textHeight = fonts.small:getHeight(option)
         love.graphics.print(
             option, 
@@ -101,7 +103,7 @@ function settings:keypressed(key)
         sounds.select:play()
     end
     if key == "up" then
-        if cursor.current >= #options then return end;
+        if cursor.current >= #self.options then return end;
         cursor.current = cursor.current + 1
         sounds.select:play()
     end
