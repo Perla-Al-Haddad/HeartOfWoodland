@@ -1,7 +1,7 @@
 local CAMERA_SCALE = 1;
 
-local sti = require("lib/sti/sti");
-local windfield = require("lib/windfield");
+local sti = require("lib.sti.sti");
+local windfield = require("lib.windfield");
 local push = require("lib.push");
 local Gamestate = require("lib.hump.gamestate");
 

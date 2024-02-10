@@ -1,7 +1,7 @@
 local SCALE = 2
 local SWITCH_TIMER = 1.5
 
-local windfield = require("lib/windfield");
+local windfield = require("lib.windfield");
 local Vector = require("lib.hump.vector")
 local Gamestate = require("lib.hump.gamestate");
 local push = require("lib.push");

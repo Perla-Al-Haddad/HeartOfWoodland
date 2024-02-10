@@ -1,4 +1,4 @@
-audio = {}
+local audio = {}
 
 local sone = require("lib.sone.sone")
 
