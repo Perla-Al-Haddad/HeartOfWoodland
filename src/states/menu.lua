@@ -8,6 +8,7 @@ local push = require("lib.push");
 
 local Player = require("src.Player");
 local EffectsHandler = require("src.EffectsHandler");
+local Level = require("src.states.Level")
 
 local audio = require("src.utils.audio");
 local conf = require("src.utils.conf");
@@ -63,9 +64,8 @@ function menu:update(dt)
     effectsHandler:updateEffects(dt);
 
     if switchTimer < 0 then
-        local forestRuins = require("src.states.levels.forestRuins")
-        -- forestRuins:initEntities("menu")
-        Gamestate.switch(forestRuins, "menu")
+        local level = Level():initExternal("forestRuins", "menu")
+        Gamestate.switch(level)
     end
 end
 

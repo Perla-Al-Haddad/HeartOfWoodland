@@ -56,9 +56,19 @@ Player = Class {
         self:_handleDropCollision(dt)
         self:_handleLevelTransition()
         self:_handleEnemyCollision(dt, shake)
+
+        if self._handlers.enemies then self._handlers.enemies:updateEnemies(dt) end
+        if self._handlers.objects then self._handlers.objects:updateObjects(dt) end
+        if self._handlers.effects then self._handlers.effects:updateEffects(dt) end
+        if self._handlers.drops then self._handlers.drops:updateDrops(dt) end
     end,
 
     drawAbs = function(self)
+        if self._handlers.enemies then self._handlers.enemies:drawEnemies(); end
+        if self._handlers.effects then self._handlers.effects:drawEffects(-1) end
+        if self._handlers.objects then self._handlers.objects:drawObjects() end
+        if self._handlers.drops then self._handlers.drops:drawDrops() end
+
         local px, py = self:_getCenterPosition()
 
         love.graphics.setColor(0.1, 0, 0.15, 0.5)
@@ -81,6 +91,8 @@ Player = Class {
         end
 
         Entity.drawAbs(self)
+
+        if self._handlers.effects then self._handlers.effects:drawEffects(0) end
     end,
 
     useItem = function(self, item, camera)
@@ -305,8 +317,9 @@ Player = Class {
 
         for _, transitionCollider in ipairs(hitTransitions) do
             self:destroySelf()
-            local level = require("src.states.levels." .. transitionCollider.stateName)
-            Gamestate.switch(level, Gamestate.current().name)
+            local Level = require("src.states.Level")
+            local level = Level():initExternal(transitionCollider.stateName, Gamestate.current().name)
+            Gamestate.switch(level)
         end
     end,
 

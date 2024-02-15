@@ -5,8 +5,8 @@ conf.DEBUG.HURT_BOXES = false
 conf.DEBUG.HIT_BOXES = false
 conf.DEBUG.DRAW_WORLD = false
 
-conf.MUSIC = true
-conf.FULLSCREEN = true
+conf.MUSIC = false
+conf.FULLSCREEN = false
 
 conf.PLAYER = {}
 conf.PLAYER.TILE_SIZE = 32
