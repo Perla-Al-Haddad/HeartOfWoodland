@@ -19,7 +19,7 @@ function love.load()
 
     push:setupScreen(conf.gameWidth, conf.gameHeight, conf.windowWidth, conf.windowHeight, {
         pixelperfect = true,
-        fullscreen = true
+        fullscreen = conf.FULLSCREEN
     })
 
     Gamestate.registerEvents()
