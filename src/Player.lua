@@ -36,6 +36,11 @@ Player = Class {
         self.comboCount = 0
         self.buffer = {}
 
+        self.opacity = 1
+        self.opacityDir = 1
+        self.isInvincibile = false
+        self.invincibilityTimer = conf.PLAYER.INVINCIBILITY_LENGTH
+
         self.knockbackTimer = 0
         self.stunTimer = 0
         self.flashTimer = 0
@@ -56,6 +61,7 @@ Player = Class {
         self:_handleDropCollision(dt)
         self:_handleLevelTransition()
         self:_handleEnemyCollision(dt, shake)
+        self:_handleInvincibility(dt)
 
         if self._handlers.enemies then self._handlers.enemies:updateEnemies(dt) end
         if self._handlers.objects then self._handlers.objects:updateObjects(dt) end
@@ -74,23 +80,19 @@ Player = Class {
         love.graphics.setColor(0.1, 0, 0.15, 0.5)
         love.graphics.ellipse("fill", px + self.width / 2, py + self.height, self.width / 5, 1.5)
 
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(1, 1, 1, self.opacity);
 
         if self.flashTimer > 0 then love.graphics.setShader(shaders.whiteout) end
         self.currentAnimation:draw(self.animationSheet, px, py, nil,
             self.hurtCollider.dirX, 1, 0, 0)
         love.graphics.setShader()
 
+        Entity.drawAbs(self)
+
         if self.polygon ~= nil and conf.DEBUG.HIT_BOXES then
             love.graphics.setColor(0, 0, 1, 0.5)
             love.graphics.polygon("fill", self.polygon)
         end
-        if conf.DEBUG.HIT_BOXES then
-            love.graphics.setColor(0, 0, 1, 0.5)
-            love.graphics.rectangle("fill", px, py + self.heightOffset, self.width, self.height)
-        end
-
-        Entity.drawAbs(self)
 
         if self._handlers.effects then self._handlers.effects:drawEffects(0) end
     end,
@@ -313,7 +315,8 @@ Player = Class {
         if not self.hurtCollider:enter('LevelTransition') then return end
 
         local px, py = self:_getCenterPosition()
-        local hitTransitions = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, { 'LevelTransition' })
+        local hitTransitions = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height,
+            { 'LevelTransition' })
 
         for _, transitionCollider in ipairs(hitTransitions) do
             self:destroySelf()
@@ -336,9 +339,10 @@ Player = Class {
                 self.state = "stunned"
             end
             self.stunTimer = conf.PLAYER.STUN_TIMER
+            self.isInvincibile = true
         end
 
-        if not self.hurtCollider:enter('EnemyHit') then return end
+        if not self.hurtCollider:enter('EnemyHit') or self.isInvincibile then return end
 
         self.sounds.hurt:play()
 
@@ -390,6 +394,24 @@ Player = Class {
             local drop = self._handlers.drops:getDropByCollider(dropCollider)
             drop:pickUp()
             if drop.type == "heart" then self.health = self.health + 1 end
+        end
+    end,
+
+    _handleInvincibility = function(self, dt)
+        if self.opacity <= 0 then
+            self.opacityDir = 1
+        elseif self.opacity >= 1 then
+            self.opacityDir = -1
+        end
+        if self.isInvincibile then
+            self.invincibilityTimer = self.invincibilityTimer - dt
+            self.opacity = self.opacity + dt * self.opacityDir * conf.PLAYER.INVINCIBILITY_FLICKER_SPEED
+        else
+            self.invincibilityTimer = conf.PLAYER.INVINCIBILITY_LENGTH
+            self.opacity = 1
+        end
+        if self.invincibilityTimer <= 0 then
+            self.isInvincibile = false
         end
     end
 }
