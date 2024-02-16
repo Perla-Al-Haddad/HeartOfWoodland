@@ -17,6 +17,7 @@ local DropsHandler = require("src.DropsHandler")
 local Enemy = require("src.Enemy")
 local Chest = require("src.Chest")
 local UI = require("src.UI")
+local WaveEffect = require("src.Effects.WaveEffect")
 
 local Shake = require("src.utils.Shake")
 local conf = require("src.utils.conf")
@@ -41,6 +42,7 @@ local Level = Class {
         self:_setCamera()
         self:_setShake()
 
+        self:_spawnEffects()
         self:_spawnEnemies()
         self:_spawnWalls()
         self:_spawnLevelTransitionColliders()
@@ -149,6 +151,14 @@ local Level = Class {
             end
         end
         assert(self.player ~= nil, "Player was not spawned")
+    end,
+
+    _spawnEffects = function(self)
+        local wavesLayer = self.gameMap.layers["Waves"]
+        if wavesLayer == nil then return end
+        for _, obj in pairs(wavesLayer.objects) do
+            self.handlers.effects:addEffect(WaveEffect(obj.x, obj.y))
+        end
     end,
 
     _spawnEnemies = function(self)
