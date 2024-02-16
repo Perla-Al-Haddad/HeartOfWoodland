@@ -348,8 +348,6 @@ Player = Class {
             self.sounds.death:play()
             audio.gameMusic:stop()
             local menu = require("src.states.menu")
-            local state = Gamestate.current()
-            state:initEntities()
             self:destroySelf()
             Gamestate.switch(menu)
             return
