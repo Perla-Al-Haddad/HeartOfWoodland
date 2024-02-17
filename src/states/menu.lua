@@ -64,7 +64,7 @@ function menu:update(dt)
     effectsHandler:updateEffects(dt);
 
     if switchTimer < 0 then
-        local level = Level():initExternal("woodlandEntrance", "connector")
+        local level = Level():initExternal("forestRuins", "menu")
         Gamestate.switch(level)
     end
 end

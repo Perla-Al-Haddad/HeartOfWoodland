@@ -4,8 +4,8 @@ local anim8 = require("lib.anim8.anim8")
 local Gamestate = require("lib.hump.gamestate");
 
 local Entity = require("src.Entity")
-local SwingEffect = require("src.Effects.SwingEffect")
-local DustEffect = require("src.Effects.DustEffect")
+local SwingEffect = require("src.effects.SwingEffect")
+local DustEffect = require("src.effects.DustEffect")
 local playerStateHandler = require("src.playerStateHandler")
 
 local funcs = require("src.utils.funcs");
@@ -110,6 +110,7 @@ Player = Class {
         for _, objectCollider in ipairs(hitChests) do
             local obj = self._handlers.objects:getObjectByCollider(objectCollider)
             if obj.type == "chest" then obj:open() end
+            if obj.type == "sign" then obj:display() end
         end
     end,
 

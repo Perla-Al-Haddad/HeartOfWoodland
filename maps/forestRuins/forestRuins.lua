@@ -9,8 +9,8 @@ return {
   height = 50,
   tilewidth = 16,
   tileheight = 16,
-  nextlayerid = 15,
-  nextobjectid = 174,
+  nextlayerid = 16,
+  nextobjectid = 177,
   properties = {},
   tilesets = {
     {
@@ -1171,7 +1171,7 @@ return {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 23,
         0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 23, 0,
         0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 55, 32, 0, 55, 0, 0, 0, 0, 23, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 62, 0, 0, 0, 0, 0, 0, 0, 55, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 55, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0,
         0, 23, 0, 23, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 34, 35, 0, 0, 0, 0, 0, 0, 23, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23,
@@ -3044,19 +3044,6 @@ return {
           properties = {}
         },
         {
-          id = 162,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 160,
-          y = 288,
-          width = 16,
-          height = 16,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
           id = 164,
           name = "",
           type = "",
@@ -3231,6 +3218,53 @@ return {
           visible = true,
           properties = {
             ["level"] = "connector"
+          }
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 15,
+      name = "Objects",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 174,
+          name = "",
+          type = "",
+          shape = "point",
+          x = 160,
+          y = 288,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["name"] = "forestRuinsMain",
+            ["type"] = "sign"
+          }
+        },
+        {
+          id = 175,
+          name = "",
+          type = "",
+          shape = "point",
+          x = 240,
+          y = 128,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["type"] = "chest"
           }
         }
       }
