@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="15" nextobjectid="174">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="16" nextobjectid="177">
  <editorsettings>
   <export target="forestRuins.lua" format="lua"/>
  </editorsettings>
@@ -323,7 +323,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,0,0,0,23,
 0,0,0,0,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,0,0,0,0,23,0,
 0,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,55,32,0,55,0,0,0,0,23,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,62,0,0,0,0,0,0,0,55,0,0,0,23,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,55,0,0,0,23,0,0,0,0,0,0,0,
 0,23,0,23,0,0,23,0,0,0,0,0,0,0,0,0,0,0,0,0,34,35,0,0,0,0,0,0,23,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,
@@ -606,7 +606,6 @@
   <object id="156" x="336" y="352" width="16" height="16"/>
   <object id="157" x="176" y="128" width="16" height="16"/>
   <object id="160" x="288" y="272" width="16" height="16"/>
-  <object id="162" x="160" y="288" width="16" height="16"/>
   <object id="164" x="52" y="680" width="24" height="15"/>
   <object id="165" x="99" y="712" width="24" height="15"/>
   <object id="166" x="20" y="776" width="24" height="15"/>
@@ -633,6 +632,21 @@
    <properties>
     <property name="level" value="connector"/>
    </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="15" name="Objects">
+  <object id="174" x="160" y="288">
+   <properties>
+    <property name="name" value="forestRuinsMain"/>
+    <property name="type" value="sign"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="175" x="240" y="128">
+   <properties>
+    <property name="type" value="chest"/>
+   </properties>
+   <point/>
   </object>
  </objectgroup>
 </map>

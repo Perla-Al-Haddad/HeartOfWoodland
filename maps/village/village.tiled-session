@@ -39,8 +39,8 @@
             "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 237.25,
-                "y": 160
+                "x": 159,
+                "y": 159.25
             }
         },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/city/city.tmx#grass": {
@@ -51,13 +51,14 @@
                 11,
                 13,
                 7,
-                8
+                8,
+                14
             ],
-            "scale": 8,
-            "selectedLayer": 9,
+            "scale": 1.5,
+            "selectedLayer": 12,
             "viewCenter": {
-                "x": 123.25,
-                "y": 300.3125
+                "x": 954.6666666666666,
+                "y": 443
             }
         },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/connector/connector.tmx#decor": {
@@ -120,15 +121,16 @@
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins/forestRuins.tmx": {
             "expandedObjectLayers": [
                 12,
+                15,
                 13,
                 7,
                 14
             ],
-            "scale": 1,
-            "selectedLayer": 4,
+            "scale": 2,
+            "selectedLayer": 10,
             "viewCenter": {
-                "x": 240,
-                "y": 400
+                "x": 271,
+                "y": 263.25
             }
         },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins/forestRuins.tmx#bush": {
@@ -221,13 +223,14 @@
             "expandedObjectLayers": [
                 6,
                 5,
+                13,
                 7
             ],
-            "scale": 1,
-            "selectedLayer": 10,
+            "scale": 4,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 442,
-                "y": 204.5
+                "x": 188.625,
+                "y": 62.25
             }
         },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/woodlandEntrance/woodlandEntrance.tmx#decor_16x16": {
@@ -298,12 +301,13 @@
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/connector/connector.tmx"
     ],
     "project": "village.tiled-project",
+    "property.type": "string",
     "recentFiles": [
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins/forestRuins.tmx",
         "village.tmx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/grass.tsx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/plains.tsx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/walls.tsx",
-        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins/forestRuins.tmx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/city/city.tmx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/connector/connector.tmx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forest/forest.tmx",

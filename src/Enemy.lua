@@ -12,18 +12,18 @@ local shaders = require("src.utils.shaders")
 
 
 Enemy = Class {
-    __includes = {Entity},
+    __includes = { Entity },
 
     init = function(self, positionX, positionY, width, height, speed,
-                    hitBoxWidth, hitBoxHeight, 
-                    hurtBoxWidth, hurtBoxHeight, 
+                    hitBoxWidth, hitBoxHeight,
+                    hurtBoxWidth, hurtBoxHeight,
                     heightOffset, animationSheet, world, dropsHandler)
         Entity.init(self, positionX, positionY, width, height, speed,
-                    ENEMY_HIT_COLLISION_CLASS,
-                    ENEMY_HURT_COLLISION_CLASS,
-                    hitBoxWidth, hitBoxHeight, 
-                    hurtBoxWidth, hurtBoxHeight,
-                    heightOffset, animationSheet, world)
+            ENEMY_HIT_COLLISION_CLASS,
+            ENEMY_HURT_COLLISION_CLASS,
+            hitBoxWidth, hitBoxHeight,
+            hurtBoxWidth, hurtBoxHeight,
+            heightOffset, animationSheet, world)
         self._dropsHandler = dropsHandler
 
         self.hurtCollider:setLinearDamping(10)
@@ -34,13 +34,13 @@ Enemy = Class {
 
         self.startX = positionX + 30
         self.startY = positionY + 30
-        
+
         self.wanderRadius = 30
         self.wanderSpeed = 15
         self.wanderTimer = 0.5 + math.random() * 2
         self.wanderBufferTimer = 0
         self.wanderDir = Vector(1, 1)
-        
+
         self.flashTimer = 0
     end,
 
@@ -62,16 +62,16 @@ Enemy = Class {
         love.graphics.setColor(1, 1, 1, 1)
         if self.flashTimer > 0 then love.graphics.setShader(shaders.whiteout) end
         self.currentAnimation:draw(self.animationSheet, px, py, nil,
-                                   self.hurtCollider.dirX, 1, 0, 0)
+            self.hurtCollider.dirX, 1, 0, 0)
         love.graphics.setShader()
-        
+
         Entity.drawAbs(self)
     end,
 
     hit = function(self, damage, dir, shake)
         self.health = self.health - damage;
-        
-        if self.health <= 0 then 
+
+        if self.health <= 0 then
             self:_die(dir)
             return;
         end
@@ -79,10 +79,10 @@ Enemy = Class {
         self.flashTimer = 0.1
 
         self.sounds.hurt:play()
-        
+
         -- shake:start(0.02, 0.9, 0.01);
         local mag = 50
-        self.hurtCollider:applyLinearImpulse((dir:normalized()*mag):unpack())
+        self.hurtCollider:applyLinearImpulse((dir:normalized() * mag):unpack())
     end,
 
     _die = function(self, dir)
@@ -90,21 +90,21 @@ Enemy = Class {
         if self.hitCollider == nil then return end;
         self.hitCollider:destroy()
         self.hitCollider = nil
-        
+
         local px, py = self.hurtCollider:getX(), self.hurtCollider:getY()
         self.hurtCollider:destroy()
         self.hurtCollider = self._world:newBSGRectangleCollider(
             px, py,
-            self.hurtBoxWidth, self.hurtBoxHeight, 3, 
-            {collision_class = "Dead"}
+            self.hurtBoxWidth, self.hurtBoxHeight, 3,
+            { collision_class = "Dead" }
         );
-        self.hurtCollider:applyLinearImpulse((dir:normalized()*100):unpack())
+        self.hurtCollider:applyLinearImpulse((dir:normalized() * 100):unpack())
         self.hurtCollider:setLinearDamping(10)
         self.hurtCollider:setFixedRotation(true)
 
         self.sounds.death:play()
 
-        if math.random(1,10) > 5 then self._dropsHandler:addDrop(HealthDrop(px, py, self._world)) end
+        if math.random(1, 10) > 5 then self._dropsHandler:addDrop(HealthDrop(px, py, self._world)) end
     end,
 
     _getAnimationsAbs = function(self)
@@ -119,7 +119,7 @@ Enemy = Class {
 
     _wander = function(self, dt)
         local canWander = (self.state ~= "wandering-moving" or self.state ~=
-                        "wandering-stopped") and (self.health > 0)
+            "wandering-stopped") and (self.health > 0)
 
         if not canWander then return end
 
@@ -153,16 +153,16 @@ Enemy = Class {
 
         if self.state == "wandering-moving" then
             self.hurtCollider:setX(self.hurtCollider:getX() + self.wanderDir.x *
-                                   self.wanderSpeed * dt)
+                self.wanderSpeed * dt)
             self.hurtCollider:setY(self.hurtCollider:getY() + self.wanderDir.y *
-                                   self.wanderSpeed * dt)
+                self.wanderSpeed * dt)
             self.hitCollider:setX(self.hitCollider:getX() + self.wanderDir.x *
-                                   self.wanderSpeed * dt)
+                self.wanderSpeed * dt)
             self.hitCollider:setY(self.hitCollider:getY() + self.wanderDir.y *
-                                   self.wanderSpeed * dt)
+                self.wanderSpeed * dt)
 
             if self:_distanceBetween(self.hurtCollider:getX(), self.hurtCollider:getY(),
-                                     self.startX, self.startY) >
+                    self.startX, self.startY) >
                 self.wanderRadius and self.wanderBufferTimer <= 0 then
                 self.state = "wandering-stopped"
                 self.wanderTimer = 1 + math.random(0.1, 0.8)

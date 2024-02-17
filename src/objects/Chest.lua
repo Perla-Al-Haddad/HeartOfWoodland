@@ -1,9 +1,9 @@
-local CHEST_COLLISION_CLASS = "Objects"
 local CHEST_ANIMATION_SHEET = "/assets/sprites/objects/chest_01.png"
 
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
 
+local conf = require("src.utils.conf")
 
 Chest = Class {
 
@@ -18,7 +18,7 @@ Chest = Class {
         self.collider = self._world:newBSGRectangleCollider(positionX, positionY,
                                                     self.width,
                                                     self.height, 0, 
-                                                    {collision_class = CHEST_COLLISION_CLASS})
+                                                    {collision_class = conf.OBJECTS.COLLISION_CLASS})
         self.collider:setType("static")
 
         self.animationSheet = love.graphics.newImage(CHEST_ANIMATION_SHEET)

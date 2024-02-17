@@ -13,9 +13,11 @@ local EnemiesHandler = require("src.EnemiesHandler")
 local ObjectsHandler = require("src.ObjectsHandler")
 local DropsHandler = require("src.DropsHandler")
 local Enemy = require("src.Enemy")
-local Chest = require("src.Chest")
+local Chest = require("src.objects.Chest")
+local Sign = require("src.objects.Sign")
 local UI = require("src.UI")
-local WaveEffect = require("src.Effects.WaveEffect")
+local WaveEffect = require("src.effects.WaveEffect")
+local dialogueHandler = require("src.dialogueHandler")
 
 local Shake = require("src.utils.Shake")
 local conf = require("src.utils.conf")
@@ -43,6 +45,7 @@ local Level = Class {
         self:_spawnEffects()
         self:_spawnEnemies()
         self:_spawnWalls()
+        self:_spawnObjects()
         self:_spawnLevelTransitionColliders()
 
         if conf.MUSIC then audio.gameMusic:play() end
@@ -59,6 +62,7 @@ local Level = Class {
         self.camera:update(dt, self.player, self.gameMap);
         self.shake:update(dt)
         self.gameMap:update(dt)
+        dialogueHandler:update(dt)
     end,
 
     draw = function(self)
@@ -77,6 +81,8 @@ local Level = Class {
 
         self.ui:drawPlayerLife();
         self:_drawOverlayLayer()
+
+        dialogueHandler:draw()
 
         push:finish()
     end,
@@ -133,7 +139,7 @@ local Level = Class {
     end,
 
     _setCamera = function(self)
-        self.camera = Camera(cond.CAMERA.SCALE, self.player.hurtCollider:getX(), self.player.hurtCollider:getY());
+        self.camera = Camera(conf.CAMERA.SCALE, self.player.hurtCollider:getX(), self.player.hurtCollider:getY());
     end,
 
     _setShake = function(self)
@@ -170,6 +176,18 @@ local Level = Class {
                     self.world, self.handlers.drops
                 )
             )
+        end
+    end,
+
+    _spawnObjects = function(self)
+        local objectsLayer = self.gameMap.layers["Objects"]
+        if objectsLayer == nil then return end
+        for _, obj in pairs(objectsLayer.objects) do
+            if obj.properties.type == "sign" then
+                self.handlers.objects:addObject(Sign(obj.x, obj.y, 16, 16, self.world, obj.properties.name))
+            elseif obj.properties.type == "chest" then
+                self.handlers.objects:addObject(Chest(obj.x, obj.y, 16, 16, self.world))
+            end
         end
     end,
 
