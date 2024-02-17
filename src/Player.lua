@@ -92,6 +92,7 @@ Player = Class {
         if self.polygon ~= nil and conf.DEBUG.HIT_BOXES then
             love.graphics.setColor(0, 0, 1, 0.5)
             love.graphics.polygon("fill", self.polygon)
+            love.graphics.setColor(1, 1, 1, 1)
         end
 
         if self._handlers.effects then self._handlers.effects:drawEffects(0) end
