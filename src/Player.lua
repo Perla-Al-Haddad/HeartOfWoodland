@@ -6,6 +6,7 @@ local Gamestate = require("lib.hump.gamestate");
 local Entity = require("src.Entity")
 local SwingEffect = require("src.Effects.SwingEffect")
 local DustEffect = require("src.Effects.DustEffect")
+local playerStateHandler = require("src.playerStateHandler")
 
 local funcs = require("src.utils.funcs");
 local conf = require("src.utils.conf");
@@ -26,7 +27,6 @@ Player = Class {
         self.currentLevel = currentLevel
 
         self.polygon = nil
-        self.health = 3
 
         self.pressedDirY = 0
         self.pressedDirX = 0
@@ -58,7 +58,7 @@ Player = Class {
         self:_handlePlayerMovement(dt)
         self:_handleSwordSwing(dt, shake)
         self:_handleStunnedDuration(dt)
-        self:_handleDropCollision(dt)
+        self:_handleDropCollision()
         self:_handleLevelTransition()
         self:_handleEnemyCollision(dt, shake)
         self:_handleInvincibility(dt)
@@ -153,7 +153,6 @@ Player = Class {
             self.attackDir = Vector(self.pressedDirX, self.pressedDirY)
         end
 
-        -- self.attackDir = self:_toMouseVector(camera)
         self:_setDirFromVector(self.attackDir)
 
         self.state = "swing"
@@ -348,13 +347,14 @@ Player = Class {
         self.sounds.hurt:play()
 
         self.state = "damage"
-        self.health = self.health - 1;
-        if self.health <= 0 then
+        playerStateHandler.health = playerStateHandler.health - 1;
+        if playerStateHandler.health <= 0 then
             self.sounds.death:play()
             audio.gameMusic:stop()
             local menu = require("src.states.menu")
             self:destroySelf()
             Gamestate.switch(menu)
+            playerStateHandler.health = conf.PLAYER.DEFAULT_HEALTH
             return
         end
 
@@ -385,7 +385,7 @@ Player = Class {
         end
     end,
 
-    _handleDropCollision = function(self, dt)
+    _handleDropCollision = function(self)
         if not self.hurtCollider:enter('Drops') then return end
 
         local px, py = self:_getCenterPosition()
@@ -394,7 +394,9 @@ Player = Class {
         for _, dropCollider in ipairs(hitDrops) do
             local drop = self._handlers.drops:getDropByCollider(dropCollider)
             drop:pickUp()
-            if drop.type == "heart" then self.health = self.health + 1 end
+            if drop.type == "heart" then
+                playerStateHandler.health = playerStateHandler.health + 1
+            end
         end
     end,
 

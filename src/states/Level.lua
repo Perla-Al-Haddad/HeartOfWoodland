@@ -77,7 +77,7 @@ local Level = Class {
 
         self.camera.camera:detach();
 
-        self.ui:drawPlayerLife(self.player);
+        self.ui:drawPlayerLife();
         self:_drawOverlayLayer()
 
         push:finish()

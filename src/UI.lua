@@ -1,19 +1,20 @@
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
 
+local playerStateHandler = require("src.playerStateHandler")
 
 UI = Class {
     init = function(self)
         self.assetsSheet = love.graphics.newImage("/assets/sprites/GUI/GUI_1x.png");
         self.grid = anim8.newGrid(8, 8,
-                                  self.assetsSheet:getWidth(),
-                                  self.assetsSheet:getHeight());
+            self.assetsSheet:getWidth(),
+            self.assetsSheet:getHeight());
 
         self.heart = anim8.newAnimation(self.grid("9-9", 9), 1);
     end,
 
-    drawPlayerLife = function(self, player)
-        for i = 1, player.health, 1 do
+    drawPlayerLife = function(self)
+        for i = 1, playerStateHandler.health, 1 do
             i = i - 1
             local line_no = math.floor(i / 11)
             i = i - (line_no * 11)

@@ -1,6 +1,8 @@
 local Gamestate = require("lib.hump.gamestate");
 local push = require("lib.push");
 
+local playerStateHandler = require("src.playerStateHandler")
+
 local audio = require("src.utils.audio");
 local conf = require("src.utils.conf");
 local fonts = require("src.utils.fonts");
@@ -108,6 +110,7 @@ function settings:keypressed(key)
             _player:destroySelf()
             local menu = require("src.states.menu")
             Gamestate.switch(menu)
+            playerStateHandler.health = conf.PLAYER.DEFAULT_HEALTH
         elseif cursor.current == 4 then
             local settings = require("src.states.settings")
             Gamestate.switch(settings, _camera, _gameMap, _player, _prevState)
