@@ -195,7 +195,7 @@
 </data>
  </layer>
  <objectgroup id="6" name="Player">
-  <object id="90" x="152" y="24">
+  <object id="90" x="148" y="24">
    <properties>
     <property name="cameFrom" value="connector"/>
    </properties>

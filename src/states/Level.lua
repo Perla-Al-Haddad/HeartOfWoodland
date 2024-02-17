@@ -1,5 +1,3 @@
-local CAMERA_SCALE = 1
-
 local Class = require("lib.hump.class")
 
 local sti = require("lib.sti.sti")
@@ -135,7 +133,7 @@ local Level = Class {
     end,
 
     _setCamera = function(self)
-        self.camera = Camera(CAMERA_SCALE, self.player.hurtCollider:getX(), self.player.hurtCollider:getY());
+        self.camera = Camera(cond.CAMERA.SCALE, self.player.hurtCollider:getX(), self.player.hurtCollider:getY());
     end,
 
     _setShake = function(self)
