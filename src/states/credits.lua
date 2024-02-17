@@ -20,11 +20,11 @@ local credits = {
             section = "-- LIBRARIES --",
             credit = {
                 "hump - utils",
-                "push - resolution handling",
                 "sone - music",
                 "sti - graphics",
                 "anim8 - graphics",
                 "windfield - physics",
+                "push - resolution handling",
             }
         }
     }
