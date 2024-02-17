@@ -26,11 +26,15 @@ conf.CAMERA = {}
 conf.CAMERA.SCALE = 1
 
 local dpi_scale = love.window.getDPIScale()
-local windowWidth, windowHeight = 1366, 768;
+local windowWidth, windowHeight = love.window.getDesktopDimensions()
 
 conf.windowWidth = windowWidth / dpi_scale
 conf.windowHeight = windowHeight / dpi_scale
 
-conf.gameWidth, conf.gameHeight = 444, 256
+if conf.windowHeight == 1366 and conf.windowHeight == 768 then
+    conf.gameWidth, conf.gameHeight = 444, 256
+else
+    conf.gameWidth, conf.gameHeight = 444, 256 + 14
+end
 
 return conf
