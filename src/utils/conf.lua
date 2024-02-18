@@ -3,9 +3,10 @@ local conf = {}
 conf.DEBUG = {}
 conf.DEBUG.HURT_BOXES = false
 conf.DEBUG.HIT_BOXES = false
+conf.DEBUG.ENEMY_RADIUS = true
 conf.DEBUG.DRAW_WORLD = false
 
-conf.MUSIC = false
+conf.MUSIC = true
 conf.FULLSCREEN = false
 
 conf.PLAYER = {}
