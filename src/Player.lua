@@ -75,7 +75,7 @@ Player = Class {
         if self._handlers.objects then self._handlers.objects:drawObjects() end
         if self._handlers.drops then self._handlers.drops:drawDrops() end
 
-        local px, py = self:_getCenterPosition()
+        local px, py = self:_getSpriteTopPosition()
 
         love.graphics.setColor(0.1, 0, 0.15, 0.5)
         love.graphics.ellipse("fill", px + self.width / 2, py + self.height, self.width / 5, 1.5)
@@ -103,7 +103,7 @@ Player = Class {
     end,
 
     interact = function(self)
-        local px, py = self:_getCenterPosition()
+        local px, py = self:_getSpriteTopPosition()
         local hitChests = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height,
             { 'Objects' });
 
@@ -204,13 +204,9 @@ Player = Class {
 
         for _, enemyCollider in ipairs(hitEnemies) do
             local enemy = self._handlers.enemies:getEnemyByCollider(enemyCollider)
-            local knockbackDir = self:_getPlayerToSelfVector(enemyCollider:getX(), enemyCollider:getY())
+            local knockbackDir = self:_getPositionToSelfVector(enemyCollider:getX(), enemyCollider:getY())
             if enemy then enemy:hit(1, knockbackDir, shake) end
         end
-    end,
-
-    _getPlayerToSelfVector = function(self, x, y)
-        return Vector(x - self.hurtCollider:getX(), y - self.hurtCollider:getY()):normalized()
     end,
 
     _handleSwordSwing = function(self, dt, shake)
@@ -315,7 +311,7 @@ Player = Class {
     _handleLevelTransition = function(self)
         if not self.hurtCollider:enter('LevelTransition') then return end
 
-        local px, py = self:_getCenterPosition()
+        local px, py = self:_getSpriteTopPosition()
         local hitTransitions = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height,
             { 'LevelTransition' })
 
@@ -389,7 +385,7 @@ Player = Class {
     _handleDropCollision = function(self)
         if not self.hurtCollider:enter('Drops') then return end
 
-        local px, py = self:_getCenterPosition()
+        local px, py = self:_getSpriteTopPosition()
         local hitDrops = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, { 'Drops' });
 
         for _, dropCollider in ipairs(hitDrops) do

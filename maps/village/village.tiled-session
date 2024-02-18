@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/connector/connector.tmx",
+    "activeFile": "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins/forestRuins.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -129,8 +129,8 @@
             "scale": 2,
             "selectedLayer": 10,
             "viewCenter": {
-                "x": 271,
-                "y": 263.25
+                "x": 131.25,
+                "y": 169.5
             }
         },
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins/forestRuins.tmx#bush": {
@@ -298,18 +298,20 @@
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/walls.tsx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins/forestRuins.tmx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/city/city.tmx",
-        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/connector/connector.tmx"
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/connector/connector.tmx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/woodlandEntrance/woodlandEntrance.tmx"
     ],
     "project": "village.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins/forestRuins.tmx",
         "village.tmx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/grass.tsx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/plains.tsx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/walls.tsx",
-        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/city/city.tmx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/woodlandEntrance/woodlandEntrance.tmx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/connector/connector.tmx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/city/city.tmx",
+        "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins/forestRuins.tmx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forest/forest.tmx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/forest.tmx",
         "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/tilesets/decor_16x16.tsx",

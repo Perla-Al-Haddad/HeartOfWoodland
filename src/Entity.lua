@@ -99,11 +99,16 @@ Entity = Class {
         return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
     end,
 
-    _getCenterPosition = function(self)
+    _getSpriteTopPosition = function(self)
         local px, py = self.hurtCollider:getPosition()
         px = px - self.width / 2
         py = py - self.height / 2 - self.heightOffset
 
+        return px, py
+    end,
+
+    _getColliderCenterPosition = function(self)
+        local px, py = self.hurtCollider:getPosition()
         return px, py
     end,
 
@@ -132,6 +137,9 @@ Entity = Class {
         return Vector.new(mx - px, my - py):normalized()
     end,
 
+    _getPositionToSelfVector = function(self, x, y)
+        return Vector(x - self.hurtCollider:getX(), y - self.hurtCollider:getY()):normalized()
+    end,
 }
 
 return Entity

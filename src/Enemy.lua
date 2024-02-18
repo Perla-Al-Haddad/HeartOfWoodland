@@ -8,6 +8,7 @@ local anim8 = require("lib.anim8.anim8")
 local Entity = require("src.Entity")
 local HealthDrop = require("src.HealthDrop")
 
+local conf = require("src.utils.conf")
 local shaders = require("src.utils.shaders")
 
 
@@ -27,10 +28,10 @@ Enemy = Class {
         self._dropsHandler = dropsHandler
 
         self.hurtCollider:setLinearDamping(10)
-
         self.hitCollider:setType("static")
 
         self.health = 3
+        self.radius = 80
 
         self.startX = positionX + 30
         self.startY = positionY + 30
@@ -41,14 +42,23 @@ Enemy = Class {
         self.wanderBufferTimer = 0
         self.wanderDir = Vector(1, 1)
 
+        self.chaseSpeed = 25
+
         self.flashTimer = 0
     end,
 
     updateAbs = function(self, dt)
         self.currentAnimation:update(dt);
-        self:_wander(dt);
+
+        local canSee, playerX, playerY = self:_checkCanSeePlayer()
+        if canSee then
+            self:_chase(dt, playerX, playerY)
+        else
+            self:_wander(dt);
+        end
 
         self.flashTimer = self.flashTimer - dt
+
 
         if self.hitCollider ~= nil then
             self.hitCollider:setX(self.hurtCollider:getX())
@@ -57,15 +67,20 @@ Enemy = Class {
     end,
 
     drawAbs = function(self)
-        local px, py = self:_getCenterPosition()
+        local spx, spy = self:_getSpriteTopPosition()
+        local cpx, cpy = self:_getColliderCenterPosition()
 
         love.graphics.setColor(1, 1, 1, 1)
         if self.flashTimer > 0 then love.graphics.setShader(shaders.whiteout) end
-        self.currentAnimation:draw(self.animationSheet, px, py, nil,
+        self.currentAnimation:draw(self.animationSheet, spx, spy, nil,
             self.hurtCollider.dirX, 1, 0, 0)
         love.graphics.setShader()
 
         Entity.drawAbs(self)
+
+        if conf.DEBUG.ENEMY_RADIUS then
+            self:_drawRadius(cpx, cpy)
+        end
     end,
 
     hit = function(self, damage, dir, shake)
@@ -83,6 +98,20 @@ Enemy = Class {
         -- shake:start(0.02, 0.9, 0.01);
         local mag = 50
         self.hurtCollider:applyLinearImpulse((dir:normalized() * mag):unpack())
+    end,
+
+    _drawRadius = function(self, cpx, cpy)
+        love.graphics.setColor(0, 0, 1, 0.2)
+        love.graphics.circle("fill", cpx, cpy, self.radius)
+        love.graphics.setColor(1, 1, 1, 1)
+    end,
+
+    _checkCanSeePlayer = function(self)
+        local px, py = self:_getColliderCenterPosition()
+        local player = self._world:queryCircleArea(px, py, self.radius, { 'Player' })
+
+        if #player > 0 then return true, player[1]:getX(), player[1]:getY() end
+        return false
     end,
 
     _die = function(self, dir)
@@ -170,6 +199,20 @@ Enemy = Class {
         end
     end,
 
+    _chase = function(self, dt, playerX, playerY)
+        if not self.hitCollider then return end
+
+        local dir = self:_getPositionToSelfVector(playerX, playerY)
+
+        self.hurtCollider:setX(self.hurtCollider:getX() + dir.x *
+            self.chaseSpeed * dt)
+        self.hurtCollider:setY(self.hurtCollider:getY() + dir.y *
+            self.chaseSpeed * dt)
+        self.hitCollider:setX(self.hitCollider:getX() + dir.x *
+            self.chaseSpeed * dt)
+        self.hitCollider:setY(self.hitCollider:getY() + dir.y *
+            self.chaseSpeed * dt)
+    end
 }
 
 return Enemy
