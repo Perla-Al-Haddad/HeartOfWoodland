@@ -59,7 +59,6 @@ Enemy = Class {
 
         self.flashTimer = self.flashTimer - dt
 
-
         if self.hitCollider ~= nil then
             self.hitCollider:setX(self.hurtCollider:getX())
             self.hitCollider:setY(self.hurtCollider:getY())

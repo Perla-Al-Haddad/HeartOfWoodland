@@ -5,13 +5,18 @@ local conf = require("src.utils.conf")
 
 
 Camera = Class {
-    init = function(self, scale, originX, originY)
+    init = function(self, scale, originX, originY, levelWidth, levelHeight, levelTileWidth, levelTileHeight)
         self.scale = scale
         self.camera = HumpCamera(originX, originY, self.scale)
+        
+        self.levelWidth = levelWidth
+        self.levelHeight = levelHeight
+        self.levelTileWidth = levelTileWidth
+        self.levelTileHeight = levelTileHeight
         -- self.camera.smoother = HumpCamera.smooth.damped(15)
     end,
 
-    update = function(self, dt, player, gameMap)
+    update = function(self, player)
         if player.hurtCollider == nil then
             return
         end
@@ -23,8 +28,8 @@ Camera = Class {
         local h = conf.gameHeight / self.scale
 
         -- Get width/height of background
-        local mapW = gameMap.width * gameMap.tilewidth
-        local mapH = gameMap.height * gameMap.tileheight
+        local mapW = self.levelWidth * self.levelTileWidth
+        local mapH = self.levelHeight * self.levelTileHeight
 
         -- Left border
         if camX < w / 2 then camX = w / 2 end

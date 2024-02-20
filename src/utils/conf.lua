@@ -3,9 +3,10 @@ local conf = {}
 conf.DEBUG = {}
 conf.DEBUG.HURT_BOXES = false
 conf.DEBUG.HIT_BOXES = false
-conf.DEBUG.ENEMY_RADIUS = flase
-conf.DEBUG.DRAW_WORLD = false
+conf.DEBUG.ENEMY_RADIUS = false
+conf.DEBUG.DRAW_WORLD = true
 
+conf.TILE_SIZE = 12
 conf.MUSIC = false
 conf.FULLSCREEN = false
 
@@ -23,6 +24,13 @@ conf.PLAYER.STUN_TIMER = 0.075
 conf.PLAYER.INVINCIBILITY_FLICKER_SPEED = 5.5
 conf.PLAYER.INVINCIBILITY_LENGTH = 2
 conf.PLAYER.DEFAULT_HEALTH = 3
+
+conf.GRASS_MAPPING = {
+    1, 1, 1, 1, 1,
+    2, 2, 2,
+    3, 3, 3,
+    4,
+}
 
 conf.OBJECTS = {}
 conf.OBJECTS.COLLISION_CLASS = "Objects"
