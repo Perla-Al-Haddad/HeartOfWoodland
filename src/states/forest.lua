@@ -14,13 +14,15 @@ local GrassEffect = require("src.effects.GrassEffect")
 
 local conf = require("src.utils.conf")
 local globalFuncs = require("src.utils.globalFuncs")
+local funcs = require("src.utils.funcs")
 
-MARGIN_X_MIN, MARGIN_X_MAX = 0, 0
-MARGIN_Y_MIN, MARGIN_Y_MAX = 0, 1
+MARGIN_X_MIN, MARGIN_X_MAX = -5, 5
+MARGIN_Y_MIN, MARGIN_Y_MAX = -5, 5
 
-local forest = {
-    trees = {}
-}
+local minimapScale = 1.75
+
+local forest = { trees = {}, width = 200, height = 155 }
+
 
 function forest:_drawBackgroundColor()
     love.graphics.setColor(80 / 255, 155 / 255, 102 / 255);
@@ -39,10 +41,10 @@ function forest:_shouldCreateCollider(matrix, row, col)
 
     -- Check if the current tile is adjacent to an empty space
     local adjacent_tiles = {
-        {row - 1, col},  -- Top
-        {row + 1, col},  -- Bottom
-        {row, col - 1},  -- Left
-        {row, col + 1}   -- Right
+        { row - 1, col },     -- Top
+        { row + 1, col },     -- Bottom
+        { row,     col - 1 }, -- Left
+        { row,     col + 1 }  -- Right
     }
 
     for _, tile in ipairs(adjacent_tiles) do
@@ -68,7 +70,7 @@ function forest:enter()
     self.world:addCollisionClass('LevelTransition',
         { ignores = { 'Ignore', "EnemyHurt", "Drops", "Objects", "Wall", "EnemyHit", "Dead" } });
 
-    self.level = ForestGenerator(60, 45, 10)
+    self.level = ForestGenerator(self.width, self.height, 10)
 
     self.tileWidth = 32
     self.tileHeight = 64
@@ -86,37 +88,54 @@ function forest:enter()
     self.camera = Camera(conf.CAMERA.SCALE,
         self.player.hurtCollider:getX(), self.player.hurtCollider:getY(),
         self.level.width, self.level.height - 2,
-        self.collisionTileWidth + MARGIN_X_MAX, self.collisionTileHeight);
+        self.collisionTileWidth, self.collisionTileHeight);
     self.shake = Shake(self.camera.camera);
 
     for y = 1, self.level.height do
         for x = 1, self.level.width do
             local cell = self.level.map[x][y]
             if cell == "#" then
-                local tree = Tree(
-                    (x - 1) * (self.collisionTileWidth + math.random(MARGIN_X_MIN, MARGIN_X_MAX)),
-                    (y - 1) * self.collisionTileHeight,
-                    24, 20, self.world, self:_shouldCreateCollider(self.level.map, x, y))
-                table.insert(self.trees, tree)
+                local shouldCollider = self:_shouldCreateCollider(self.level.map, x, y)
+                local tree
+                if shouldCollider then
+                    tree = Tree(
+                        (x - 1) * self.collisionTileWidth,
+                        (y - 1) * self.collisionTileHeight,
+                        math.random(MARGIN_X_MIN, MARGIN_X_MAX),
+                        math.random(MARGIN_Y_MIN, MARGIN_Y_MAX),
+                        24, 20, self.world, shouldCollider)
+                    table.insert(self.trees, tree)
+                else
+                    local t = math.random(2)
+                    if t ~= 1 then
+                        tree = Tree(
+                            (x - 1) * self.collisionTileWidth,
+                            (y - 1) * self.collisionTileHeight,
+                            math.random(MARGIN_X_MIN, MARGIN_X_MAX),
+                            math.random(MARGIN_Y_MIN, MARGIN_Y_MAX),
+                            24, 20, self.world, shouldCollider)
+                        table.insert(self.trees, tree)
+                    end
+                end
             elseif cell == "P" then
-                self.player.hurtCollider:setX((x - 1) * (self.collisionTileWidth + MARGIN_X_MAX))
+                self.player.hurtCollider:setX((x - 1) * (self.collisionTileWidth))
                 self.player.hurtCollider:setY((y - 1) * (self.collisionTileHeight))
             elseif cell == 'g' then
                 local t = (math.random(#conf.GRASS_MAPPING))
                 self.handlers.effects:addEffect(GrassEffect(
-                    (x - 1) * (self.collisionTileWidth + MARGIN_X_MAX),
+                    (x - 1) * (self.collisionTileWidth),
                     (y - 1) * (self.collisionTileHeight),
                     conf.GRASS_MAPPING[t]))
             elseif cell == 'r' then
                 self.handlers.objects:addObject(Rock(
-                    (x - 1) * (self.collisionTileWidth + MARGIN_X_MAX),
+                    (x - 1) * (self.collisionTileWidth),
                     (y - 1) * (self.collisionTileHeight),
                     self.world
                 ))
             elseif cell == 'E' then
                 self.handlers.enemies:addEnemy(
                     Enemy(
-                        (x - 1) * (self.collisionTileWidth + MARGIN_X_MAX),
+                        (x - 1) * (self.collisionTileWidth),
                         (y - 1) * (self.collisionTileHeight),
                         32, 32, 60, 5, 5, 10, 10, 3,
                         '/assets/sprites/characters/slime.png',
@@ -126,6 +145,15 @@ function forest:enter()
             end
         end
     end
+
+    self.colliderTrees = funcs.filter(self.trees, function(v, k, t)
+        return v.hasCollider
+    end)
+    print(#self.colliderTrees)
+
+    table.sort(self.trees, function(a, b)
+        return a.positionYDisplay < b.positionYDisplay
+    end)
 end
 
 function forest:update(dt)
@@ -133,6 +161,10 @@ function forest:update(dt)
     self.player:updateAbs(dt, self.shake)
     self.camera:update(self.player);
     self.shake:update(dt)
+
+    for _, tree in pairs(self.colliderTrees) do
+        tree:update(self.camera)
+    end
 
     self.handlers.enemies:updateEnemies(dt)
     self.handlers.objects:updateObjects(dt)
@@ -148,10 +180,17 @@ function forest:draw()
 
     self.handlers.effects:drawEffects(-1)
     for _, tree in pairs(self.trees) do
-        tree:drawBottom()
+        if funcs.pointInRectangle(
+                tree.positionX, tree.positionY,
+                self.camera.camera.x - conf.gameWidth / 2 - self.camera.levelTileWidth,
+                self.camera.camera.y - conf.gameHeight / 2 - self.camera.levelTileHeight,
+                self.camera.camera.x + conf.gameWidth / 2 + self.camera.levelTileWidth,
+                self.camera.camera.y + conf.gameHeight / 2 + self.camera.levelTileHeight * 2) then
+            tree:drawBottom()
+        end
     end
 
-    self.handlers.enemies:drawEnemies();
+    self.handlers.enemies:drawEnemies()
     self.handlers.objects:drawObjects()
     self.handlers.drops:drawDrops()
 
@@ -160,13 +199,40 @@ function forest:draw()
     self.handlers.effects:drawEffects(0)
 
     for _, tree in pairs(self.trees) do
-        tree:drawTop()
+        if funcs.pointInRectangle(
+                tree.positionX, tree.positionY,
+                self.camera.camera.x - conf.gameWidth / 2 - self.camera.levelTileWidth,
+                self.camera.camera.y - conf.gameHeight / 2 - self.camera.levelTileHeight,
+                self.camera.camera.x + conf.gameWidth / 2 + self.camera.levelTileWidth,
+                self.camera.camera.y + conf.gameHeight / 2 + self.camera.levelTileHeight * 2) then
+            tree:drawTop()
+        end
     end
 
     if conf.DEBUG.DRAW_WORLD then
         self.world:draw()
     end
     self.camera.camera:detach();
+
+
+    love.graphics.translate(conf.gameWidth - self.width / minimapScale - 5, 5)
+
+    love.graphics.setColor(0, 0, 0, 0.5)
+    love.graphics.rectangle("fill", 0, 0, self.width / minimapScale, self.height / minimapScale)
+
+    local px, py = self.player:_getSpriteTopPosition()
+    love.graphics.setColor(1, 0, 0)
+    love.graphics.rectangle("fill", px / self.collisionTileWidth / minimapScale,
+        py / self.collisionTileHeight / minimapScale, 2, 2)
+
+    love.graphics.setColor(1, 1, 1, 0.5)
+    for _, tree in pairs(self.trees) do
+        love.graphics.rectangle("fill", tree.positionX / self.collisionTileWidth / minimapScale,
+            tree.positionY / self.collisionTileHeight / minimapScale, 1, 1)
+    end
+
+    love.graphics.translate(0, 0)
+
 
     push:finish()
 end
