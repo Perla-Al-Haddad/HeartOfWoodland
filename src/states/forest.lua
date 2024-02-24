@@ -19,6 +19,8 @@ local funcs = require("src.utils.funcs")
 
 MARGIN_X_MIN, MARGIN_X_MAX = -5, 5
 MARGIN_Y_MIN, MARGIN_Y_MAX = -5, 5
+BUSH_MARGIN_X_MIN, BUSH_MARGIN_X_MAX = -1, 1
+BUSH_MARGIN_Y_MIN, BUSH_MARGIN_Y_MAX = -1, 1
 
 local minimapScale = 1.75
 
@@ -105,17 +107,17 @@ function forest:enter()
                     math.random(MARGIN_Y_MIN, MARGIN_Y_MAX),
                     24, 20, self.world, shouldCollider)
                 if shouldCollider then
-                    local bushOrTree = math.random(2)
-                    local bush = Bush(
-                        (x - 1) * self.collisionTileWidth,
-                        (y - 1) * self.collisionTileHeight,
-                        math.random(MARGIN_X_MIN, MARGIN_X_MAX),
-                        math.random(MARGIN_Y_MIN, MARGIN_Y_MAX),
-                        32, 32, self.world, shouldCollider)
+                    local bushOrTree = math.random(8)
                     if bushOrTree == 1 then
-                        table.insert(self.trees, tree)
-                    else
+                        local bush = Bush(
+                            (x - 1) * self.collisionTileWidth,
+                            (y - 1) * self.collisionTileHeight,
+                            math.random(BUSH_MARGIN_X_MIN, BUSH_MARGIN_X_MAX),
+                            math.random(BUSH_MARGIN_Y_MIN, BUSH_MARGIN_Y_MAX),
+                            32, 32, self.world)
                         table.insert(self.bushes, bush)
+                    else
+                        table.insert(self.trees, tree)
                     end
                 else
                     local t = math.random(2)
@@ -156,6 +158,9 @@ function forest:enter()
         return v.hasCollider
     end)
 
+    print(#self.colliderTrees)
+    print(#self.bushes)
+
     table.sort(self.trees, function(a, b)
         return a.positionYDisplay < b.positionYDisplay
     end)
@@ -188,6 +193,8 @@ function forest:draw()
     self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
     self.handlers.effects:drawEffects(-1)
+    self.handlers.objects:drawObjects()
+
     for _, tree in pairs(self.trees) do
         if self.camera:isOnScreen(tree.positionX, tree.positionY) then
             tree:drawBottom()
@@ -200,7 +207,6 @@ function forest:draw()
     end
 
     self.handlers.enemies:drawEnemies()
-    self.handlers.objects:drawObjects()
     self.handlers.drops:drawDrops()
 
     self.player:drawAbs();
