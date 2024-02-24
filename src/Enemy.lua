@@ -66,7 +66,7 @@ Enemy = Class {
     end,
 
     drawAbs = function(self)
-        local spx, spy = self:_getSpriteTopPosition()
+        local spx, spy = self:getSpriteTopPosition()
         local cpx, cpy = self:_getColliderCenterPosition()
 
         love.graphics.setColor(1, 1, 1, 1)

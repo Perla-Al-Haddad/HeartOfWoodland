@@ -96,24 +96,17 @@ function forest:enter()
             local cell = self.level.map[x][y]
             if cell == "#" then
                 local shouldCollider = self:_shouldCreateCollider(self.level.map, x, y)
-                local tree
+                local tree = Tree(
+                    (x - 1) * self.collisionTileWidth,
+                    (y - 1) * self.collisionTileHeight,
+                    math.random(MARGIN_X_MIN, MARGIN_X_MAX),
+                    math.random(MARGIN_Y_MIN, MARGIN_Y_MAX),
+                    24, 20, self.world, shouldCollider)
                 if shouldCollider then
-                    tree = Tree(
-                        (x - 1) * self.collisionTileWidth,
-                        (y - 1) * self.collisionTileHeight,
-                        math.random(MARGIN_X_MIN, MARGIN_X_MAX),
-                        math.random(MARGIN_Y_MIN, MARGIN_Y_MAX),
-                        24, 20, self.world, shouldCollider)
                     table.insert(self.trees, tree)
                 else
                     local t = math.random(2)
                     if t ~= 1 then
-                        tree = Tree(
-                            (x - 1) * self.collisionTileWidth,
-                            (y - 1) * self.collisionTileHeight,
-                            math.random(MARGIN_X_MIN, MARGIN_X_MAX),
-                            math.random(MARGIN_Y_MIN, MARGIN_Y_MAX),
-                            24, 20, self.world, shouldCollider)
                         table.insert(self.trees, tree)
                     end
                 end
@@ -149,7 +142,6 @@ function forest:enter()
     self.colliderTrees = funcs.filter(self.trees, function(v, k, t)
         return v.hasCollider
     end)
-    print(#self.colliderTrees)
 
     table.sort(self.trees, function(a, b)
         return a.positionYDisplay < b.positionYDisplay
@@ -166,7 +158,7 @@ function forest:update(dt)
         tree:update(self.camera)
     end
 
-    self.handlers.enemies:updateEnemies(dt)
+    self.handlers.enemies:updateEnemiesOnScreen(dt, self.camera)
     self.handlers.objects:updateObjects(dt)
     self.handlers.effects:updateEffects(dt)
     self.handlers.drops:updateDrops(dt)
@@ -180,12 +172,7 @@ function forest:draw()
 
     self.handlers.effects:drawEffects(-1)
     for _, tree in pairs(self.trees) do
-        if funcs.pointInRectangle(
-                tree.positionX, tree.positionY,
-                self.camera.camera.x - conf.gameWidth / 2 - self.camera.levelTileWidth,
-                self.camera.camera.y - conf.gameHeight / 2 - self.camera.levelTileHeight,
-                self.camera.camera.x + conf.gameWidth / 2 + self.camera.levelTileWidth,
-                self.camera.camera.y + conf.gameHeight / 2 + self.camera.levelTileHeight * 2) then
+        if self.camera:isOnScreen(tree.positionX, tree.positionY) then
             tree:drawBottom()
         end
     end
@@ -199,12 +186,7 @@ function forest:draw()
     self.handlers.effects:drawEffects(0)
 
     for _, tree in pairs(self.trees) do
-        if funcs.pointInRectangle(
-                tree.positionX, tree.positionY,
-                self.camera.camera.x - conf.gameWidth / 2 - self.camera.levelTileWidth,
-                self.camera.camera.y - conf.gameHeight / 2 - self.camera.levelTileHeight,
-                self.camera.camera.x + conf.gameWidth / 2 + self.camera.levelTileWidth,
-                self.camera.camera.y + conf.gameHeight / 2 + self.camera.levelTileHeight * 2) then
+        if self.camera:isOnScreen(tree.positionX, tree.positionY) then
             tree:drawTop()
         end
     end
@@ -214,13 +196,12 @@ function forest:draw()
     end
     self.camera.camera:detach();
 
-
     love.graphics.translate(conf.gameWidth - self.width / minimapScale - 5, 5)
 
     love.graphics.setColor(0, 0, 0, 0.5)
     love.graphics.rectangle("fill", 0, 0, self.width / minimapScale, self.height / minimapScale)
 
-    local px, py = self.player:_getSpriteTopPosition()
+    local px, py = self.player:getSpriteTopPosition()
     love.graphics.setColor(1, 0, 0)
     love.graphics.rectangle("fill", px / self.collisionTileWidth / minimapScale,
         py / self.collisionTileHeight / minimapScale, 2, 2)

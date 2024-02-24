@@ -86,6 +86,14 @@ Entity = Class {
         error("updateAbs method was not implemented in subclass")
     end,
 
+    getSpriteTopPosition = function(self)
+        local px, py = self.hurtCollider:getPosition()
+        px = px - self.width / 2
+        py = py - self.height / 2 - self.heightOffset
+
+        return px, py
+    end,
+
     _getAnimationsAbs = function()
         error("_getAnimationsAbs method was not implemented in subclass")
     end,
@@ -97,14 +105,6 @@ Entity = Class {
     
     _distanceBetween = function(self, x1, y1, x2, y2)
         return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
-    end,
-
-    _getSpriteTopPosition = function(self)
-        local px, py = self.hurtCollider:getPosition()
-        px = px - self.width / 2
-        py = py - self.height / 2 - self.heightOffset
-
-        return px, py
     end,
 
     _getColliderCenterPosition = function(self)

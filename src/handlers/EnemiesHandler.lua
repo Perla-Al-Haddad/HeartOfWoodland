@@ -1,21 +1,27 @@
 local Class = require("lib.hump.class")
 
+local funcs = require("src.utils.funcs")
+local conf = require("src.utils.conf")
+
 EnemiesHandler = Class {
     init = function(self) self.enemies = {} end,
-   
-    addEnemy = function(self, enemy) 
+
+    addEnemy = function(self, enemy)
         table.insert(self.enemies, enemy)
     end,
 
     updateEnemies = function(self, dt)
         for _, e in ipairs(self.enemies) do e:updateAbs(dt) end
-        -- local i = #self.enemies
-        -- while i > 0 do
-        --     if self.enemies[i].dead then
-        --         table.remove(self.enemies, i)
-        --     end
-        --     i = i - 1
-        -- end
+    end,
+
+    updateEnemiesOnScreen = function(self, dt, camera)
+        for _, e in ipairs(self.enemies) do
+            local ex, ey = e:getSpriteTopPosition()
+            local enemyIsOnScreen = camera:isOnScreen(ex, ey)
+            if enemyIsOnScreen then
+                e:updateAbs(dt)
+            end
+        end
     end,
 
     drawEnemies = function(self)

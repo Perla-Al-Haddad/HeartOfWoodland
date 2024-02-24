@@ -65,7 +65,7 @@ Player = Class {
     end,
 
     drawAbs = function(self)
-        local px, py = self:_getSpriteTopPosition()
+        local px, py = self:getSpriteTopPosition()
 
         love.graphics.setColor(0.1, 0, 0.15, 0.5)
         love.graphics.ellipse("fill", px + self.width / 2, py + self.height, self.width / 5, 1.5)
@@ -91,7 +91,7 @@ Player = Class {
     end,
 
     interact = function(self)
-        local px, py = self:_getSpriteTopPosition()
+        local px, py = self:getSpriteTopPosition()
         local hitChests = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height,
             { 'Objects' });
 
@@ -299,7 +299,7 @@ Player = Class {
     _handleLevelTransition = function(self)
         if not self.hurtCollider:enter('LevelTransition') then return end
 
-        local px, py = self:_getSpriteTopPosition()
+        local px, py = self:getSpriteTopPosition()
         local hitTransitions = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height,
             { 'LevelTransition' })
 
@@ -373,7 +373,7 @@ Player = Class {
     _handleDropCollision = function(self)
         if not self.hurtCollider:enter('Drops') then return end
 
-        local px, py = self:_getSpriteTopPosition()
+        local px, py = self:getSpriteTopPosition()
         local hitDrops = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, { 'Drops' });
 
         for _, dropCollider in ipairs(hitDrops) do

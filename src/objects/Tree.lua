@@ -32,12 +32,7 @@ Tree = Class {
 
     update = function(self, camera)
         if not self.hasCollider then return end
-        local treeIsOnScreen = funcs.pointInRectangle(
-            self.positionX, self.positionY,
-            camera.camera.x - conf.gameWidth / 2 - camera.levelTileWidth,
-            camera.camera.y - conf.gameHeight / 2 - camera.levelTileHeight,
-            camera.camera.x + conf.gameWidth / 2 + camera.levelTileWidth,
-            camera.camera.y + conf.gameHeight / 2 + camera.levelTileHeight * 2)
+        local treeIsOnScreen = camera:isOnScreen(self.positionX, self.positionY)
         if self.collider == nil and treeIsOnScreen then
             self.collider = self._world:newBSGRectangleCollider(self.positionX, self.positionY,
                 self.width,
