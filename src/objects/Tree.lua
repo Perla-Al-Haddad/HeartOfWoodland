@@ -6,7 +6,6 @@ local SPRITES = {
 local Class = require("lib.hump.class")
 
 local conf = require("src.utils.conf")
-local funcs = require("src.utils.funcs")
 
 Tree = Class {
 
@@ -32,7 +31,7 @@ Tree = Class {
 
     update = function(self, camera)
         if not self.hasCollider then return end
-        local treeIsOnScreen = camera:isOnScreen(self.positionX, self.positionY)
+        local treeIsOnScreen = camera:isOnScreen(self.positionXDisplay, self.positionYDisplay)
         if self.collider == nil and treeIsOnScreen then
             self.collider = self._world:newBSGRectangleCollider(self.positionX, self.positionY,
                 self.width,

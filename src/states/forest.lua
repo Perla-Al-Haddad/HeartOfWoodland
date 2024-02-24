@@ -8,6 +8,7 @@ local EnemiesHandler = require("src.handlers.EnemiesHandler")
 local ObjectsHandler = require("src.handlers.ObjectsHandler")
 local DropsHandler = require("src.handlers.DropsHandler")
 local Tree = require("src.objects.Tree")
+local Bush = require("src.objects.Bush")
 local Rock = require("src.objects.Rock")
 local Enemy = require("src.Enemy")
 local GrassEffect = require("src.effects.GrassEffect")
@@ -21,7 +22,8 @@ MARGIN_Y_MIN, MARGIN_Y_MAX = -5, 5
 
 local minimapScale = 1.75
 
-local forest = { trees = {}, width = 200, height = 155 }
+-- 200 155
+local forest = { trees = {}, bushes = {}, width = 100, height = 55 }
 
 
 function forest:_drawBackgroundColor()
@@ -103,7 +105,18 @@ function forest:enter()
                     math.random(MARGIN_Y_MIN, MARGIN_Y_MAX),
                     24, 20, self.world, shouldCollider)
                 if shouldCollider then
-                    table.insert(self.trees, tree)
+                    local bushOrTree = math.random(2)
+                    local bush = Bush(
+                        (x - 1) * self.collisionTileWidth,
+                        (y - 1) * self.collisionTileHeight,
+                        math.random(MARGIN_X_MIN, MARGIN_X_MAX),
+                        math.random(MARGIN_Y_MIN, MARGIN_Y_MAX),
+                        32, 32, self.world, shouldCollider)
+                    if bushOrTree == 1 then
+                        table.insert(self.trees, tree)
+                    else
+                        table.insert(self.bushes, bush)
+                    end
                 else
                     local t = math.random(2)
                     if t ~= 1 then
@@ -158,6 +171,10 @@ function forest:update(dt)
         tree:update(self.camera)
     end
 
+    for _, bush in pairs(self.bushes) do
+        bush:update(self.camera)
+    end
+
     self.handlers.enemies:updateEnemiesOnScreen(dt, self.camera)
     self.handlers.objects:updateObjects(dt)
     self.handlers.effects:updateEffects(dt)
@@ -174,6 +191,11 @@ function forest:draw()
     for _, tree in pairs(self.trees) do
         if self.camera:isOnScreen(tree.positionX, tree.positionY) then
             tree:drawBottom()
+        end
+    end
+    for _, bush in pairs(self.bushes) do
+        if self.camera:isOnScreen(bush.positionX, bush.positionY) then
+            bush:draw()
         end
     end
 
