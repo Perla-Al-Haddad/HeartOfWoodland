@@ -25,6 +25,7 @@ local credits = {
                 "anim8 - graphics",
                 "windfield - physics",
                 "push - resolution handling",
+                "rot - random level generation",
             }
         }
     }
