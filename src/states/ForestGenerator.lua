@@ -1,217 +1,327 @@
+local push = require("lib.push")
 local Class = require("lib.hump.class")
-local ROT = require("lib.rot.rot")
+local windfield = require("lib.windfield")
+local Gamestate = require("lib.hump.gamestate")
+
+local ForestMapGenerator = require("src.states.ForestMapGenerator")
+local EffectsHandler = require("src.handlers.EffectsHandler")
+local EnemiesHandler = require("src.handlers.EnemiesHandler")
+local ObjectsHandler = require("src.handlers.ObjectsHandler")
+local DropsHandler = require("src.handlers.DropsHandler")
+local Tree = require("src.objects.Tree")
+local Bush = require("src.objects.Bush")
+local Rock = require("src.objects.Rock")
+local Enemy = require("src.Enemy")
+local GrassEffect = require("src.effects.GrassEffect")
 
 local conf = require("src.utils.conf")
+local globalFuncs = require("src.utils.globalFuncs")
+local funcs = require("src.utils.funcs")
+
+MARGIN_X_MIN, MARGIN_X_MAX = -5, 5
+MARGIN_Y_MIN, MARGIN_Y_MAX = -5, 5
+BUSH_MARGIN_X_MIN, BUSH_MARGIN_X_MAX = -1, 1
+BUSH_MARGIN_Y_MIN, BUSH_MARGIN_Y_MAX = -1, 1
+
+local minimapScale = 1.75
 
 local ForestGenerator = Class {
-    init = function(self, width, height, enemyCount)
-        self.map = {}
-        self.width = width
-        self.height = height
-        self.enemyCount = enemyCount
+    initExternal = function(self, width, height)
+        self.width = width or 100
+        self.height = height or 55
+        self.tileWidth = 32
+        self.tileHeight = 64
+        self.collisionTileWidth = 24
+        self.collisionTileHeight = 20
+        self.enemyCount = 10
 
-        self:_generateLevelMap()
-        -- self.map = {
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', 'P', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', 'E', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',},
-        --     {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.','.','.','.','.','.','.','.','.','.','.',}
-        -- }
-        -- self.width = #self.map[1]
-        -- self.height = #self.map
+        self:_setupMap()
+        self:_setupWorld()
+        self:_setHandlers()
 
-        self.boundaries = self:_initBoundaries()
+        self:_setupPlayer()
+        self:_setupCamera()
+        self:_setupShake()
+
+        self.trees = {}
+        self.bushes = {}
+        self.colliderTrees = {}
+
+        self:_processMap()
+
+        if conf.MUSIC then audio.gameMusic:play() end
+
+        return self
     end,
 
-    _printMap = function(self)
-        for y = 1, self.height do
-            for x = 1, self.width do
-                local cell = self.map[x][y]
-                io.write(cell .. " ")
+    update = function(self, dt)
+        self.world:update(dt)
+        self.player:updateAbs(dt, self.shake)
+        self.camera:update(self.player);
+        self.shake:update(dt)
+
+        for _, tree in pairs(self.colliderTrees) do
+            tree:update(self.camera)
+        end
+
+        for _, bush in pairs(self.bushes) do
+            bush:update(self.camera)
+        end
+
+        self.handlers.enemies:updateEnemiesOnScreen(dt, self.camera)
+        self.handlers.objects:updateObjects(dt)
+        self.handlers.effects:updateEffects(dt)
+        self.handlers.drops:updateDrops(dt)
+    end,
+
+    draw = function(self)
+        push:start()
+        self:_drawBackgroundColor()
+
+        self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
+
+        self.handlers.effects:drawEffects(-1)
+        self.handlers.objects:drawObjects()
+
+        for _, tree in pairs(self.trees) do
+            if self.camera:isOnScreen(tree.positionX, tree.positionY) then
+                tree:drawBottom()
             end
-            print()
         end
-    end,
-
-    _initBoundaries = function(self)
-        local boundaryWidth = 16;
-        local leftBoundary = {
-            x = conf.TILE_SIZE - boundaryWidth,
-            y = conf.TILE_SIZE - boundaryWidth,
-            w = boundaryWidth,
-            h = self.height * conf.TILE_SIZE + boundaryWidth * 2
-        }
-        local rightBoundary = {
-            x = (self.width + 1) * conf.TILE_SIZE,
-            y = conf.TILE_SIZE - boundaryWidth,
-            w = boundaryWidth,
-            h = self.height * conf.TILE_SIZE + boundaryWidth * 2
-        }
-        local topBoundary = {
-            x = conf.TILE_SIZE - boundaryWidth,
-            y = conf.TILE_SIZE - boundaryWidth,
-            w = self.width * conf.TILE_SIZE + boundaryWidth * 2,
-            h = boundaryWidth
-        }
-        local bottomBoundary = {
-            x = conf.TILE_SIZE - boundaryWidth,
-            y = (self.height + 1) * conf.TILE_SIZE,
-            w = self.width * conf.TILE_SIZE + boundaryWidth * 2,
-            h = boundaryWidth
-        }
-        local boundaries = {
-            leftBoundary, rightBoundary, topBoundary, bottomBoundary
-        };
-        return boundaries;
-    end,
-
-    _generateLevelMap = function(self)
-        local function callback(x, y, val) end
-
-        local function fillBlob(x, y, m, id)
-            m[x][y] = id
-            local todo = { { x, y } }
-            local dirs = ROT.DIRS.EIGHT
-            local size = 1
-            repeat
-                local pos = table.remove(todo, 1)
-                for i = 1, #dirs do
-                    local rx = pos[1] + dirs[i][1]
-                    local ry = pos[2] + dirs[i][2]
-                    if rx < 1 or rx > self.width or ry < 1 or ry > self.height then
-
-                    elseif m[rx][ry] == 1 then
-                        m[rx][ry] = id
-                        table.insert(todo, { rx, ry })
-                        size = size + 1
-                    end
-                end
-            until #todo == 0
-            return size
-        end
-        local cl = ROT.Map.Cellular:new(self.width, self.height)
-        local rand = 0.535;
-        cl:randomize(rand)
-        cl:create(callback)
-
-        local largest = 2;
-        local id = 2;
-        local largestCount = 0
-        cl:randomize(rand)
-
-        for i = 1, 20 do cl:create(callback) end
-        for x = 1, self.width do
-            for y = 1, self.height do
-                if cl._map[x][y] == 1 then
-                    local count = fillBlob(x, y, cl._map, id)
-                    if count > largestCount then
-                        largest = id
-                        largestCount = count
-                    end
-                    id = id + 1
-                end
+        for _, bush in pairs(self.bushes) do
+            if self.camera:isOnScreen(bush.positionX, bush.positionY) then
+                bush:draw()
             end
         end
 
-        for x = 1, self.width do
-            self.map[x] = {}
-            for y = 1, self.height do
-                local block = (cl._map[x][y] == largest and '.' or '#')
-                self.map[x][y] = block;
+        self.handlers.enemies:drawEnemies()
+        self.handlers.drops:drawDrops()
+
+        self.player:drawAbs();
+
+        self.handlers.effects:drawEffects(0)
+
+        for _, tree in pairs(self.trees) do
+            if self.camera:isOnScreen(tree.positionX, tree.positionY) then
+                tree:drawTop()
             end
         end
 
-        self:_generateMisc()
+        if conf.DEBUG.DRAW_WORLD then
+            self.world:draw()
+        end
 
-        self:_placePlayer()
-        for _ = 1, self.enemyCount do self:_placeEnemy() end
+        self.camera.camera:detach();
 
-        -- self:_printMap()
+        love.graphics.translate(conf.gameWidth - self.width / minimapScale - 5, 5)
+
+        love.graphics.setColor(0, 0, 0, 0.5)
+        love.graphics.rectangle("fill", 0, 0, self.width / minimapScale, self.height / minimapScale)
+
+        local px, py = self.player:getSpriteTopPosition()
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.rectangle("fill", px / self.collisionTileWidth / minimapScale,
+            py / self.collisionTileHeight / minimapScale, 2, 2)
+
+        love.graphics.setColor(1, 1, 1, 0.5)
+        for _, tree in pairs(self.trees) do
+            love.graphics.rectangle("fill", tree.positionX / self.collisionTileWidth / minimapScale,
+                tree.positionY / self.collisionTileHeight / minimapScale, 1, 1)
+        end
+
+        love.graphics.translate(0, 0)
+
+        push:finish()
     end,
 
-    _generateMisc = function(self)
-        for x = 1, self.width do
-            for y = 1, self.height do
-                local cell = self.map[x][y]
-                if cell == '.' then
-                    local g = math.random(1, 4)
-                    local r = math.random(1, 40)
-                    if g == 1 then
-                        self.map[x][y] = 'g'
-                    end
-                    if r == 1 then
-                        self.map[x][y] = 'r'
-                    end
-                    if self:_canAddBush(x, y) then
-                        self:_placeEntity('b')
-                    end
-                end
-            end
+    keypressed = function(self, key)
+        globalFuncs.keypressed(key)
+
+        if key == 'h' or key == 'H' then
+            self.player:useItem('sword', self.camera.camera)
+        end
+        if key == 'e' or key == 'E' then
+            self.player:interact()
+        end
+        if key == "escape" then
+            local pause = require("src.states.pause")
+            Gamestate.switch(pause, self.camera, self.gameMap, self.player)
         end
     end,
 
-    _canAddBush = function(self, row, col)
-        local height = #self.map
-        local width = #self.map[1]
-    
+    _drawBackgroundColor = function(self)
+        love.graphics.setColor(80 / 255, 155 / 255, 102 / 255);
+        love.graphics.rectangle("fill", 0, 0, conf.gameWidth, conf.gameHeight)
+        love.graphics.setColor(1, 1, 1);
+    end,
+
+    _shouldCreateCollider = function(self, matrix, row, col)
+        local height = #matrix
+        local width = #matrix[1]
         -- Check if the current tile is a wall
-        if self.map[row][col] ~= '#' then
+        if matrix[row][col] ~= '#' then
             return false
         end
-    
         -- Check if the current tile is adjacent to an empty space
         local adjacent_tiles = {
-            {row - 1, col},  -- Top
-            {row + 1, col},  -- Bottom
-            {row, col - 1},  -- Left
-            {row, col + 1}   -- Right
+            { row - 1, col },     -- Top
+            { row + 1, col },     -- Bottom
+            { row,     col - 1 }, -- Left
+            { row,     col + 1 }  -- Right
         }
-
         for _, tile in ipairs(adjacent_tiles) do
             local r, c = tile[1], tile[2]
-            if r >= 1 and r <= height and c >= 1 and c <= width and self.map[r][c] ~= '#' then
+            if r >= 1 and r <= height and c >= 1 and c <= width and matrix[r][c] ~= '#' then
                 return true
             end
         end
+        return false
     end,
 
-    _placePlayer = function(self) self:_placeEntity('P') end,
+    _setupShake = function(self)
+        self.shake = Shake(self.camera.camera);
+    end,
 
-    _placeEnemy = function(self) self:_placeEntity('E') end,
+    _setupPlayer = function(self)
+        self.player = Player(0, 0, self.world, self.handlers)
+    end,
 
-    _placeEntity = function(self, c)
-        while true do
-            local y = ROT.RNG:random(1, self.height)
-            local x = ROT.RNG:random(1, self.width)
-            if self.map[x][y] == '.' then
-                self.map[x][y] = c
-                break
+    _setupCamera = function(self)
+        self.camera = Camera(conf.CAMERA.SCALE,
+            self.player.hurtCollider:getX(), self.player.hurtCollider:getY(),
+            self.map.width, self.map.height - 2,
+            self.collisionTileWidth, self.collisionTileHeight);
+    end,
+
+    _setupMap = function(self)
+        self.map = ForestMapGenerator(self.width, self.height, self.enemyCount)
+    end,
+
+    _setupWorld = function(self)
+        self.world = windfield.newWorld(0, 0, false);
+        self.world:addCollisionClass('Ignore', { ignores = { 'Ignore' } });
+        self.world:addCollisionClass('Dead', { ignores = { 'Ignore' } });
+        self.world:addCollisionClass('Wall', { ignores = { 'Ignore' } });
+        self.world:addCollisionClass('Objects', { ignores = { 'Ignore' } });
+        self.world:addCollisionClass('Drops', { ignores = { 'Ignore', "Dead" } });
+        self.world:addCollisionClass('EnemyHurt', { ignores = { 'Ignore', "Drops" } });
+        self.world:addCollisionClass('Player', { ignores = { 'Ignore', "EnemyHurt" } });
+        self.world:addCollisionClass('EnemyHit', { ignores = { 'Ignore', "EnemyHurt", "Drops" } });
+        self.world:addCollisionClass('LevelTransition',
+            { ignores = { 'Ignore', "EnemyHurt", "Drops", "Objects", "Wall", "EnemyHit", "Dead" } });
+    end,
+
+    _setHandlers = function(self)
+        self.handlers = {
+            effects = EffectsHandler(),
+            drops = DropsHandler(),
+            enemies = EnemiesHandler(),
+            objects = ObjectsHandler()
+        }
+    end,
+
+    _processMap = function(self)
+        for y = 1, self.map.height do
+            for x = 1, self.map.width do
+                local cell = self.map.map[x][y]
+                if cell == "#" then
+                    self:_processTreeCell(x, y)
+                elseif cell == "P" then
+                    self:_spawnPlayer(x, y)
+                elseif cell == 'g' then
+                    self:_processGrassCell(x, y)
+                elseif cell == 'r' then
+                    self:_processRockCell(x, y)
+                elseif cell == 'E' then
+                    self:_processEnemyCell(x, y)
+                end
+            end
+        end
+
+        self:_sortTreesByYAxis()
+        self:_setColliderTrees()
+    end,
+
+    _setColliderTrees = function(self)
+        self.colliderTrees = funcs.filter(self.trees, function(v, k, t)
+            return v.hasCollider
+        end)
+    end,
+
+    _sortTreesByYAxis = function(self)
+        table.sort(self.trees, function(a, b)
+            return a.positionYDisplay < b.positionYDisplay
+        end)
+        table.sort(self.colliderTrees, function(a, b)
+            return a.positionYDisplay < b.positionYDisplay
+        end)
+        table.sort(self.bushes, function(a, b)
+            return a.positionYDisplay < b.positionYDisplay
+        end)
+    end,
+
+    _processTreeCell = function(self, x, y)
+        local shouldCollider = self:_shouldCreateCollider(self.map.map, x, y)
+        local tree = Tree(
+            (x - 1) * self.collisionTileWidth,
+            (y - 1) * self.collisionTileHeight,
+            math.random(MARGIN_X_MIN, MARGIN_X_MAX),
+            math.random(MARGIN_Y_MIN, MARGIN_Y_MAX),
+            24, 20, self.world, shouldCollider)
+        if shouldCollider then
+            local bushOrTree = math.random(8)
+            if bushOrTree == 1 then
+                local bush = Bush(
+                    (x - 1) * self.collisionTileWidth,
+                    (y - 1) * self.collisionTileHeight,
+                    math.random(BUSH_MARGIN_X_MIN, BUSH_MARGIN_X_MAX),
+                    math.random(BUSH_MARGIN_Y_MIN, BUSH_MARGIN_Y_MAX),
+                    32, 32, self.world)
+                table.insert(self.bushes, bush)
+            else
+                table.insert(self.trees, tree)
+            end
+        else
+            local t = math.random(2)
+            if t ~= 1 then
+                table.insert(self.trees, tree)
             end
         end
     end,
+
+    _spawnPlayer = function(self, x, y)
+        self.player.hurtCollider:setX((x - 1) * (self.collisionTileWidth))
+        self.player.hurtCollider:setY((y - 1) * (self.collisionTileHeight))
+    end,
+
+    _processGrassCell = function(self, x, y)
+        local t = (math.random(#conf.GRASS_MAPPING))
+        self.handlers.effects:addEffect(GrassEffect(
+            (x - 1) * (self.collisionTileWidth),
+            (y - 1) * (self.collisionTileHeight),
+            conf.GRASS_MAPPING[t]))
+    end,
+
+    _processRockCell = function(self, x, y)
+        self.handlers.objects:addObject(Rock(
+            (x - 1) * (self.collisionTileWidth),
+            (y - 1) * (self.collisionTileHeight),
+            self.world
+        ))
+    end,
+
+    _processEnemyCell = function(self, x, y)
+        self.handlers.enemies:addEnemy(
+            Enemy(
+                (x - 1) * (self.collisionTileWidth),
+                (y - 1) * (self.collisionTileHeight),
+                32, 32, 60, 5, 5, 10, 10, 3,
+                '/assets/sprites/characters/slime.png',
+                self.world, self.handlers.drops
+            )
+        )
+    end,
+
 }
 
 return ForestGenerator

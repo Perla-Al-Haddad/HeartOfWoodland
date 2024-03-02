@@ -2,7 +2,7 @@ local push = require("lib.push")
 local windfield = require("lib.windfield")
 local Gamestate = require("lib.hump.gamestate")
 
-local ForestGenerator = require("src.states.ForestGenerator")
+local ForestMapGenerator = require("src.states.ForestMapGenerator")
 local EffectsHandler = require("src.handlers.EffectsHandler")
 local EnemiesHandler = require("src.handlers.EnemiesHandler")
 local ObjectsHandler = require("src.handlers.ObjectsHandler")
@@ -74,7 +74,7 @@ function forest:enter()
     self.world:addCollisionClass('LevelTransition',
         { ignores = { 'Ignore', "EnemyHurt", "Drops", "Objects", "Wall", "EnemyHit", "Dead" } });
 
-    self.level = ForestGenerator(self.width, self.height, 10)
+    self.level = ForestMapGenerator(self.width, self.height, 10)
 
     self.tileWidth = 32
     self.tileHeight = 64
