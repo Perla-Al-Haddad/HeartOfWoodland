@@ -158,9 +158,6 @@ function forest:enter()
         return v.hasCollider
     end)
 
-    print(#self.colliderTrees)
-    print(#self.bushes)
-
     table.sort(self.trees, function(a, b)
         return a.positionYDisplay < b.positionYDisplay
     end)
@@ -241,7 +238,6 @@ function forest:draw()
     end
 
     love.graphics.translate(0, 0)
-
 
     push:finish()
 end
