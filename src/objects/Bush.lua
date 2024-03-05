@@ -1,7 +1,9 @@
+love.graphics.setDefaultFilter("nearest", "nearest") -- disable blurry scaling
+
 local SPRITES = {
-    top = "/assets/sprites/objects/bush_top.png",
-    bottom = "/assets/sprites/objects/bush_bottom.png",
-    default = "/assets/sprites/objects/bush.png"
+    top = love.graphics.newImage("/assets/sprites/objects/bush_top.png"),
+    bottom = love.graphics.newImage("/assets/sprites/objects/bush_bottom.png"),
+    default = love.graphics.newImage("/assets/sprites/objects/bush.png")
 }
 
 local Class = require("lib.hump.class")
@@ -23,7 +25,7 @@ Bush = Class {
         self.positionXDisplay = positionX + offsetX
         self.positionYDisplay = positionY + offsetY
 
-        self.sprite = love.graphics.newImage(SPRITES.default)
+        self.sprite = SPRITES.default
     end,
 
     update = function(self, camera)

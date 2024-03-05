@@ -57,6 +57,14 @@ Camera = Class {
             self.camera.y - conf.gameHeight / 2 - self.levelTileHeight * 2,
             self.camera.x + conf.gameWidth / 2 + self.levelTileWidth * 2,
             self.camera.y + conf.gameHeight / 2 + self.levelTileHeight * 2)
+    end,
+
+    isOnScreenBuffer = function(self, px, py, buffer)
+        return funcs.pointInRectangle(px, py,
+            self.camera.x - conf.gameWidth / 2 - self.levelTileWidth * 2 - 10,
+            self.camera.y - conf.gameHeight / 2 - self.levelTileHeight * 2 - 10,
+            self.camera.x + conf.gameWidth / 2 + self.levelTileWidth * 2 + 10,
+            self.camera.y + conf.gameHeight / 2 + self.levelTileHeight * 2 + 10)
     end
 }
 

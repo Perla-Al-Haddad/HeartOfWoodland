@@ -66,8 +66,9 @@ function menu:update(dt)
 
     if switchTimer < 0 then
         -- local level = Level():initExternal("forestRuins", "menu")
-        local level = ForestGenerator():initExternal()
-        Gamestate.switch(level)
+        -- local level = ForestGenerator():initExternal()
+        local loading = require("src.states.loading")
+        Gamestate.switch(loading)
     end
 end
 

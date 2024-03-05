@@ -1,5 +1,7 @@
+love.graphics.setDefaultFilter("nearest", "nearest") -- disable blurry scaling
+
 local SPRITES = {
-    default = "/assets/sprites/objects/objects.png"
+    default = love.graphics.newImage("/assets/sprites/objects/objects.png")
 }
 
 local Class = require("lib.hump.class")
@@ -17,13 +19,16 @@ Rock = Class {
         self.width = 16
         self.height = 16
 
+        self.positionX = positionX
+        self.positionY = positionY
+
         self.collider = self._world:newBSGRectangleCollider(positionX, positionY,
             self.width,
             self.height, 0,
             { collision_class = conf.OBJECTS.COLLISION_CLASS })
         self.collider:setType("static")
 
-        self.animationSheet = love.graphics.newImage(SPRITES.default)
+        self.animationSheet = SPRITES.default
         self.grid = anim8.newGrid(self.width, self.height,
             self.animationSheet:getWidth(),
             self.animationSheet:getHeight())
@@ -35,6 +40,20 @@ Rock = Class {
     end,
 
     update = function(self)
+    end,
+
+    updateOnScreen = function(self, camera)
+        local rockIsOnScreen = camera:isOnScreen(self.positionX, self.positionY)
+        if self.collider == nil and rockIsOnScreen then
+            self.collider = self._world:newBSGRectangleCollider(self.positionX, self.positionY,
+                self.width,
+                self.height, 0,
+                { collision_class = conf.OBJECTS.COLLISION_CLASS })
+            self.collider:setType("static")
+        elseif self.collider and not rockIsOnScreen then
+            self.collider:destroy()
+            self.collider = nil
+        end
     end,
 
     draw = function(self)

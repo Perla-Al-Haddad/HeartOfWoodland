@@ -87,6 +87,10 @@ Entity = Class {
     end,
 
     getSpriteTopPosition = function(self)
+        if not self.hurtCollider then
+            return self.lastX, self.lastY
+        end
+
         local px, py = self.hurtCollider:getPosition()
         px = px - self.width / 2
         py = py - self.height / 2 - self.heightOffset
@@ -108,6 +112,9 @@ Entity = Class {
     end,
 
     _getColliderCenterPosition = function(self)
+        if not self.hurtCollider then
+            return self.lastX, self.lastY
+        end
         local px, py = self.hurtCollider:getPosition()
         return px, py
     end,

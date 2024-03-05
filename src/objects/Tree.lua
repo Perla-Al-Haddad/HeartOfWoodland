@@ -1,6 +1,8 @@
+love.graphics.setDefaultFilter("nearest", "nearest") -- disable blurry scaling
+
 local SPRITES = {
-    top = "/assets/sprites/objects/tree_top.png",
-    bottom = "/assets/sprites/objects/tree_bottom.png"
+    top = love.graphics.newImage("/assets/sprites/objects/tree_top.png"),
+    bottom = love.graphics.newImage("/assets/sprites/objects/tree_bottom.png")
 }
 
 local Class = require("lib.hump.class")
@@ -23,8 +25,8 @@ Tree = Class {
         self.positionXDisplay = positionX + offsetX
         self.positionYDisplay = positionY + offsetY
 
-        self.spriteBottom = love.graphics.newImage(SPRITES.bottom)
-        self.spriteTop = love.graphics.newImage(SPRITES.top)
+        self.spriteBottom = SPRITES.bottom
+        self.spriteTop = SPRITES.top
 
         self.hasCollider = hasCollider
     end,

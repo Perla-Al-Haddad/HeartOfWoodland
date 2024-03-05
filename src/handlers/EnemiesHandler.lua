@@ -16,17 +16,22 @@ EnemiesHandler = Class {
 
     updateEnemiesOnScreen = function(self, dt, camera)
         for _, e in ipairs(self.enemies) do
-            local ex, ey = e:getSpriteTopPosition()
-            local enemyIsOnScreen = camera:isOnScreen(ex, ey)
-            if enemyIsOnScreen then
-                e:updateAbs(dt)
-            end
+            e:updateOnScreen(dt, camera)
         end
     end,
 
     drawEnemies = function(self)
         for _, e in ipairs(self.enemies) do
             e:drawAbs()
+        end
+    end,
+
+    drawEnemiesOnScreen = function(self, camera)
+        for _, e in ipairs(self.enemies) do
+            local ex, ey = e:getSpriteTopPosition()
+            if camera:isOnScreen(ex, ey) then
+                e:drawAbs()
+            end
         end
     end,
 

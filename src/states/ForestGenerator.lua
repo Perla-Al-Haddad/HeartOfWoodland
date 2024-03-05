@@ -15,6 +15,7 @@ local Enemy = require("src.Enemy")
 local GrassEffect = require("src.effects.GrassEffect")
 
 local conf = require("src.utils.conf")
+local fonts = require("src.utils.fonts")
 local globalFuncs = require("src.utils.globalFuncs")
 local funcs = require("src.utils.funcs")
 
@@ -26,15 +27,17 @@ BUSH_MARGIN_Y_MIN, BUSH_MARGIN_Y_MAX = -1, 1
 local minimapScale = 1.75
 
 local ForestGenerator = Class {
-    initExternal = function(self, width, height)
-        self.width = width or 100
-        self.height = height or 55
+    init = function (self, width, height)
+        self.width = width or 200
+        self.height = height or 200
         self.tileWidth = 32
         self.tileHeight = 64
         self.collisionTileWidth = 24
         self.collisionTileHeight = 20
         self.enemyCount = 10
+    end,
 
+    initExternal = function(self)
         self:_setupMap()
         self:_setupWorld()
         self:_setHandlers()
@@ -54,6 +57,34 @@ local ForestGenerator = Class {
         return self
     end,
 
+    initCoRoutine = function(self)
+        return coroutine.create(function()
+            coroutine.yield("Setting up map")
+            self:_setupMap()
+            
+            coroutine.yield("Setting up world")
+            self:_setupWorld()
+
+            coroutine.yield("Setting up handlers")
+            self:_setHandlers()
+
+            coroutine.yield("Setting up player")
+            self:_setupPlayer()
+            coroutine.yield("Setting up camera")
+            self:_setupCamera()
+            self:_setupShake()
+
+            self.trees = {}
+            self.bushes = {}
+            self.colliderTrees = {}
+
+            coroutine.yield("Processing map")
+            self:_processMapRoutine()
+
+            if conf.MUSIC then audio.gameMusic:play() end
+        end)
+    end,
+
     update = function(self, dt)
         self.world:update(dt)
         self.player:updateAbs(dt, self.shake)
@@ -69,8 +100,8 @@ local ForestGenerator = Class {
         end
 
         self.handlers.enemies:updateEnemiesOnScreen(dt, self.camera)
-        self.handlers.objects:updateObjects(dt)
-        self.handlers.effects:updateEffects(dt)
+        self.handlers.objects:updateObjectsOnScreen(dt, self.camera)
+        self.handlers.effects:updateEffectsOnScreen(dt, self.camera)
         self.handlers.drops:updateDrops(dt)
     end,
 
@@ -80,8 +111,7 @@ local ForestGenerator = Class {
 
         self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
-        self.handlers.effects:drawEffects(-1)
-        self.handlers.objects:drawObjects()
+        self.handlers.effects:drawEffectsOnScreen(-1, self.camera)
 
         for _, tree in pairs(self.trees) do
             if self.camera:isOnScreen(tree.positionX, tree.positionY) then
@@ -94,7 +124,8 @@ local ForestGenerator = Class {
             end
         end
 
-        self.handlers.enemies:drawEnemies()
+        self.handlers.objects:drawObjectsOnScreen(self.camera)
+        self.handlers.enemies:drawEnemiesOnScreen(self.camera)
         self.handlers.drops:drawDrops()
 
         self.player:drawAbs();
@@ -113,24 +144,26 @@ local ForestGenerator = Class {
 
         self.camera.camera:detach();
 
-        love.graphics.translate(conf.gameWidth - self.width / minimapScale - 5, 5)
+        love.graphics.setFont(fonts.smaller)
+        love.graphics.print(love.timer.getFPS(), 0, 0)
 
-        love.graphics.setColor(0, 0, 0, 0.5)
-        love.graphics.rectangle("fill", 0, 0, self.width / minimapScale, self.height / minimapScale)
+        -- love.graphics.translate(conf.gameWidth - self.width / minimapScale - 5, 5)
 
-        local px, py = self.player:getSpriteTopPosition()
-        love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle("fill", px / self.collisionTileWidth / minimapScale,
-            py / self.collisionTileHeight / minimapScale, 2, 2)
+        -- love.graphics.setColor(0, 0, 0, 0.5)
+        -- love.graphics.rectangle("fill", 0, 0, self.width / minimapScale, self.height / minimapScale)
 
-        love.graphics.setColor(1, 1, 1, 0.5)
-        for _, tree in pairs(self.trees) do
-            love.graphics.rectangle("fill", tree.positionX / self.collisionTileWidth / minimapScale,
-                tree.positionY / self.collisionTileHeight / minimapScale, 1, 1)
-        end
+        -- local px, py = self.player:getSpriteTopPosition()
+        -- love.graphics.setColor(1, 0, 0)
+        -- love.graphics.rectangle("fill", px / self.collisionTileWidth / minimapScale,
+        --     py / self.collisionTileHeight / minimapScale, 2, 2)
 
-        love.graphics.translate(0, 0)
+        -- love.graphics.setColor(1, 1, 1, 0.5)
+        -- for _, tree in pairs(self.trees) do
+        --     love.graphics.rectangle("fill", tree.positionX / self.collisionTileWidth / minimapScale,
+        --         tree.positionY / self.collisionTileHeight / minimapScale, 1, 1)
+        -- end
 
+        -- love.graphics.translate(0, 0)
         push:finish()
     end,
 
@@ -235,9 +268,32 @@ local ForestGenerator = Class {
                 elseif cell == 'E' then
                     self:_processEnemyCell(x, y)
                 end
+                -- could yield here to the main process
             end
         end
 
+        self:_sortTreesByYAxis()
+        self:_setColliderTrees()
+    end,
+
+    _processMapRoutine = function(self)
+        for y = 1, self.map.height do
+            for x = 1, self.map.width do
+                local cell = self.map.map[x][y]
+                if cell == "#" then
+                    self:_processTreeCell(x, y)
+                elseif cell == "P" then
+                    self:_spawnPlayer(x, y)
+                elseif cell == 'g' then
+                    self:_processGrassCell(x, y)
+                elseif cell == 'r' then
+                    self:_processRockCell(x, y)
+                elseif cell == 'E' then
+                    self:_processEnemyCell(x, y)
+                end
+            end
+            coroutine.yield("Processing map")
+        end
         self:_sortTreesByYAxis()
         self:_setColliderTrees()
     end,
