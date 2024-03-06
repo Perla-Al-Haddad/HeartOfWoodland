@@ -43,7 +43,25 @@ local ForestMapGenerator = Class {
         -- self.width = #self.map[1]
         -- self.height = #self.map
 
-        self.boundaries = self:_initBoundaries()
+        self:_fillMapBorders()
+    end,
+
+    _fillMapBorders = function(self)
+        local character = "#"
+        local numRows = #self.map
+        local numCols = #self.map[1]
+
+        -- Fill top and bottom borders
+        for col = 1, numCols do
+            self.map[1][col] = character
+            self.map[numRows][col] = character
+        end
+
+        -- Fill left and right borders (excluding corners)
+        for row = 2, numRows - 1 do
+            self.map[row][1] = character
+            self.map[row][numCols] = character
+        end
     end,
 
     _printMap = function(self)
@@ -54,38 +72,6 @@ local ForestMapGenerator = Class {
             end
             print()
         end
-    end,
-
-    _initBoundaries = function(self)
-        local boundaryWidth = 16;
-        local leftBoundary = {
-            x = conf.TILE_SIZE - boundaryWidth,
-            y = conf.TILE_SIZE - boundaryWidth,
-            w = boundaryWidth,
-            h = self.height * conf.TILE_SIZE + boundaryWidth * 2
-        }
-        local rightBoundary = {
-            x = (self.width + 1) * conf.TILE_SIZE,
-            y = conf.TILE_SIZE - boundaryWidth,
-            w = boundaryWidth,
-            h = self.height * conf.TILE_SIZE + boundaryWidth * 2
-        }
-        local topBoundary = {
-            x = conf.TILE_SIZE - boundaryWidth,
-            y = conf.TILE_SIZE - boundaryWidth,
-            w = self.width * conf.TILE_SIZE + boundaryWidth * 2,
-            h = boundaryWidth
-        }
-        local bottomBoundary = {
-            x = conf.TILE_SIZE - boundaryWidth,
-            y = (self.height + 1) * conf.TILE_SIZE,
-            w = self.width * conf.TILE_SIZE + boundaryWidth * 2,
-            h = boundaryWidth
-        }
-        local boundaries = {
-            leftBoundary, rightBoundary, topBoundary, bottomBoundary
-        };
-        return boundaries;
     end,
 
     -- need to analyse this script to see which parts 

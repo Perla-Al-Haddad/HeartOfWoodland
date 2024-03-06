@@ -276,7 +276,6 @@ local ForestGenerator = Class {
                 elseif cell == 'E' then
                     self:_processEnemyCell(x, y)
                 end
-                -- could yield here to the main process
             end
         end
 
