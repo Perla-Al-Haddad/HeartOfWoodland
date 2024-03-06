@@ -3,6 +3,7 @@ local Class = require("lib.hump.class")
 local windfield = require("lib.windfield")
 local Gamestate = require("lib.hump.gamestate")
 
+local UI = require("src.UI")
 local ForestMapGenerator = require("src.states.ForestMapGenerator")
 local EffectsHandler = require("src.handlers.EffectsHandler")
 local EnemiesHandler = require("src.handlers.EnemiesHandler")
@@ -28,13 +29,15 @@ local minimapScale = 1.75
 
 local ForestGenerator = Class {
     init = function (self, width, height)
-        self.width = width or 200
-        self.height = height or 200
+        self.width = width or 100
+        self.height = height or 100
         self.tileWidth = 32
         self.tileHeight = 64
         self.collisionTileWidth = 24
         self.collisionTileHeight = 20
-        self.enemyCount = 10
+        self.enemyCount = 50
+        
+        self.ui = UI()
     end,
 
     initExternal = function(self)
@@ -70,6 +73,7 @@ local ForestGenerator = Class {
 
             coroutine.yield("Setting up player")
             self:_setupPlayer()
+
             coroutine.yield("Setting up camera")
             self:_setupCamera()
             self:_setupShake()
@@ -144,26 +148,30 @@ local ForestGenerator = Class {
 
         self.camera.camera:detach();
 
-        love.graphics.setFont(fonts.smaller)
-        love.graphics.print(love.timer.getFPS(), 0, 0)
+        self.ui:drawPlayerLife();
 
-        -- love.graphics.translate(conf.gameWidth - self.width / minimapScale - 5, 5)
+        if conf.DEBUG.SHOW_FPS then
+            love.graphics.setFont(fonts.smaller)
+            love.graphics.print(love.timer.getFPS(), 0, 0)
+        end
 
-        -- love.graphics.setColor(0, 0, 0, 0.5)
-        -- love.graphics.rectangle("fill", 0, 0, self.width / minimapScale, self.height / minimapScale)
+        love.graphics.translate(conf.gameWidth - self.width / minimapScale - 5, 5)
 
-        -- local px, py = self.player:getSpriteTopPosition()
-        -- love.graphics.setColor(1, 0, 0)
-        -- love.graphics.rectangle("fill", px / self.collisionTileWidth / minimapScale,
-        --     py / self.collisionTileHeight / minimapScale, 2, 2)
+        love.graphics.setColor(0, 0, 0, 0.5)
+        love.graphics.rectangle("fill", 0, 0, self.width / minimapScale, self.height / minimapScale)
 
-        -- love.graphics.setColor(1, 1, 1, 0.5)
-        -- for _, tree in pairs(self.trees) do
-        --     love.graphics.rectangle("fill", tree.positionX / self.collisionTileWidth / minimapScale,
-        --         tree.positionY / self.collisionTileHeight / minimapScale, 1, 1)
-        -- end
+        local px, py = self.player:getSpriteTopPosition()
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.rectangle("fill", px / self.collisionTileWidth / minimapScale,
+            py / self.collisionTileHeight / minimapScale, 2, 2)
 
-        -- love.graphics.translate(0, 0)
+        love.graphics.setColor(1, 1, 1, 0.5)
+        for _, tree in pairs(self.trees) do
+            love.graphics.rectangle("fill", tree.positionX / self.collisionTileWidth / minimapScale,
+                tree.positionY / self.collisionTileHeight / minimapScale, 1, 1)
+        end
+
+        love.graphics.translate(0, 0)
         push:finish()
     end,
 

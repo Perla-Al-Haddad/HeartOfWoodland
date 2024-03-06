@@ -5,6 +5,7 @@ conf.DEBUG.HURT_BOXES = false
 conf.DEBUG.HIT_BOXES = false
 conf.DEBUG.ENEMY_RADIUS = false
 conf.DEBUG.DRAW_WORLD = false
+conf.DEBUG.SHOW_FPS = true
 
 conf.TILE_SIZE = 12
 conf.MUSIC = false
