@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="52" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="14" nextobjectid="241">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="52" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="14" nextobjectid="243">
  <editorsettings>
   <export target="woodlandEntrance.lua" format="lua"/>
  </editorsettings>
@@ -529,6 +529,11 @@
   <object id="98" x="128" y="-16" width="48" height="16">
    <properties>
     <property name="level" value="connector"/>
+   </properties>
+  </object>
+  <object id="242" x="668" y="44" width="60" height="32">
+   <properties>
+    <property name="level" value="loading"/>
    </properties>
   </object>
  </objectgroup>

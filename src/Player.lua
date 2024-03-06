@@ -305,9 +305,14 @@ Player = Class {
 
         for _, transitionCollider in ipairs(hitTransitions) do
             self:destroySelf()
-            local Level = require("src.states.Level")
-            local level = Level():initExternal(transitionCollider.stateName, Gamestate.current().name)
-            Gamestate.switch(level)
+            if transitionCollider.stateName == "loading" then
+                local loading = require("src.states.loading")
+                Gamestate.switch(loading)
+            else
+                local Level = require("src.states.Level")
+                local level = Level():initExternal(transitionCollider.stateName, Gamestate.current().name)
+                Gamestate.switch(level)
+            end
         end
     end,
 
