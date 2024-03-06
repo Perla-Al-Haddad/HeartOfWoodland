@@ -6,58 +6,45 @@ local conf = require("src.utils.conf");
 local fonts = require("src.utils.fonts");
 
 local settings = {
-    options = { "BACK", "AUDIO", "DISPLAY", "CONTROLS" }
+    options = { "BACK", "AUDIO", "DISPLAY", "CONTROLS" },
+    cursor,
+    sounds,
+    prevState,
+    gameMap,
+    player,
+    camera,
+    levelState
 }
-local _prevState = nil;
-
-local cursor, sounds, _gameMap, _player, _camera, _levelState;
 
 
 function settings:enter(prevState, camera, gameMap, player, levelState)
-    _levelState = levelState
-    _prevState = prevState
-    _camera = camera
-    _gameMap = gameMap
-    _player = player
+    self.levelState = levelState
+    self.prevState = prevState
+    self.camera = camera
+    self.gameMap = gameMap
+    self.player = player
 
-
-
-    cursor = {
+    self.cursor = {
         x = 0,
         y = 0,
         current = 1
     }
 
-    sounds = {}
-    sounds.select = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/click.wav"), "static")
+    self.sounds = {}
+    self.sounds.select = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/click.wav"), "static")
 end
 
 function settings:draw()
     push:start()
 
-    if _camera ~= nil then
-        _camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
+    if self.camera ~= nil then
+        self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
-        if gameMap then
-            for _, layer in ipairs(_gameMap.layers) do
-                if layer.visible and layer.opacity > 0 then
-                    if layer.name == "Player" then
-                        _player._handlers.enemies:drawEnemies();
-                        _player._handlers.effects:drawEffects(-1);
-                        _player._handlers.objects:drawObjects();
-                        _player._handlers.drops:drawDrops();
-                        _player:drawAbs();
-                        _player._handlers.effects:drawEffects(0);
-                    else
-                        if layer.type == "tilelayer" then
-                            _gameMap:drawLayer(layer)
-                        end
-                    end
-                end
-            end
+        if self.gameMap then
+            self.levelState:_drawGameMap()
         end
 
-        _camera.camera:detach();
+        self.camera.camera:detach();
 
         love.graphics.setColor(0, 0, 0, 0.5)
         love.graphics.rectangle("fill", 0, 0, conf.gameWidth, conf.gameHeight)
@@ -85,7 +72,7 @@ function settings:draw()
         "fill",
         conf.gameWidth / 2 - titleWidth / 2 - 20,
         conf.gameHeight - conf.gameHeight / 3 + textHeight / 2 -
-        (textHeight + fonts.OPTIONS_MARGIN) * (cursor.current - 1),
+        (textHeight + fonts.OPTIONS_MARGIN) * (self.cursor.current - 1),
         textHeight / 3)
 
     push:finish()
@@ -93,22 +80,22 @@ end
 
 function settings:keypressed(key)
     if key == "q" or key == "Q" then
-        Gamestate.switch(_prevState, _camera, _gameMap, _player, _levelState)
+        Gamestate.switch(self.prevState, self.camera, self.gameMap, self.player, self.levelState)
     end;
     if key == "e" or key == "E" then
-        if cursor.current == 1 then
-            Gamestate.switch(_prevState, _camera, _gameMap, _player, _levelState)
+        if self.cursor.current == 1 then
+            Gamestate.switch(self.prevState, self.camera, self.gameMap, self.player, self.levelState)
         end
     end
     if key == "down" then
-        if cursor.current <= 1 then return end;
-        cursor.current = cursor.current - 1
-        sounds.select:play()
+        if self.cursor.current <= 1 then return end;
+        self.cursor.current = self.cursor.current - 1
+        self.sounds.select:play()
     end
     if key == "up" then
-        if cursor.current >= #self.options then return end;
-        cursor.current = cursor.current + 1
-        sounds.select:play()
+        if self.cursor.current >= #self.options then return end;
+        self.cursor.current = self.cursor.current + 1
+        self.sounds.select:play()
     end
 end
 
