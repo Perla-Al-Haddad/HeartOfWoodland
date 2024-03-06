@@ -23,6 +23,7 @@ local Shake = require("src.utils.Shake")
 local conf = require("src.utils.conf")
 local audio = require("src.utils.audio")
 local globalFuncs = require("src.utils.globalFuncs")
+local fonts = require("src.utils.fonts")
 
 
 local Level = Class {
@@ -62,7 +63,7 @@ local Level = Class {
         self.camera:update(self.player);
         self.shake:update(dt)
         self.gameMap:update(dt)
-        
+
         dialogueHandler:update(dt)
 
         self.handlers.enemies:updateEnemies(dt)
@@ -87,6 +88,12 @@ local Level = Class {
 
         self.ui:drawPlayerLife();
         self:_drawOverlayLayer()
+
+        if conf.DEBUG.SHOW_FPS then
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setFont(fonts.smaller)
+            love.graphics.print(love.timer.getFPS(), 0, 0)
+        end
 
         dialogueHandler:draw()
 
