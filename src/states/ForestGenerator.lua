@@ -25,8 +25,6 @@ MARGIN_Y_MIN, MARGIN_Y_MAX = -5, 5
 BUSH_MARGIN_X_MIN, BUSH_MARGIN_X_MAX = -1, 1
 BUSH_MARGIN_Y_MIN, BUSH_MARGIN_Y_MAX = -1, 1
 
-local minimapScale = 1.75
-
 local ForestGenerator = Class {
     init = function (self, width, height)
         self.width = width or 100
@@ -126,23 +124,6 @@ local ForestGenerator = Class {
             love.graphics.print(love.timer.getFPS(), 0, 0)
         end
 
-        love.graphics.translate(conf.gameWidth - self.width / minimapScale - 5, 5)
-
-        love.graphics.setColor(0, 0, 0, 0.5)
-        love.graphics.rectangle("fill", 0, 0, self.width / minimapScale, self.height / minimapScale)
-
-        local px, py = self.player:getSpriteTopPosition()
-        love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle("fill", px / self.collisionTileWidth / minimapScale,
-            py / self.collisionTileHeight / minimapScale, 2, 2)
-
-        love.graphics.setColor(1, 1, 1, 0.5)
-        for _, tree in pairs(self.trees) do
-            love.graphics.rectangle("fill", tree.positionX / self.collisionTileWidth / minimapScale,
-                tree.positionY / self.collisionTileHeight / minimapScale, 1, 1)
-        end
-
-        love.graphics.translate(0, 0)
         push:finish()
     end,
 
@@ -158,6 +139,10 @@ local ForestGenerator = Class {
         if key == "escape" then
             local pause = require("src.states.pause")
             Gamestate.switch(pause, self.camera, self.player, self)
+        end
+        if key == "tab" then
+            local mapPreview = require("src.states.mapPreview")
+            Gamestate.switch(mapPreview, self.camera, self.player, self)
         end
     end,
 

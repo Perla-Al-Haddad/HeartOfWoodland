@@ -7,7 +7,7 @@ local audio = require("src.utils.audio");
 local conf = require("src.utils.conf");
 local fonts = require("src.utils.fonts");
 
-local settings = {
+local pause = {
     options,
     cursor,
     sounds,
@@ -18,7 +18,7 @@ local settings = {
 }
 
 
-function settings:enter(prevState, camera, player, levelState)
+function pause:enter(prevState, camera, player, levelState)
     self.levelState = levelState
     self.prevState = prevState
     self.camera = camera
@@ -36,7 +36,7 @@ function settings:enter(prevState, camera, player, levelState)
     self.sounds.select = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/click.wav"), "static")
 end
 
-function settings:draw()
+function pause:draw()
     push:start()
 
     self.levelState:_drawBackgroundColor()
@@ -82,7 +82,7 @@ function settings:draw()
     push:finish()
 end
 
-function settings:keypressed(key)
+function pause:keypressed(key)
     if key == "q" or key == "Q" then
         local state;
         if self.levelState ~= nil then
@@ -125,4 +125,4 @@ function settings:keypressed(key)
     end
 end
 
-return settings
+return pause
