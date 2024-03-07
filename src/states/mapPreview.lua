@@ -1,5 +1,6 @@
 local Gamestate = require("lib.hump.gamestate");
 local push = require("lib.push");
+local tween = require('lib.tween.tween')
 
 local audio = require("src.utils.audio");
 local conf = require("src.utils.conf");
@@ -10,7 +11,9 @@ local mapPreview = {
     player,
     camera,
     levelState,
-    minimapScale = 1.75
+    minimapScale = 1,
+    mapTweenTarget = { y = conf.gameHeight, opacity = 0 },
+    mapTween
 }
 
 function mapPreview:enter(prevState, levelState)
@@ -18,6 +21,14 @@ function mapPreview:enter(prevState, levelState)
     self.prevState = prevState
     self.camera = levelState.camera
     self.player = levelState.player
+
+    self.mapTween = tween.new(0.6, self.mapTweenTarget, { y = 0, opacity = 1 }, 'outBack')
+end
+
+function mapPreview:update(dt)
+    self.levelState:update(dt)
+
+    self.mapTween:update(dt)
 end
 
 function mapPreview:draw()
@@ -31,29 +42,14 @@ function mapPreview:draw()
 
     self.camera.camera:detach();
 
-    love.graphics.setColor(0, 0, 0, 0.5)
-    love.graphics.rectangle("fill", 0, 0, conf.gameWidth, conf.gameHeight)
-    love.graphics.setColor(1, 1, 1, 1)
-
-    love.graphics.setColor(0, 0, 0, 0.5)
-    love.graphics.rectangle("fill", 0, 0, self.levelState.width / self.minimapScale, self.levelState.height / self.minimapScale)
-
-    local px, py = self.levelState.player:getSpriteTopPosition()
-    love.graphics.setColor(1, 0, 0)
-    love.graphics.rectangle("fill", px / self.levelState.collisionTileWidth / self.minimapScale,
-        py / self.levelState.collisionTileHeight / self.minimapScale, 2, 2)
-
-    love.graphics.setColor(1, 1, 1, 0.5)
-    for _, tree in pairs(self.levelState.trees) do
-        love.graphics.rectangle("fill", tree.positionX / self.levelState.collisionTileWidth / self.minimapScale,
-            tree.positionY / self.levelState.collisionTileHeight / self.minimapScale, 1, 1)
-    end
+    self:_drawMiniMap()
 
     push:finish()
 end
 
 function mapPreview:keypressed(key)
-    if key == "q" or key == "Q" or key == "escape" then
+    if key == "q" or key == "Q" or key == "escape" or key == "tab" then
+        self.mapTween:reset()
         local state;
         if self.levelState ~= nil then
             state = self.levelState
@@ -61,6 +57,27 @@ function mapPreview:keypressed(key)
             state = self.prevState
         end
         Gamestate.switch(state)
+    end
+end
+
+function mapPreview:_drawMiniMap()
+    love.graphics.setColor(0, 0, 0, 0.5)
+    love.graphics.rectangle("fill", 0, 0, conf.gameWidth, conf.gameHeight)
+    love.graphics.setColor(1, 1, 1, self.mapTweenTarget.opacity)
+
+    love.graphics.translate(conf.gameWidth / 2 - self.levelState.width / 2, self.mapTweenTarget.y + 10)
+
+    local px, py = self.levelState.player:getSpriteTopPosition()
+    love.graphics.setColor(1, 0, 0, self.mapTweenTarget.opacity)
+    love.graphics.rectangle("fill", px / self.levelState.collisionTileWidth / self.minimapScale,
+        py / self.levelState.collisionTileHeight / self.minimapScale, 2, 2)
+
+    love.graphics.setColor(1, 1, 1, self.mapTweenTarget.opacity)
+    for _, tree in pairs(self.levelState.trees) do
+        if tree.wasSeen then
+            love.graphics.rectangle("fill", tree.positionX / self.levelState.collisionTileWidth / self.minimapScale,
+                tree.positionY / self.levelState.collisionTileHeight / self.minimapScale, 1, 1)
+        end
     end
 end
 

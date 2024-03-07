@@ -27,8 +27,8 @@ BUSH_MARGIN_Y_MIN, BUSH_MARGIN_Y_MAX = -1, 1
 
 local ForestGenerator = Class {
     init = function (self, width, height)
-        self.width = width or 100
-        self.height = height or 100
+        self.width = width or 250
+        self.height = height or 250
         self.tileWidth = 32
         self.tileHeight = 64
         self.collisionTileWidth = 24
@@ -152,6 +152,9 @@ local ForestGenerator = Class {
         for _, tree in pairs(self.trees) do
             if self.camera:isOnScreen(tree.positionX, tree.positionY) then
                 tree:drawBottom()
+                if not tree.wasSeen then
+                    tree.wasSeen = true
+                end
             end
         end
         for _, bush in pairs(self.bushes) do

@@ -29,6 +29,7 @@ Tree = Class {
         self.spriteTop = SPRITES.top
 
         self.hasCollider = hasCollider
+        self.WasSeen = false
     end,
 
     update = function(self, camera)
