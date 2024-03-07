@@ -10,18 +10,16 @@ local settings = {
     cursor,
     sounds,
     prevState,
-    gameMap,
     player,
     camera,
     levelState
 }
 
 
-function settings:enter(prevState, camera, gameMap, player, levelState)
+function settings:enter(prevState, camera, player, levelState)
     self.levelState = levelState
     self.prevState = prevState
     self.camera = camera
-    self.gameMap = gameMap
     self.player = player
 
     self.cursor = {
@@ -38,10 +36,14 @@ function settings:draw()
     push:start()
 
     if self.camera ~= nil then
+        self.levelState:_drawBackgroundColor()
+
         self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
-        if self.gameMap then
-            self.levelState:_drawGameMap()
+        if self.levelState.drawGameMap then
+            self.levelState:drawGameMap()
+        elseif self.levelState.drawLevel then
+            self.levelState:drawLevel()
         end
 
         self.camera.camera:detach();
@@ -80,11 +82,11 @@ end
 
 function settings:keypressed(key)
     if key == "q" or key == "Q" then
-        Gamestate.switch(self.prevState, self.camera, self.gameMap, self.player, self.levelState)
+        Gamestate.switch(self.prevState, self.camera, self.player, self.levelState)
     end;
     if key == "e" or key == "E" then
         if self.cursor.current == 1 then
-            Gamestate.switch(self.prevState, self.camera, self.gameMap, self.player, self.levelState)
+            Gamestate.switch(self.prevState, self.camera, self.player, self.levelState)
         end
     end
     if key == "down" then

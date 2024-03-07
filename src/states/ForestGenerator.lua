@@ -115,36 +115,7 @@ local ForestGenerator = Class {
 
         self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
-        self.handlers.effects:drawEffectsOnScreen(-1, self.camera)
-
-        for _, tree in pairs(self.trees) do
-            if self.camera:isOnScreen(tree.positionX, tree.positionY) then
-                tree:drawBottom()
-            end
-        end
-        for _, bush in pairs(self.bushes) do
-            if self.camera:isOnScreen(bush.positionX, bush.positionY) then
-                bush:draw()
-            end
-        end
-
-        self.handlers.objects:drawObjectsOnScreen(self.camera)
-        self.handlers.enemies:drawEnemiesOnScreen(self.camera)
-        self.handlers.drops:drawDrops()
-
-        self.player:drawAbs();
-
-        self.handlers.effects:drawEffects(0)
-
-        for _, tree in pairs(self.trees) do
-            if self.camera:isOnScreen(tree.positionX, tree.positionY) then
-                tree:drawTop()
-            end
-        end
-
-        if conf.DEBUG.DRAW_WORLD then
-            self.world:draw()
-        end
+        self:drawLevel()
 
         self.camera.camera:detach();
 
@@ -186,7 +157,40 @@ local ForestGenerator = Class {
         end
         if key == "escape" then
             local pause = require("src.states.pause")
-            Gamestate.switch(pause, self.camera, self.gameMap, self.player)
+            Gamestate.switch(pause, self.camera, self.player, self)
+        end
+    end,
+
+    drawLevel = function(self)
+        self.handlers.effects:drawEffectsOnScreen(-1, self.camera)
+
+        for _, tree in pairs(self.trees) do
+            if self.camera:isOnScreen(tree.positionX, tree.positionY) then
+                tree:drawBottom()
+            end
+        end
+        for _, bush in pairs(self.bushes) do
+            if self.camera:isOnScreen(bush.positionX, bush.positionY) then
+                bush:draw()
+            end
+        end
+
+        self.handlers.objects:drawObjectsOnScreen(self.camera)
+        self.handlers.enemies:drawEnemiesOnScreen(self.camera)
+        self.handlers.drops:drawDrops()
+
+        self.player:drawAbs();
+
+        self.handlers.effects:drawEffects(0)
+
+        for _, tree in pairs(self.trees) do
+            if self.camera:isOnScreen(tree.positionX, tree.positionY) then
+                tree:drawTop()
+            end
+        end
+
+        if conf.DEBUG.DRAW_WORLD then
+            self.world:draw()
         end
     end,
 

@@ -79,7 +79,7 @@ local Level = Class {
 
         self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
-        self:_drawGameMap()
+        self:drawGameMap()
         if conf.DEBUG.DRAW_WORLD then
             self.world:draw();
         end
@@ -111,7 +111,30 @@ local Level = Class {
         end
         if key == "escape" then
             local pause = require("src.states.pause")
-            Gamestate.switch(pause, self.camera, self.gameMap, self.player, self)
+            Gamestate.switch(pause, self.camera, self.player, self)
+        end
+    end,
+
+    drawGameMap = function(self)
+        for _, layer in ipairs(self.gameMap.layers) do
+            if layer.visible ~= true or layer.opacity <= 0 then
+                goto continue
+            end
+            if layer.name == "Player" then
+                self.handlers.enemies:drawEnemies();
+                self.handlers.effects:drawEffects(-1)
+                self.handlers.objects:drawObjects()
+                self.handlers.drops:drawDrops()
+
+                self.player:drawAbs();
+
+                self.handlers.effects:drawEffects(0)
+            else
+                if layer.type == "tilelayer" then
+                    self.gameMap:drawLayer(layer)
+                end
+            end
+            ::continue::
         end
     end,
 
@@ -236,29 +259,6 @@ local Level = Class {
     _drawOverlayLayer = function(self)
         love.graphics.setColor(0, 0, 0, self.opacity);
         love.graphics.rectangle("fill", 0, 0, conf.gameWidth, conf.gameHeight)
-    end,
-
-    _drawGameMap = function(self)
-        for _, layer in ipairs(self.gameMap.layers) do
-            if layer.visible ~= true or layer.opacity <= 0 then
-                goto continue
-            end
-            if layer.name == "Player" then
-                self.handlers.enemies:drawEnemies();
-                self.handlers.effects:drawEffects(-1)
-                self.handlers.objects:drawObjects()
-                self.handlers.drops:drawDrops()
-
-                self.player:drawAbs();
-
-                self.handlers.effects:drawEffects(0)
-            else
-                if layer.type == "tilelayer" then
-                    self.gameMap:drawLayer(layer)
-                end
-            end
-            ::continue::
-        end
     end
 }
 

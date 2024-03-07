@@ -12,20 +12,17 @@ local settings = {
     cursor,
     sounds,
     prevState,
-    gameMap,
     player,
     camera,
     levelState
 }
 
 
-function settings:enter(prevState, camera, gameMap, player, levelState)
+function settings:enter(prevState, camera, player, levelState)
     self.levelState = levelState
     self.prevState = prevState
     self.camera = camera
-    self.gameMap = gameMap
     self.player = player
-    self.handlers = self.player._handlers
 
     self.options = { "BACK", "QUIT TO DESKTOP", "MAIN MENU", "SETTINGS" }
 
@@ -42,10 +39,14 @@ end
 function settings:draw()
     push:start()
 
+    self.levelState:_drawBackgroundColor()
+
     self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
-    if self.gameMap then
-        self.levelState:_drawGameMap()
+    if self.levelState.drawGameMap then
+        self.levelState:drawGameMap()
+    elseif self.levelState.drawLevel then
+        self.levelState:drawLevel()
     end
 
     self.camera.camera:detach();
@@ -109,7 +110,7 @@ function settings:keypressed(key)
             playerStateHandler.health = conf.PLAYER.DEFAULT_HEALTH
         elseif self.cursor.current == 4 then
             local settings = require("src.states.settings")
-            Gamestate.switch(settings, self.camera, self.gameMap, self.player, self.prevState)
+            Gamestate.switch(settings, self.camera, self.player, self.prevState)
         end
     end
     if key == "down" then
