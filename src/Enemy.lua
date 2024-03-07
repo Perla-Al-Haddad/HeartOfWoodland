@@ -36,6 +36,9 @@ Enemy = Class {
         self.startX = positionX + 30
         self.startY = positionY + 30
 
+        self.lastX = positionX
+        self.lastY = positionY
+
         self.wanderRadius = 30
         self.wanderSpeed = 15
         self.wanderTimer = 0.5 + math.random() * 2
@@ -59,21 +62,51 @@ Enemy = Class {
 
         self.flashTimer = self.flashTimer - dt
 
-
         if self.hitCollider ~= nil then
             self.hitCollider:setX(self.hurtCollider:getX())
             self.hitCollider:setY(self.hurtCollider:getY())
         end
     end,
 
+    updateOnScreen = function(self, dt, camera)
+        local px, py = self:_getColliderCenterPosition()
+        local isOnScreen = camera:isOnScreen(px, py)
+        local isOnScreenBuffer = camera:isOnScreenBuffer(px, py, 10)
+
+        if self.hurtCollider == nil and isOnScreen then
+            local collisionClass = ENEMY_HURT_COLLISION_CLASS;
+            if self.health <= 0 then
+                collisionClass = "Dead"
+            end
+            self.hurtCollider = self._world:newBSGRectangleCollider(px, py,
+                self.hurtBoxWidth,
+                self.hurtBoxHeight, 3,
+                { collision_class = collisionClass })
+            self.hurtCollider:setLinearDamping(10)
+            if self.health <= 0 then
+                self.hurtCollider:setFixedRotation(true)
+            end
+        elseif self.hurtCollider and not isOnScreen and not isOnScreenBuffer then
+            self.lastX = self.hurtCollider:getX()
+            self.lastY = self.hurtCollider:getY()
+            self.hurtCollider:destroy()
+            self.hurtCollider = nil
+        end
+            
+        if isOnScreen and self.hurtCollider then
+            self:updateAbs(dt)
+        end
+    end,
+
     drawAbs = function(self)
-        local spx, spy = self:_getSpriteTopPosition()
+        if not self.hurtCollider then return end
+
+        local spx, spy = self:getSpriteTopPosition()
         local cpx, cpy = self:_getColliderCenterPosition()
 
         love.graphics.setColor(1, 1, 1, 1)
         if self.flashTimer > 0 then love.graphics.setShader(shaders.whiteout) end
-        self.currentAnimation:draw(self.animationSheet, spx, spy, nil,
-            self.hurtCollider.dirX, 1, 0, 0)
+        self.currentAnimation:draw(self.animationSheet, spx, spy, nil, self.hurtCollider.dirX, 1, 0, 0)
         love.graphics.setShader()
 
         Entity.drawAbs(self)

@@ -5,17 +5,17 @@ local windfield = require("lib.windfield")
 local push = require("lib.push")
 local Gamestate = require("lib.hump.gamestate")
 
-local Player = require("src.Player")
-local Camera = require("src.Camera")
+local UI = require("src.UI")
 local Wall = require("src.Wall")
-local EffectsHandler = require("src.EffectsHandler")
-local EnemiesHandler = require("src.EnemiesHandler")
-local ObjectsHandler = require("src.ObjectsHandler")
-local DropsHandler = require("src.DropsHandler")
 local Enemy = require("src.Enemy")
+local Camera = require("src.Camera")
+local Player = require("src.Player")
+local EffectsHandler = require("src.handlers.EffectsHandler")
+local EnemiesHandler = require("src.handlers.EnemiesHandler")
+local ObjectsHandler = require("src.handlers.ObjectsHandler")
+local DropsHandler = require("src.handlers.DropsHandler")
 local Chest = require("src.objects.Chest")
 local Sign = require("src.objects.Sign")
-local UI = require("src.UI")
 local WaveEffect = require("src.effects.WaveEffect")
 local dialogueHandler = require("src.dialogueHandler")
 
@@ -23,6 +23,7 @@ local Shake = require("src.utils.Shake")
 local conf = require("src.utils.conf")
 local audio = require("src.utils.audio")
 local globalFuncs = require("src.utils.globalFuncs")
+local fonts = require("src.utils.fonts")
 
 
 local Level = Class {
@@ -59,10 +60,16 @@ local Level = Class {
 
         self.world:update(dt)
         self.player:updateAbs(dt, self.shake)
-        self.camera:update(dt, self.player, self.gameMap);
+        self.camera:update(self.player);
         self.shake:update(dt)
         self.gameMap:update(dt)
+
         dialogueHandler:update(dt)
+
+        self.handlers.enemies:updateEnemies(dt)
+        self.handlers.objects:updateObjects(dt)
+        self.handlers.effects:updateEffects(dt)
+        self.handlers.drops:updateDrops(dt)
     end,
 
     draw = function(self)
@@ -72,7 +79,7 @@ local Level = Class {
 
         self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
-        self:_drawGameMap()
+        self:drawGameMap()
         if conf.DEBUG.DRAW_WORLD then
             self.world:draw();
         end
@@ -81,6 +88,12 @@ local Level = Class {
 
         self.ui:drawPlayerLife();
         self:_drawOverlayLayer()
+
+        if conf.DEBUG.SHOW_FPS then
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setFont(fonts.smaller)
+            love.graphics.print(love.timer.getFPS(), 0, 0)
+        end
 
         dialogueHandler:draw()
 
@@ -98,7 +111,30 @@ local Level = Class {
         end
         if key == "escape" then
             local pause = require("src.states.pause")
-            Gamestate.switch(pause, self.camera, self.gameMap, self.player)
+            Gamestate.switch(pause, self)
+        end
+    end,
+
+    drawGameMap = function(self)
+        for _, layer in ipairs(self.gameMap.layers) do
+            if layer.visible ~= true or layer.opacity <= 0 then
+                goto continue
+            end
+            if layer.name == "Player" then
+                self.handlers.enemies:drawEnemies();
+                self.handlers.effects:drawEffects(-1)
+                self.handlers.objects:drawObjects()
+                self.handlers.drops:drawDrops()
+
+                self.player:drawAbs();
+
+                self.handlers.effects:drawEffects(0)
+            else
+                if layer.type == "tilelayer" then
+                    self.gameMap:drawLayer(layer)
+                end
+            end
+            ::continue::
         end
     end,
 
@@ -139,7 +175,10 @@ local Level = Class {
     end,
 
     _setCamera = function(self)
-        self.camera = Camera(conf.CAMERA.SCALE, self.player.hurtCollider:getX(), self.player.hurtCollider:getY());
+        self.camera = Camera(conf.CAMERA.SCALE,
+            self.player.hurtCollider:getX(), self.player.hurtCollider:getY(),
+            self.gameMap.width, self.gameMap.height,
+            self.gameMap.tilewidth, self.gameMap.tileheight);
     end,
 
     _setShake = function(self)
@@ -212,7 +251,7 @@ local Level = Class {
     -- init functions end
 
     _drawBackgroundColor = function(self)
-        love.graphics.setColor(91 / 255, 169 / 255, 121 / 255); -- This is not the color of the grass 😞 fix it
+        love.graphics.setColor(80 / 255, 155 / 255, 102 / 255);
         love.graphics.rectangle("fill", 0, 0, conf.gameWidth, conf.gameHeight)
         love.graphics.setColor(1, 1, 1);
     end,
@@ -220,22 +259,6 @@ local Level = Class {
     _drawOverlayLayer = function(self)
         love.graphics.setColor(0, 0, 0, self.opacity);
         love.graphics.rectangle("fill", 0, 0, conf.gameWidth, conf.gameHeight)
-    end,
-
-    _drawGameMap = function(self)
-        for _, layer in ipairs(self.gameMap.layers) do
-            if layer.visible ~= true or layer.opacity <= 0 then
-                goto continue
-            end
-            if layer.name == "Player" then
-                self.player:drawAbs();
-            else
-                if layer.type == "tilelayer" then
-                    self.gameMap:drawLayer(layer)
-                end
-            end
-            ::continue::
-        end
     end
 }
 

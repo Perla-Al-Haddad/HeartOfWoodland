@@ -10,7 +10,7 @@ return {
   tilewidth = 16,
   tileheight = 16,
   nextlayerid = 14,
-  nextobjectid = 241,
+  nextobjectid = 243,
   properties = {},
   tilesets = {
     {
@@ -3155,6 +3155,21 @@ return {
           visible = true,
           properties = {
             ["level"] = "connector"
+          }
+        },
+        {
+          id = 242,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 668,
+          y = 44,
+          width = 60,
+          height = 32,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["level"] = "loading"
           }
         }
       }

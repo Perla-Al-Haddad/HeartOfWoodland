@@ -7,18 +7,20 @@ local Gamestate = require("lib.hump.gamestate");
 local push = require("lib.push");
 
 local Player = require("src.Player");
-local EffectsHandler = require("src.EffectsHandler");
+local EffectsHandler = require("src.handlers.EffectsHandler");
 local Level = require("src.states.Level")
+local ForestGenerator = require("src.states.ForestGenerator")
 
 local audio = require("src.utils.audio");
 local conf = require("src.utils.conf");
 local fonts = require("src.utils.fonts");
 local globalFuncs = require("src.utils.globalFuncs");
 
+
 local menu = {}
 
 local cursor, options, switchTimer, switch, menuWorld,
-    effectsHandler, player, sounds, walk;
+effectsHandler, player, sounds, walk;
 
 function menu:enter()
     cursor = {
@@ -27,14 +29,14 @@ function menu:enter()
         current = 1
     }
 
-    options = {"PLAY", "SETTINGS", "CREDITS", "EXIT"}
+    options = { "PLAY", "SETTINGS", "CREDITS", "EXIT" }
 
     switchTimer = SWITCH_TIMER;
     switch = false;
 
     menuWorld = windfield.newWorld(0, 0, false);
 
-    if conf.MUSIC then 
+    if conf.MUSIC then
         audio.gameMusic:stop()
         audio.menuMusic:play()
     end
@@ -42,15 +44,14 @@ function menu:enter()
     effectsHandler = EffectsHandler();
 
     player = Player(
-        (conf.gameWidth/2 - conf.PLAYER.TILE_SIZE/2)/SCALE,
-        (conf.gameHeight/2 + conf.PLAYER.TILE_SIZE/2)/SCALE + 9,
-        menuWorld, {effects=effectsHandler});
+        (conf.gameWidth / 2 - conf.PLAYER.TILE_SIZE / 2) / SCALE,
+        (conf.gameHeight / 2 + conf.PLAYER.TILE_SIZE / 2) / SCALE + 9,
+        menuWorld, { effects = effectsHandler });
     player._handlePlayerMovement = function(_, _) end
 
     sounds = {}
     sounds.select = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/click.wav"), "static")
 end
-
 
 function menu:update(dt)
     if switch then
@@ -65,10 +66,11 @@ function menu:update(dt)
 
     if switchTimer < 0 then
         local level = Level():initExternal("forestRuins", "menu")
+        -- local level = ForestGenerator():initExternal()
+        -- local loading = require("src.states.loading")
         Gamestate.switch(level)
     end
 end
-
 
 function menu:draw()
     push:start()
@@ -76,8 +78,8 @@ function menu:draw()
     local title = "HEART\nOF\nWOODLAND"
     local titleWidth = fonts.title:getWidth(title)
     love.graphics.setFont(fonts.title)
-    love.graphics.setColor(91/255, 169/255, 121/255)
-    love.graphics.printf(title, conf.gameWidth/2 - titleWidth/2, conf.gameHeight/12, titleWidth, "center")
+    love.graphics.setColor(91 / 255, 169 / 255, 121 / 255)
+    love.graphics.printf(title, conf.gameWidth / 2 - titleWidth / 2, conf.gameHeight / 12, titleWidth, "center")
 
     love.graphics.setFont(fonts.small)
     love.graphics.setColor(1, 1, 1)
@@ -86,16 +88,16 @@ function menu:draw()
         textHeight = fonts.small:getHeight(option)
         love.graphics.print(
             option,
-            conf.gameWidth/2 - titleWidth/2,
-            conf.gameHeight/2 - conf.PLAYER.TILE_SIZE / 2 + 12 + (textHeight + fonts.OPTIONS_MARGIN) * (i - 1)
+            conf.gameWidth / 2 - titleWidth / 2,
+            conf.gameHeight / 2 - conf.PLAYER.TILE_SIZE / 2 + 12 + (textHeight + fonts.OPTIONS_MARGIN) * (i - 1)
         )
     end
 
     love.graphics.circle(
         "fill",
-        conf.gameWidth/2 - titleWidth/2 - 20,
-        conf.gameHeight/2 - conf.PLAYER.TILE_SIZE / 2 + 20 + (textHeight + fonts.OPTIONS_MARGIN) * (cursor.current - 1),
-        textHeight/4)
+        conf.gameWidth / 2 - titleWidth / 2 - 20,
+        conf.gameHeight / 2 - conf.PLAYER.TILE_SIZE / 2 + 20 + (textHeight + fonts.OPTIONS_MARGIN) * (cursor.current - 1),
+        textHeight / 4)
 
     love.graphics.setFont(fonts.smaller)
     love.graphics.setColor(1, 1, 1, 0.7)
@@ -103,8 +105,8 @@ function menu:draw()
     local textWidth = fonts.smaller:getWidth(text)
     love.graphics.print(
         text,
-        conf.gameWidth/2 - textWidth/2,
-        conf.gameHeight - conf.gameHeight/8)
+        conf.gameWidth / 2 - textWidth / 2,
+        conf.gameHeight - conf.gameHeight / 8)
 
     love.graphics.push()
     love.graphics.scale(SCALE)
@@ -118,7 +120,6 @@ function menu:draw()
 
     push:finish()
 end
-
 
 function menu:keypressed(key)
     globalFuncs.keypressed(key)
@@ -149,7 +150,6 @@ function menu:keypressed(key)
     end
 end
 
-
 walk = function()
     player._handlePlayerMovement = function(self, dt)
         if self.state ~= 'default' then return end
@@ -178,7 +178,7 @@ walk = function()
 
             if self.dustEffectTimer <= 0 then
                 self.dustEffectTimer = 0.25
-                local dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY()-1)
+                local dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY() - 1)
                 self._handlers.effects:addEffect(dustEffect)
             end
 

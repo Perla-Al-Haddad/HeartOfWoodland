@@ -62,20 +62,10 @@ Player = Class {
         self:_handleLevelTransition()
         self:_handleEnemyCollision(dt, shake)
         self:_handleInvincibility(dt)
-
-        if self._handlers.enemies then self._handlers.enemies:updateEnemies(dt) end
-        if self._handlers.objects then self._handlers.objects:updateObjects(dt) end
-        if self._handlers.effects then self._handlers.effects:updateEffects(dt) end
-        if self._handlers.drops then self._handlers.drops:updateDrops(dt) end
     end,
 
     drawAbs = function(self)
-        if self._handlers.enemies then self._handlers.enemies:drawEnemies(); end
-        if self._handlers.effects then self._handlers.effects:drawEffects(-1) end
-        if self._handlers.objects then self._handlers.objects:drawObjects() end
-        if self._handlers.drops then self._handlers.drops:drawDrops() end
-
-        local px, py = self:_getSpriteTopPosition()
+        local px, py = self:getSpriteTopPosition()
 
         love.graphics.setColor(0.1, 0, 0.15, 0.5)
         love.graphics.ellipse("fill", px + self.width / 2, py + self.height, self.width / 5, 1.5)
@@ -94,8 +84,6 @@ Player = Class {
             love.graphics.polygon("fill", self.polygon)
             love.graphics.setColor(1, 1, 1, 1)
         end
-
-        if self._handlers.effects then self._handlers.effects:drawEffects(0) end
     end,
 
     useItem = function(self, item, camera)
@@ -103,7 +91,7 @@ Player = Class {
     end,
 
     interact = function(self)
-        local px, py = self:_getSpriteTopPosition()
+        local px, py = self:getSpriteTopPosition()
         local hitChests = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height,
             { 'Objects' });
 
@@ -311,15 +299,20 @@ Player = Class {
     _handleLevelTransition = function(self)
         if not self.hurtCollider:enter('LevelTransition') then return end
 
-        local px, py = self:_getSpriteTopPosition()
+        local px, py = self:getSpriteTopPosition()
         local hitTransitions = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height,
             { 'LevelTransition' })
 
         for _, transitionCollider in ipairs(hitTransitions) do
             self:destroySelf()
-            local Level = require("src.states.Level")
-            local level = Level():initExternal(transitionCollider.stateName, Gamestate.current().name)
-            Gamestate.switch(level)
+            if transitionCollider.stateName == "loading" then
+                local loading = require("src.states.loading")
+                Gamestate.switch(loading)
+            else
+                local Level = require("src.states.Level")
+                local level = Level():initExternal(transitionCollider.stateName, Gamestate.current().name)
+                Gamestate.switch(level)
+            end
         end
     end,
 
@@ -385,7 +378,7 @@ Player = Class {
     _handleDropCollision = function(self)
         if not self.hurtCollider:enter('Drops') then return end
 
-        local px, py = self:_getSpriteTopPosition()
+        local px, py = self:getSpriteTopPosition()
         local hitDrops = self._world:queryRectangleArea(px, py + self.heightOffset, self.width, self.height, { 'Drops' });
 
         for _, dropCollider in ipairs(hitDrops) do

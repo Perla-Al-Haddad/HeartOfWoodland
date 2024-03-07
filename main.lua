@@ -9,6 +9,7 @@ local conf = require("src.utils.conf");
 function love.load()
     if arg[2] == "debug" then require("lldebugger").start() end
     math.randomseed(os.time())
+    -- math.randomseed(2)
 
     love.mouse.setVisible(false)
     love.graphics.setDefaultFilter("nearest", "nearest") -- disable blurry scaling
