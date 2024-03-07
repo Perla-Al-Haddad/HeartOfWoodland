@@ -18,11 +18,11 @@ local pause = {
 }
 
 
-function pause:enter(prevState, camera, player, levelState)
-    self.levelState = levelState
+function pause:enter(prevState, levelState)
     self.prevState = prevState
-    self.camera = camera
-    self.player = player
+    self.levelState = levelState
+    self.camera = levelState.camera
+    self.player = levelState.player
 
     self.options = { "BACK", "QUIT TO DESKTOP", "MAIN MENU", "SETTINGS" }
 
@@ -110,7 +110,7 @@ function pause:keypressed(key)
             playerStateHandler.health = conf.PLAYER.DEFAULT_HEALTH
         elseif self.cursor.current == 4 then
             local settings = require("src.states.settings")
-            Gamestate.switch(settings, self.camera, self.player, self.prevState)
+            Gamestate.switch(settings, self.prevState)
         end
     end
     if key == "down" then

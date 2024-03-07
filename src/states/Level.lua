@@ -111,7 +111,7 @@ local Level = Class {
         end
         if key == "escape" then
             local pause = require("src.states.pause")
-            Gamestate.switch(pause, self.camera, self.player, self)
+            Gamestate.switch(pause, self)
         end
     end,
 

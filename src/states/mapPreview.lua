@@ -13,11 +13,11 @@ local mapPreview = {
     minimapScale = 1.75
 }
 
-function mapPreview:enter(prevState, camera, player, levelState)
+function mapPreview:enter(prevState, levelState)
     self.levelState = levelState
     self.prevState = prevState
-    self.camera = camera
-    self.player = player
+    self.camera = levelState.camera
+    self.player = levelState.player
 end
 
 function mapPreview:draw()

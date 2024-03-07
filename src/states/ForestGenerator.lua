@@ -138,11 +138,11 @@ local ForestGenerator = Class {
         end
         if key == "escape" then
             local pause = require("src.states.pause")
-            Gamestate.switch(pause, self.camera, self.player, self)
+            Gamestate.switch(pause, self)
         end
         if key == "tab" then
             local mapPreview = require("src.states.mapPreview")
-            Gamestate.switch(mapPreview, self.camera, self.player, self)
+            Gamestate.switch(mapPreview, self)
         end
     end,
 

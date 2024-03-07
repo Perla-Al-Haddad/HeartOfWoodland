@@ -21,6 +21,9 @@ Entity = Class {
         self.prevDirY = 1
         self.speed = speed
 
+        self.lastX = 0
+        self.lastY = 0
+
         self.state = "default"
 
         self.hitBoxWidth = hitBoxWidth
