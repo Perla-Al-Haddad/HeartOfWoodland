@@ -37,6 +37,7 @@ conf.OBJECTS = {}
 conf.OBJECTS.COLLISION_CLASS = "Objects"
 
 conf.DIALOGUE = {}
+conf.DIALOGUE.SCROLL_SPEED = 0.02
 conf.DIALOGUE.FLICKER_SPEED = 0.5
 
 conf.CAMERA = {}

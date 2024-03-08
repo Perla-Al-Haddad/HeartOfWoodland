@@ -52,7 +52,7 @@ Sign = Class {
             return
         end
         if #dialogueHandler.lines == 0 then
-            dialogueHandler:insertLines({ dialogueList[self.name] })
+            dialogueHandler:insertLines(dialogueList[self.name])
         end
     end,
 
