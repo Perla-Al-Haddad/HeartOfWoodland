@@ -19,9 +19,13 @@ LongGrass = Class {
         self.collisionWidth = collisionWidth
         self.collisionHeight = collisionHeight
 
+        self.positionX = positionX
+        self.positionY = positionY
+
         self.position = "bottom"
 
-        self.collider = self._world:newBSGRectangleCollider(positionX, positionY,
+        self.collider = self._world:newBSGRectangleCollider(
+            self.positionX, self.positionY,
             self.collisionWidth,
             self.collisionHeight, 0,
             { collision_class = "LongGrass" })
@@ -56,16 +60,16 @@ LongGrass = Class {
         self.sounds.move:setVolume(0.2)
     end,
 
-    update = function(self, dt)
+    update = function(self, dt, camera)
         self.currentAnimationTop:update(dt)
         self.currentAnimationBottom:update(dt)
 
-        if self.collider:enter('Player') or self.collider:enter("EnemyHurt") then
+        if self.collider:enter('Player') or self.collider:enter("EnemyHurt") or self.collider:enter("Dead") then
             self.currentAnimationTop = self.animations.moveTop
             self.currentAnimationBottom = self.animations.moveBottom
             self.sounds.move:play()
             self.position = "top"
-        elseif self.collider:exit('Player') or self.collider:exit("EnemyHurt") then
+        elseif self.collider:exit('Player') or self.collider:exit("EnemyHurt") or self.collider:exit("Dead") then
             self.position = "bottom"
         end
     end,
@@ -74,20 +78,19 @@ LongGrass = Class {
         love.graphics.setColor(1, 1, 1, 1)
 
         local px, py = self:_getCenterPosition()
-        self.currentAnimationTop:draw(self.animationSheetTop, px, py, nil, self.collider.dirX, 1, 0, 0)
+        self.currentAnimationTop:draw(self.animationSheetTop, px, py, nil, 1, 1, 0, 0)
     end,
 
     drawBottom = function(self)
         love.graphics.setColor(1, 1, 1, 1)
 
         local px, py = self:_getCenterPosition()
-        self.currentAnimationBottom:draw(self.animationSheetBottom, px, py + 20, nil, self.collider.dirX, 1, 0, 0)
+        self.currentAnimationBottom:draw(self.animationSheetBottom, px, py + 20, nil, 1, 1, 0, 0)
     end,
 
     _getCenterPosition = function(self)
-        local px, py = self.collider:getPosition()
-        px = px - self.width / 2
-        py = py - self.height / 2 + 6
+        local px, py = self.positionX, self.positionY
+        py = py + 6
 
         return px, py
     end,

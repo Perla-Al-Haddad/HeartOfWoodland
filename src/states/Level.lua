@@ -1,5 +1,4 @@
 local Class = require("lib.hump.class")
-
 local sti = require("lib.sti.sti")
 local windfield = require("lib.windfield")
 local push = require("lib.push")
