@@ -5,6 +5,7 @@ local windfield = require("lib.windfield");
 local Vector = require("lib.hump.vector")
 local Gamestate = require("lib.hump.gamestate");
 local push = require("lib.push");
+local moonshine = require("lib.moonshine")
 
 local Player = require("src.Player");
 local EffectsHandler = require("src.handlers.EffectsHandler");
@@ -17,7 +18,13 @@ local fonts = require("src.utils.fonts");
 local globalFuncs = require("src.utils.globalFuncs");
 
 
-local menu = {}
+local menu = {
+    effect = moonshine(conf.gameWidth, conf.gameHeight, moonshine.effects.godsray)
+}
+
+menu.effect.godsray.exposure = 0.05
+menu.effect.godsray.weight = 0.3
+menu.effect.godsray.density = 0.3
 
 local cursor, options, switchTimer, switch, menuWorld,
 effectsHandler, player, sounds, walk;
@@ -75,48 +82,51 @@ end
 function menu:draw()
     push:start()
 
-    local title = "HEART\nOF\nWOODLAND"
-    local titleWidth = fonts.title:getWidth(title)
-    love.graphics.setFont(fonts.title)
-    love.graphics.setColor(91 / 255, 169 / 255, 121 / 255)
-    love.graphics.printf(title, conf.gameWidth / 2 - titleWidth / 2, conf.gameHeight / 12, titleWidth, "center")
+    self.effect(function()
+        local title = "HEART\nOF\nWOODLAND"
+        local titleWidth = fonts.title:getWidth(title)
+        love.graphics.setFont(fonts.title)
+        love.graphics.setColor(91 / 255, 169 / 255, 121 / 255)
+        love.graphics.printf(title, conf.gameWidth / 2 - titleWidth / 2, conf.gameHeight / 12, titleWidth, "center")
 
-    love.graphics.setFont(fonts.small)
-    love.graphics.setColor(1, 1, 1)
-    local textHeight;
-    for i, option in ipairs(options) do
-        textHeight = fonts.small:getHeight(option)
+        love.graphics.setFont(fonts.small)
+        love.graphics.setColor(1, 1, 1)
+        local textHeight;
+        for i, option in ipairs(options) do
+            textHeight = fonts.small:getHeight(option)
+            love.graphics.print(
+                option,
+                conf.gameWidth / 2 - titleWidth / 2,
+                conf.gameHeight / 2 - conf.PLAYER.TILE_SIZE / 2 + 12 + (textHeight + fonts.OPTIONS_MARGIN) * (i - 1)
+            )
+        end
+
+        love.graphics.circle(
+            "fill",
+            conf.gameWidth / 2 - titleWidth / 2 - 20,
+            conf.gameHeight / 2 - conf.PLAYER.TILE_SIZE / 2 + 20 +
+            (textHeight + fonts.OPTIONS_MARGIN) * (cursor.current - 1),
+            textHeight / 4)
+
+        love.graphics.setFont(fonts.smaller)
+        love.graphics.setColor(1, 1, 1, 0.7)
+        local text = "PRESS [E] TO SELECT"
+        local textWidth = fonts.smaller:getWidth(text)
         love.graphics.print(
-            option,
-            conf.gameWidth / 2 - titleWidth / 2,
-            conf.gameHeight / 2 - conf.PLAYER.TILE_SIZE / 2 + 12 + (textHeight + fonts.OPTIONS_MARGIN) * (i - 1)
-        )
-    end
+            text,
+            conf.gameWidth / 2 - textWidth / 2,
+            conf.gameHeight - conf.gameHeight / 8)
 
-    love.graphics.circle(
-        "fill",
-        conf.gameWidth / 2 - titleWidth / 2 - 20,
-        conf.gameHeight / 2 - conf.PLAYER.TILE_SIZE / 2 + 20 + (textHeight + fonts.OPTIONS_MARGIN) * (cursor.current - 1),
-        textHeight / 4)
+        love.graphics.push()
+        love.graphics.scale(SCALE)
+        love.graphics.setColor(1, 1, 1, 1)
+        effectsHandler:drawEffects(-1);
+        player:drawAbs()
+        effectsHandler:drawEffects(0)
+        love.graphics.pop()
 
-    love.graphics.setFont(fonts.smaller)
-    love.graphics.setColor(1, 1, 1, 0.7)
-    local text = "PRESS [E] TO SELECT"
-    local textWidth = fonts.smaller:getWidth(text)
-    love.graphics.print(
-        text,
-        conf.gameWidth / 2 - textWidth / 2,
-        conf.gameHeight - conf.gameHeight / 8)
-
-    love.graphics.push()
-    love.graphics.scale(SCALE)
-    love.graphics.setColor(1, 1, 1, 1)
-    effectsHandler:drawEffects(-1);
-    player:drawAbs()
-    effectsHandler:drawEffects(0)
-    love.graphics.pop()
-
-    -- love.graphics.line(conf.gameWidth/2, 0, conf.gameWidth/2, conf.gameHeight)
+        -- love.graphics.line(conf.gameWidth/2, 0, conf.gameWidth/2, conf.gameHeight)
+    end)
 
     push:finish()
 end

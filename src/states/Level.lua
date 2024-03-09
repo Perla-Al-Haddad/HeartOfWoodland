@@ -4,6 +4,7 @@ local sti = require("lib.sti.sti")
 local windfield = require("lib.windfield")
 local push = require("lib.push")
 local Gamestate = require("lib.hump.gamestate")
+local moonshine = require("lib.moonshine")
 
 local UI = require("src.UI")
 local Wall = require("src.Wall")
@@ -51,6 +52,15 @@ local Level = Class {
 
         if conf.MUSIC then audio.gameMusic:play() end
 
+        -- self.effect = moonshine(conf.gameWidth, conf.gameHeight, moonshine.effects.godsray)
+        -- self.effect.godsray.exposure = 0.05
+        -- self.effect.godsray.weight = 0.3
+        -- self.effect.godsray.density = 0.3
+        -- self.effect = moonshine(conf.gameWidth, conf.gameHeight, moonshine.effects.posterize)
+        -- self.effect.posterize.num_bands = 8
+        self.effect = moonshine(conf.gameWidth, conf.gameHeight, moonshine.effects.dmg)
+        self.effect.dmg.palette = "custom"
+
         return self
     end,
 
@@ -74,29 +84,31 @@ local Level = Class {
 
     draw = function(self)
         push:start()
+        self.effect(function()
 
-        self:_drawBackgroundColor()
+            self:_drawBackgroundColor()
 
-        self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
+            self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
 
-        self:drawGameMap()
-        if conf.DEBUG.DRAW_WORLD then
-            self.world:draw();
-        end
+            self:drawGameMap()
+            if conf.DEBUG.DRAW_WORLD then
+                self.world:draw();
+            end
 
-        self.camera.camera:detach();
+            self.camera.camera:detach();
 
-        self.ui:drawPlayerLife();
-        self:_drawOverlayLayer()
+            self.ui:drawPlayerLife();
+            self:_drawOverlayLayer()
 
-        if conf.DEBUG.SHOW_FPS then
-            love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.setFont(fonts.smaller)
-            love.graphics.print(love.timer.getFPS(), 0, 0)
-        end
+            if conf.DEBUG.SHOW_FPS then
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.setFont(fonts.smaller)
+                love.graphics.print(love.timer.getFPS(), 0, 0)
+            end
 
-        dialogueHandler:draw()
+            dialogueHandler:draw()
 
+        end)
         push:finish()
     end,
 
