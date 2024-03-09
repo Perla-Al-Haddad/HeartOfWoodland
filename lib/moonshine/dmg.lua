@@ -35,6 +35,15 @@ local palettes = {
       {155/255,188/255, 15/255}
     }
   },
+  {
+    name = "custom",
+    colors = {
+      { 0/255, 0/255, 0/255},
+      { 48/255, 98/255, 48/255},
+      {100/255,150/255, 15/255},
+      {139/255,172/255, 15/255},
+    }
+  },
   -- Hardcore color profiles. Source:
   -- http://www.hardcoregaming101.net/gbdebate/gbcolours.htm
   {
