@@ -1,5 +1,3 @@
-local sone = require("lib.sone.sone")
-
 local funcs = require("src.utils.funcs")
 local conf = require("src.utils.conf")
 local fonts = require("src.utils.fonts")
@@ -16,6 +14,8 @@ local dialogueHandler = {
         writing = love.audio.newSource(love.sound.newSoundData("assets/sounds/effects/writing.wav"), "static")
     }
 }
+
+dialogueHandler.sounds.writing:setVolume(0.5)
 
 function dialogueHandler:insertLines(lines)
     self.lines = funcs.shallow_copy(lines)
