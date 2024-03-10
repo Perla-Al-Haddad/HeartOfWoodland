@@ -34,7 +34,7 @@ Bush = Class {
             self.collider = self._world:newBSGRectangleCollider(self.positionX, self.positionY,
                 self.width,
                 self.height, 0,
-                { collision_class = conf.OBJECTS.COLLISION_CLASS })
+                { collision_class = conf.TREES.COLLISION_CLASS })
             self.collider:setType("static")
         elseif self.collider and not bushIsOnScreen then
             self.collider:destroy()

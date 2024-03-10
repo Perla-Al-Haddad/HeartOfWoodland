@@ -36,6 +36,9 @@ conf.GRASS_MAPPING = {
 conf.OBJECTS = {}
 conf.OBJECTS.COLLISION_CLASS = "Objects"
 
+conf.TREES = {}
+conf.TREES.COLLISION_CLASS = "Trees"
+
 conf.DIALOGUE = {}
 conf.DIALOGUE.SCROLL_SPEED = 0.02
 conf.DIALOGUE.FLICKER_SPEED = 0.5

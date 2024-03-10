@@ -5,13 +5,16 @@ local Gamestate = require("lib.hump.gamestate")
 
 local UI = require("src.UI")
 local ForestMapGenerator = require("src.states.ForestMapGenerator")
+local LongGrassHandler = require("src.handlers.LongGrassHandler")
 local EffectsHandler = require("src.handlers.EffectsHandler")
 local EnemiesHandler = require("src.handlers.EnemiesHandler")
 local ObjectsHandler = require("src.handlers.ObjectsHandler")
+local GrassGenerator = require("src.states.GrassGenerator")
 local DropsHandler = require("src.handlers.DropsHandler")
 local Tree = require("src.objects.Tree")
 local Bush = require("src.objects.Bush")
 local Rock = require("src.objects.Rock")
+local LongGrass = require("src.objects.LongGrass")
 local Enemy = require("src.Enemy")
 local GrassEffect = require("src.effects.GrassEffect")
 
@@ -26,43 +29,24 @@ BUSH_MARGIN_X_MIN, BUSH_MARGIN_X_MAX = -1, 1
 BUSH_MARGIN_Y_MIN, BUSH_MARGIN_Y_MAX = -1, 1
 
 local ForestGenerator = Class {
-    init = function (self, width, height)
+    init = function(self, width, height)
         self.width = width or 250
         self.height = height or 250
-        self.tileWidth = 32
-        self.tileHeight = 64
         self.collisionTileWidth = 24
         self.collisionTileHeight = 20
-        self.enemyCount = 50
-        
+        self.enemyCount = 25
+
         self.ui = UI()
-    end,
-
-    initExternal = function(self)
-        self:_setupMap()
-        self:_setupWorld()
-        self:_setHandlers()
-
-        self:_setupPlayer()
-        self:_setupCamera()
-        self:_setupShake()
-
-        self.trees = {}
-        self.bushes = {}
-        self.colliderTrees = {}
-
-        self:_processMap()
-
-        if conf.MUSIC then audio.gameMusic:play() end
-
-        return self
     end,
 
     initCoRoutine = function(self)
         return coroutine.create(function()
             coroutine.yield("Setting up map")
             self:_setupMap()
-            
+
+            coroutine.yield("Setting up grass map")
+            self:_setupGrassMap()
+
             coroutine.yield("Setting up world")
             self:_setupWorld()
 
@@ -79,6 +63,8 @@ local ForestGenerator = Class {
             self.trees = {}
             self.bushes = {}
             self.colliderTrees = {}
+            self.longGrassOnTop = {}
+            self.onScreenLongGrass = {}
 
             coroutine.yield("Processing map")
             self:_processMapRoutine()
@@ -104,7 +90,15 @@ local ForestGenerator = Class {
         self.handlers.enemies:updateEnemiesOnScreen(dt, self.camera)
         self.handlers.objects:updateObjectsOnScreen(dt, self.camera)
         self.handlers.effects:updateEffectsOnScreen(dt, self.camera)
+        self.handlers.longGrass:updateOnScreen(dt, self.camera)
         self.handlers.drops:updateDrops(dt)
+
+        self.longGrassOnTop = funcs.filter(self.handlers.longGrass.objects, function(v, k, t)
+            return v.position == 'top'
+        end)
+        self.onScreenLongGrass = funcs.filter(self.handlers.longGrass.objects, function(v, k, t)
+            return self.camera:isOnScreen(v.positionX, v.positionY)
+        end)
     end,
 
     draw = function(self)
@@ -163,13 +157,23 @@ local ForestGenerator = Class {
             end
         end
 
+        self.handlers.drops:drawDrops()
+
+        for i, grass in pairs(self.onScreenLongGrass) do
+            grass:drawTop()
+            grass:drawBottom()
+        end
+
         self.handlers.objects:drawObjectsOnScreen(self.camera)
         self.handlers.enemies:drawEnemiesOnScreen(self.camera)
-        self.handlers.drops:drawDrops()
 
         self.player:drawAbs();
 
         self.handlers.effects:drawEffects(0)
+
+        for i, grass in pairs(self.longGrassOnTop) do
+            grass:drawTop()
+        end
 
         for _, tree in pairs(self.trees) do
             if self.camera:isOnScreen(tree.positionX, tree.positionY) then
@@ -230,16 +234,23 @@ local ForestGenerator = Class {
         self.map = ForestMapGenerator(self.width, self.height, self.enemyCount)
     end,
 
+    _setupGrassMap = function(self)
+        self.grassMap = GrassGenerator(self.width, self.height)
+    end,
+
     _setupWorld = function(self)
         self.world = windfield.newWorld(0, 0, false);
         self.world:addCollisionClass('Ignore', { ignores = { 'Ignore' } });
         self.world:addCollisionClass('Dead', { ignores = { 'Ignore' } });
         self.world:addCollisionClass('Wall', { ignores = { 'Ignore' } });
         self.world:addCollisionClass('Objects', { ignores = { 'Ignore' } });
+        self.world:addCollisionClass('Trees', { ignores = { 'Ignore' } });
         self.world:addCollisionClass('Drops', { ignores = { 'Ignore', "Dead" } });
         self.world:addCollisionClass('EnemyHurt', { ignores = { 'Ignore', "Drops" } });
         self.world:addCollisionClass('Player', { ignores = { 'Ignore', "EnemyHurt" } });
         self.world:addCollisionClass('EnemyHit', { ignores = { 'Ignore', "EnemyHurt", "Drops" } });
+        self.world:addCollisionClass('LongGrass',
+            { ignores = { 'Ignore', "EnemyHurt", "EnemyHit", "Player", "Dead", "LongGrass" } });
         self.world:addCollisionClass('LevelTransition',
             { ignores = { 'Ignore', "EnemyHurt", "Drops", "Objects", "Wall", "EnemyHit", "Dead" } });
     end,
@@ -249,14 +260,16 @@ local ForestGenerator = Class {
             effects = EffectsHandler(),
             drops = DropsHandler(),
             enemies = EnemiesHandler(),
-            objects = ObjectsHandler()
+            objects = ObjectsHandler(),
+            longGrass = LongGrassHandler()
         }
     end,
 
-    _processMap = function(self)
+    _processMapRoutine = function(self)
         for y = 1, self.map.height do
             for x = 1, self.map.width do
                 local cell = self.map.map[x][y]
+                local grassCell = self.grassMap.map[x][y]
                 if cell == "#" then
                     self:_processTreeCell(x, y)
                 elseif cell == "P" then
@@ -268,27 +281,18 @@ local ForestGenerator = Class {
                 elseif cell == 'E' then
                     self:_processEnemyCell(x, y)
                 end
-            end
-        end
-
-        self:_sortTreesByYAxis()
-        self:_setColliderTrees()
-    end,
-
-    _processMapRoutine = function(self)
-        for y = 1, self.map.height do
-            for x = 1, self.map.width do
-                local cell = self.map.map[x][y]
-                if cell == "#" then
-                    self:_processTreeCell(x, y)
-                elseif cell == "P" then
-                    self:_spawnPlayer(x, y)
-                elseif cell == 'g' then
-                    self:_processGrassCell(x, y)
-                elseif cell == 'r' then
-                    self:_processRockCell(x, y)
-                elseif cell == 'E' then
-                    self:_processEnemyCell(x, y)
+                if grassCell > self.grassMap.threshold and cell ~= "#" and cell ~= 'r' then
+                    local status, err = pcall(self._processLongGrassCell, self, x, y, false)
+                    if not status then
+                        print(debug.traceback())
+                        print(err)
+                    end
+                elseif grassCell < self.grassMap.threshold and grassCell > self.grassMap.thresholdSmall and cell ~= "#" and cell ~= 'r' then
+                    local status, err = pcall(self._processLongGrassCell, self, x, y, true)
+                    if not status then
+                        print(debug.traceback())
+                        print(err)
+                    end
                 end
             end
             coroutine.yield("Processing map")
@@ -377,6 +381,15 @@ local ForestGenerator = Class {
         )
     end,
 
+    _processLongGrassCell = function(self, x, y, isSmall)
+        local grass = LongGrass(
+            (x - 1) * (self.collisionTileWidth),
+            (y - 1) * (self.collisionTileHeight),
+            27, 25, 27, 10, isSmall, self.world
+        )
+
+        self.handlers.longGrass:add(grass)
+    end
 }
 
 return ForestGenerator

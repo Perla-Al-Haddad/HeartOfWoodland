@@ -1,7 +1,6 @@
 local Class = require("lib.hump.class")
 local Vector = require("lib.hump.vector")
 local anim8 = require("lib.anim8.anim8")
-local sone = require("lib.sone.sone")
 
 local conf = require("src.utils.conf")
 
