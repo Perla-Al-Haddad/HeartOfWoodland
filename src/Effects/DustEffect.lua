@@ -1,6 +1,9 @@
 local Class = require("lib.hump.class")
 local anim8 = require('lib.anim8.anim8')
 
+love.graphics.setDefaultFilter("nearest", "nearest")
+local SPRITE =  love.graphics.newImage('/assets/sprites/particles/dust_particles_01.png')
+
 DustEffect = Class {
     init = function(self, positionX, positionY)
         self.positionX = positionX
@@ -10,8 +13,7 @@ DustEffect = Class {
         self.scaleX = 1
         self.scaleY = 1
 
-        self.spriteSheet = love.graphics.newImage(
-                               '/assets/sprites/particles/dust_particles_01.png')
+        self.spriteSheet = SPRITE
         self.width = 12
         self.height = 12
         self.grid = anim8.newGrid(self.width, self.height,
