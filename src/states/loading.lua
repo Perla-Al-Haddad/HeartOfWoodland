@@ -17,7 +17,7 @@ local loading = {
 function loading:enter()
     self.timer = 0
 
-    self.level = ForestGenerator(50, 50)
+    self.level = ForestGenerator(200, 200)
     self.levelCoRoutine = self.level:initCoRoutine()
 end
 

@@ -5,11 +5,10 @@ local GrassGenerator = Class {
         self.map = {}
         self.width = width
         self.height = height
-        self.threshold = 0.7
+        self.threshold = 0.8
+        self.thresholdSmall = 0.7
 
         self:_generateGrassMap()
-
-        self:_printMap()
     end,
 
     _generateGrassMap = function(self)

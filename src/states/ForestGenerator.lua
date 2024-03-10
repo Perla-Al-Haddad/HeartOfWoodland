@@ -14,6 +14,7 @@ local Tree = require("src.objects.Tree")
 local Bush = require("src.objects.Bush")
 local Rock = require("src.objects.Rock")
 local LongGrass = require("src.objects.LongGrass")
+local LongGrassSmall = require("src.objects.LongGrassSmall")
 local Enemy = require("src.Enemy")
 local GrassEffect = require("src.effects.GrassEffect")
 
@@ -33,7 +34,7 @@ local ForestGenerator = Class {
         self.height = height or 250
         self.collisionTileWidth = 24
         self.collisionTileHeight = 20
-        self.enemyCount = 5
+        self.enemyCount = 25
 
         self.ui = UI()
     end,
@@ -64,6 +65,7 @@ local ForestGenerator = Class {
             self.colliderTrees = {}
             self.longGrass = {}
             self.longGrassOnTop = {}
+            self.onScreenLongGrass = {}
 
             coroutine.yield("Processing map")
             self:_processMapRoutine()
@@ -97,6 +99,9 @@ local ForestGenerator = Class {
 
         self.longGrassOnTop = funcs.filter(self.longGrass, function(v, k, t)
             return v.position == 'top'
+        end)
+        self.onScreenLongGrass = funcs.filter(self.longGrass, function(v, k, t)
+            return self.camera:isOnScreen(v.positionX, v.positionY)
         end)
     end,
 
@@ -156,14 +161,14 @@ local ForestGenerator = Class {
             end
         end
 
-        self.handlers.objects:drawObjectsOnScreen(self.camera)
         self.handlers.drops:drawDrops()
-        
-        for i, grass in pairs(self.longGrass) do
+
+        for i, grass in pairs(self.onScreenLongGrass) do
             grass:drawTop()
             grass:drawBottom()
         end
 
+        self.handlers.objects:drawObjectsOnScreen(self.camera)
         self.handlers.enemies:drawEnemiesOnScreen(self.camera)
 
         self.player:drawAbs();
@@ -233,7 +238,7 @@ local ForestGenerator = Class {
         self.map = ForestMapGenerator(self.width, self.height, self.enemyCount)
     end,
 
-    _setupGrassMap = function (self)
+    _setupGrassMap = function(self)
         self.grassMap = GrassGenerator(self.width, self.height)
     end,
 
@@ -243,11 +248,12 @@ local ForestGenerator = Class {
         self.world:addCollisionClass('Dead', { ignores = { 'Ignore' } });
         self.world:addCollisionClass('Wall', { ignores = { 'Ignore' } });
         self.world:addCollisionClass('Objects', { ignores = { 'Ignore' } });
+        self.world:addCollisionClass('Trees', { ignores = { 'Ignore' } });
         self.world:addCollisionClass('Drops', { ignores = { 'Ignore', "Dead" } });
         self.world:addCollisionClass('EnemyHurt', { ignores = { 'Ignore', "Drops" } });
         self.world:addCollisionClass('Player', { ignores = { 'Ignore', "EnemyHurt" } });
         self.world:addCollisionClass('EnemyHit', { ignores = { 'Ignore', "EnemyHurt", "Drops" } });
-        self.world:addCollisionClass('LongGrass', { ignores = { 'Ignore', "EnemyHurt", "EnemyHit", "Player", "Dead" } });
+        self.world:addCollisionClass('LongGrass', { ignores = { 'Ignore', "EnemyHurt", "EnemyHit", "Player", "Dead", "LongGrass" } });
         self.world:addCollisionClass('LevelTransition',
             { ignores = { 'Ignore', "EnemyHurt", "Drops", "Objects", "Wall", "EnemyHit", "Dead" } });
     end,
@@ -277,8 +283,14 @@ local ForestGenerator = Class {
                 elseif cell == 'E' then
                     self:_processEnemyCell(x, y)
                 end
-                if grassCell > 0.7 and cell ~= "#" and cell ~= 'r' then
+                if grassCell > self.grassMap.threshold and cell ~= "#" and cell ~= 'r' then
                     local status, err = pcall(self._processLongGrassCell, self, x, y)
+                    if not status then
+                        print(debug.traceback())
+                        print(err)
+                    end
+                elseif grassCell < self.grassMap.threshold and grassCell > self.grassMap.thresholdSmall and cell ~= "#" and cell ~= 'r' then
+                    local status, err = pcall(self._processLongGrassSmallCell, self, x, y)
                     if not status then
                         print(debug.traceback())
                         print(err)
@@ -373,6 +385,16 @@ local ForestGenerator = Class {
 
     _processLongGrassCell = function(self, x, y)
         local grass = LongGrass(
+            (x - 1) * (self.collisionTileWidth),
+            (y - 1) * (self.collisionTileHeight),
+            27, 25, 27, 10, self.world
+        )
+
+        table.insert(self.longGrass, grass)
+    end,
+
+    _processLongGrassSmallCell = function(self, x, y)
+        local grass = LongGrassSmall(
             (x - 1) * (self.collisionTileWidth),
             (y - 1) * (self.collisionTileHeight),
             27, 25, 27, 10, self.world

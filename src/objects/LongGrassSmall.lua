@@ -1,6 +1,6 @@
 local SPRITES = {
-    top = love.graphics.newImage("/assets/sprites/objects/longgrass_top.png"),
-    bottom = love.graphics.newImage("/assets/sprites/objects/longgrass_bottom.png")
+    top = love.graphics.newImage("/assets/sprites/objects/longgrass_small_top.png"),
+    bottom = love.graphics.newImage("/assets/sprites/objects/longgrass_small_bottom.png")
 }
 local SOUNDS = {
     move = love.sound.newSoundData("/assets/sounds/effects/longgrass.mp3")

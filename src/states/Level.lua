@@ -145,6 +145,7 @@ local Level = Class {
         self.world:addCollisionClass('Dead', { ignores = { 'Ignore' } });
         self.world:addCollisionClass('Wall', { ignores = { 'Ignore' } });
         self.world:addCollisionClass('Objects', { ignores = { 'Ignore' } });
+        self.world:addCollisionClass('Trees', { ignores = { 'Ignore' } });
         self.world:addCollisionClass('Drops', { ignores = { 'Ignore', "Dead" } });
         self.world:addCollisionClass('EnemyHurt', { ignores = { 'Ignore', "Drops" } });
         self.world:addCollisionClass('Player', { ignores = { 'Ignore', "EnemyHurt" } });
