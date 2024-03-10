@@ -6,6 +6,7 @@ local Gamestate = require("lib.hump.gamestate");
 local Entity = require("src.Entity")
 local SwingEffect = require("src.effects.SwingEffect")
 local DustEffect = require("src.effects.DustEffect")
+local LongGrassCutEffect = require("src.effects.LongGrassCutEffect")
 local playerStateHandler = require("src.playerStateHandler")
 
 local funcs = require("src.utils.funcs");
@@ -189,11 +190,20 @@ Player = Class {
         -- local range = math.random()/4
 
         local hitEnemies = self._world:queryPolygonArea(self.polygon, { 'EnemyHurt' })
+        local hitGrass = self._world:queryPolygonArea(self.polygon, { 'LongGrass' })
 
         for _, enemyCollider in ipairs(hitEnemies) do
             local enemy = self._handlers.enemies:getEnemyByCollider(enemyCollider)
             local knockbackDir = self:_getPositionToSelfVector(enemyCollider:getX(), enemyCollider:getY())
             if enemy then enemy:hit(1, knockbackDir, shake) end
+        end
+
+        for _, grassCollider in ipairs(hitGrass) do
+            local grass = self._handlers.longGrass:getByCollider(grassCollider)
+            grass:cut()
+            self._handlers.effects:addEffect(
+                LongGrassCutEffect(grass.positionX + grass.width / 2, grass.positionY + grass.height / 2)
+            )
         end
     end,
 

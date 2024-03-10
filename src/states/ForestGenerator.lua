@@ -5,16 +5,16 @@ local Gamestate = require("lib.hump.gamestate")
 
 local UI = require("src.UI")
 local ForestMapGenerator = require("src.states.ForestMapGenerator")
-local GrassGenerator = require("src.states.GrassGenerator")
+local LongGrassHandler = require("src.handlers.LongGrassHandler")
 local EffectsHandler = require("src.handlers.EffectsHandler")
 local EnemiesHandler = require("src.handlers.EnemiesHandler")
 local ObjectsHandler = require("src.handlers.ObjectsHandler")
+local GrassGenerator = require("src.states.GrassGenerator")
 local DropsHandler = require("src.handlers.DropsHandler")
 local Tree = require("src.objects.Tree")
 local Bush = require("src.objects.Bush")
 local Rock = require("src.objects.Rock")
 local LongGrass = require("src.objects.LongGrass")
-local LongGrassSmall = require("src.objects.LongGrassSmall")
 local Enemy = require("src.Enemy")
 local GrassEffect = require("src.effects.GrassEffect")
 
@@ -63,7 +63,6 @@ local ForestGenerator = Class {
             self.trees = {}
             self.bushes = {}
             self.colliderTrees = {}
-            self.longGrass = {}
             self.longGrassOnTop = {}
             self.onScreenLongGrass = {}
 
@@ -91,16 +90,13 @@ local ForestGenerator = Class {
         self.handlers.enemies:updateEnemiesOnScreen(dt, self.camera)
         self.handlers.objects:updateObjectsOnScreen(dt, self.camera)
         self.handlers.effects:updateEffectsOnScreen(dt, self.camera)
+        self.handlers.longGrass:updateOnScreen(dt, self.camera)
         self.handlers.drops:updateDrops(dt)
 
-        for i, grass in pairs(self.longGrass) do
-            grass:update(dt, self.camera)
-        end
-
-        self.longGrassOnTop = funcs.filter(self.longGrass, function(v, k, t)
+        self.longGrassOnTop = funcs.filter(self.handlers.longGrass.objects, function(v, k, t)
             return v.position == 'top'
         end)
-        self.onScreenLongGrass = funcs.filter(self.longGrass, function(v, k, t)
+        self.onScreenLongGrass = funcs.filter(self.handlers.longGrass.objects, function(v, k, t)
             return self.camera:isOnScreen(v.positionX, v.positionY)
         end)
     end,
@@ -253,7 +249,8 @@ local ForestGenerator = Class {
         self.world:addCollisionClass('EnemyHurt', { ignores = { 'Ignore', "Drops" } });
         self.world:addCollisionClass('Player', { ignores = { 'Ignore', "EnemyHurt" } });
         self.world:addCollisionClass('EnemyHit', { ignores = { 'Ignore', "EnemyHurt", "Drops" } });
-        self.world:addCollisionClass('LongGrass', { ignores = { 'Ignore', "EnemyHurt", "EnemyHit", "Player", "Dead", "LongGrass" } });
+        self.world:addCollisionClass('LongGrass',
+            { ignores = { 'Ignore', "EnemyHurt", "EnemyHit", "Player", "Dead", "LongGrass" } });
         self.world:addCollisionClass('LevelTransition',
             { ignores = { 'Ignore', "EnemyHurt", "Drops", "Objects", "Wall", "EnemyHit", "Dead" } });
     end,
@@ -263,7 +260,8 @@ local ForestGenerator = Class {
             effects = EffectsHandler(),
             drops = DropsHandler(),
             enemies = EnemiesHandler(),
-            objects = ObjectsHandler()
+            objects = ObjectsHandler(),
+            longGrass = LongGrassHandler()
         }
     end,
 
@@ -284,13 +282,13 @@ local ForestGenerator = Class {
                     self:_processEnemyCell(x, y)
                 end
                 if grassCell > self.grassMap.threshold and cell ~= "#" and cell ~= 'r' then
-                    local status, err = pcall(self._processLongGrassCell, self, x, y)
+                    local status, err = pcall(self._processLongGrassCell, self, x, y, false)
                     if not status then
                         print(debug.traceback())
                         print(err)
                     end
                 elseif grassCell < self.grassMap.threshold and grassCell > self.grassMap.thresholdSmall and cell ~= "#" and cell ~= 'r' then
-                    local status, err = pcall(self._processLongGrassSmallCell, self, x, y)
+                    local status, err = pcall(self._processLongGrassCell, self, x, y, true)
                     if not status then
                         print(debug.traceback())
                         print(err)
@@ -383,24 +381,14 @@ local ForestGenerator = Class {
         )
     end,
 
-    _processLongGrassCell = function(self, x, y)
+    _processLongGrassCell = function(self, x, y, isSmall)
         local grass = LongGrass(
             (x - 1) * (self.collisionTileWidth),
             (y - 1) * (self.collisionTileHeight),
-            27, 25, 27, 10, self.world
+            27, 25, 27, 10, isSmall, self.world
         )
 
-        table.insert(self.longGrass, grass)
-    end,
-
-    _processLongGrassSmallCell = function(self, x, y)
-        local grass = LongGrassSmall(
-            (x - 1) * (self.collisionTileWidth),
-            (y - 1) * (self.collisionTileHeight),
-            27, 25, 27, 10, self.world
-        )
-
-        table.insert(self.longGrass, grass)
+        self.handlers.longGrass:add(grass)
     end
 }
 
