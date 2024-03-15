@@ -13,7 +13,8 @@ local anim8 = require("lib.anim8.anim8")
 local sone = require("lib.sone.sone")
 
 LongGrass = Class {
-    init = function(self, positionX, positionY, width, height, collisionWidth, collisionHeight, isSmall, world)
+    init = function(self, positionX, positionY, offsetX, offsetY, width, height, collisionWidth, collisionHeight, isSmall,
+                    world)
         self._world = world
 
         self.type = "longgrass"
@@ -28,6 +29,9 @@ LongGrass = Class {
 
         self.positionX = positionX
         self.positionY = positionY
+
+        self.positionXDisplay = positionX + offsetX
+        self.positionYDisplay = positionY + offsetY
 
         self.position = "bottom"
 
@@ -101,13 +105,15 @@ LongGrass = Class {
     drawTop = function(self)
         if self.isCut then return end
         love.graphics.setColor(1, 1, 1, 1)
-        self.currentAnimationTop:draw(self.animationSheetTop, self.positionX, self.positionY, nil, 1, 1, 0, 0)
+        self.currentAnimationTop:draw(self.animationSheetTop, self.positionXDisplay, self.positionYDisplay, nil, 1, 1, 0,
+            0)
     end,
 
     drawBottom = function(self)
         if self.isCut then return end
         love.graphics.setColor(1, 1, 1, 1)
-        self.currentAnimationBottom:draw(self.animationSheetBottom, self.positionX, self.positionY + 20, nil, 1, 1, 0, 0)
+        self.currentAnimationBottom:draw(self.animationSheetBottom, self.positionXDisplay, self.positionYDisplay + 20,
+            nil, 1, 1, 0, 0)
     end,
 
     cut = function(self)

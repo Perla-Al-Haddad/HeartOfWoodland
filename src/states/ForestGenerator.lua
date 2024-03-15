@@ -27,6 +27,8 @@ MARGIN_X_MIN, MARGIN_X_MAX = -5, 5
 MARGIN_Y_MIN, MARGIN_Y_MAX = -5, 5
 BUSH_MARGIN_X_MIN, BUSH_MARGIN_X_MAX = -1, 1
 BUSH_MARGIN_Y_MIN, BUSH_MARGIN_Y_MAX = -1, 1
+LONG_GRASS_MARGIN_X_MIN, LONG_GRASS_MARGIN_X_MAX = -5, 5
+LONG_GRASS_MARGIN_Y_MIN, LONG_GRASS_MARGIN_Y_MAX = -5, 5
 
 local ForestGenerator = Class {
     init = function(self, width, height)
@@ -385,6 +387,8 @@ local ForestGenerator = Class {
         local grass = LongGrass(
             (x - 1) * (self.collisionTileWidth),
             (y - 1) * (self.collisionTileHeight),
+            math.random(LONG_GRASS_MARGIN_X_MIN, LONG_GRASS_MARGIN_X_MAX),
+            math.random(LONG_GRASS_MARGIN_Y_MIN, LONG_GRASS_MARGIN_Y_MAX),
             27, 25, 27, 10, isSmall, self.world
         )
 
