@@ -273,7 +273,7 @@ function Map:setLayer(layer, path)
 	if layer.type == "tilelayer" then
 		self:setTileData(layer)
 		self:setSpriteBatches(layer)
-		layer.draw = function() self:drawTileLayer(layer) end
+		layer.draw = function(_, level) self:drawTileLayer(layer, level) end
 	elseif layer.type == "objectgroup" then
 		self:setObjectData(layer)
 		self:setObjectCoordinates(layer)
@@ -467,9 +467,17 @@ function Map:addNewLayerTile(layer, chunk, tile, x, y)
 		size    = layer.width * layer.height
 	end
 
-	batches[tileset] = batches[tileset] or lg.newSpriteBatch(image, size)
+	local batch
 
-	local batch = batches[tileset]
+	if tile.properties.level then
+		batches[tileset] = batches[tileset] or {}
+		batches[tileset][tile.properties.level] = batches[tileset][tile.properties.level] or lg.newSpriteBatch(image, size)
+		batch = batches[tileset][tile.properties.level]
+	else
+		batches[tileset] = batches[tileset] or lg.newSpriteBatch(image, size)
+		batch = batches[tileset]
+	end
+
 	local tileX, tileY = self:getLayerTilePosition(layer, tile, x, y)
 
 	local instance = {
@@ -481,6 +489,10 @@ function Map:addNewLayerTile(layer, chunk, tile, x, y)
 		r     = tile.r,
 		oy    = 0
 	}
+
+	if not batch.add then
+		return
+	end
 
 	-- NOTE: STI can run headless so it is not guaranteed that a batch exists.
 	if batch then
@@ -849,16 +861,20 @@ end
 
 --- Draw an individual Layer
 -- @param layer The Layer to draw
-function Map.drawLayer(_, layer)
+function Map.drawLayer(self, layer, level)
+	if type(layer) == "string" then
+		layer = self.layers[layer]
+	end
+
 	local r,g,b,a = lg.getColor()
 	lg.setColor(r, g, b, a * layer.opacity)
-	layer:draw()
+	layer:draw(tostring(level))
 	lg.setColor(r,g,b,a)
 end
 
 --- Default draw function for Tile Layers
 -- @param layer The Tile Layer to draw
-function Map:drawTileLayer(layer)
+function Map:drawTileLayer(layer, level)
 	if type(layer) == "string" or type(layer) == "number" then
 		layer = self.layers[layer]
 	end
@@ -873,6 +889,11 @@ function Map:drawTileLayer(layer)
 			end
 		end
 
+		return
+	end
+
+	if level and layer.batches[1][level] then
+		lg.draw(layer.batches[1][level], floor(layer.x), floor(layer.y))
 		return
 	end
 

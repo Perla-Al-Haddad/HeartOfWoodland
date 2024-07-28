@@ -23,6 +23,8 @@ Camera = Class {
         end
         local camX, camY = player.hurtCollider:getPosition()
 
+        camY = camY - 5
+
         -- This section prevents the camera from viewing outside the background
         -- First, get width/height of the game window, divided by the game scale
         local w = conf.gameWidth / self.scale
@@ -67,5 +69,6 @@ Camera = Class {
             self.camera.y + conf.gameHeight / 2 + self.levelTileHeight * 2 + 10)
     end
 }
+
 
 return Camera

@@ -78,4 +78,19 @@ function funcs.shallow_copy(t)
     return t2
 end
 
+function funcs.setContains(set, key)
+    return set[key] ~= nil
+end
+
+function funcs.hasValue(tab, val)
+    for index, value in ipairs(tab) do
+        if value == val then
+            return true
+        end
+    end
+
+    return false
+end
+
+
 return funcs;

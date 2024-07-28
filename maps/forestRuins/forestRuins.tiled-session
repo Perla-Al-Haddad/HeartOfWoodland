@@ -1,0 +1,89 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "forestRuins.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "": {
+            "scaleInDock": 1,
+            "scaleInEditor": 2
+        },
+        "#tileset": {
+            "scaleInDock": 2
+        },
+        "../forestRuinsOld/forestRuins.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 216.5,
+                "y": 144.5
+            }
+        },
+        "../forestRuinsOld/forestRuins.tmx#bush": {
+            "scaleInDock": 1
+        },
+        "../forestRuinsOld/forestRuins.tmx#decor_16x16": {
+            "scaleInDock": 1
+        },
+        "../forestRuinsOld/forestRuins.tmx#grass": {
+            "scaleInDock": 1
+        },
+        "../forestRuinsOld/forestRuins.tmx#objects": {
+            "scaleInDock": 1
+        },
+        "../forestRuinsOld/forestRuins.tmx#ruins_bottom": {
+            "scaleInDock": 1
+        },
+        "../forestRuinsOld/forestRuins.tmx#ruins_top": {
+            "scaleInDock": 1
+        },
+        "../forestRuinsOld/forestRuins.tmx#trees_bottom": {
+            "scaleInDock": 1
+        },
+        "../forestRuinsOld/forestRuins.tmx#trees_top": {
+            "scaleInDock": 1
+        },
+        "forestRuins.tmx": {
+            "scale": 2,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 224,
+                "y": 258.5
+            }
+        },
+        "forestRuins.tmx#base": {
+            "scaleInDock": 1
+        },
+        "forestRuins.tmx#ruins": {
+            "scaleInDock": 1
+        }
+    },
+    "last.exportedFilePath": "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/maps/forestRuins",
+    "last.imagePath": "C:/Users/PIA/Documents/GitHub/HeartOfWoodland/assets/sprites/tilesets",
+    "lastUsedTilesetExportFilter": "Lua files (*.lua)",
+    "map.height": 50,
+    "map.lastUsedExportFilter": "Lua files (*.lua)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 30,
+    "openFiles": [
+        "forestRuins.tmx"
+    ],
+    "project": "forestRuins.tiled-project",
+    "property.type": "int",
+    "recentFiles": [
+        "forestRuins.tmx",
+        "../forestRuinsOld/forestRuins.tmx"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
