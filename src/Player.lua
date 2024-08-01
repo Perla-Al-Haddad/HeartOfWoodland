@@ -6,6 +6,8 @@ local EffectsHandler = require("src.effects.EffectsHandler")
 local DigEffect = require("src.effects.DigEffect")
 local HoeSwingEffect = require("src.effects.HoeSwingEffect")
 
+local conf = require("src.utils.conf")
+
 local Player = Class {
     init = function(self, world, positionX, positionY, hurtCollisionClass, animationSheet, dirtTilesHandler,
                     farmGroundTiles)
@@ -57,6 +59,8 @@ local Player = Class {
         self:__handleHoeSwing(dt)
         self:__updateTillingOverlayPosition()
 
+        self:useItem()
+
         self.effectsHandler:updateEffects(dt)
     end,
 
@@ -66,14 +70,14 @@ local Player = Class {
         self:__drawTillingOverlay()
 
         local px, py = self:_getSpriteTopPosition()
-        self.currentAnimation:draw(self.animationSheet, px, py, nil,
-            self.hurtCollider.dirX, 1, 0, 0)
+        self.currentAnimation:draw(self.animationSheet, px, py, nil, self.hurtCollider.dirX, 1, 0, 0)
 
         self.effectsHandler:drawEffects(1)
     end,
 
-    useItem = function(self, item, camera)
-        if item == "hoe" then self:__swingHoe(camera) end
+    useItem = function(self)
+        local item = table.remove(self.buffer, 1)
+        if item == "hoe" then self:__swingHoe() end
     end,
 
     _setDirFromVector = function(self, vec)
@@ -107,13 +111,27 @@ local Player = Class {
     end,
 
     _addToBuffer = function(self, action)
-        table.insert(self.buffer, { action, 0.25 })
+        table.insert(self.buffer, action)
     end,
 
+    _getAnimationsAbs = function(self)
+        local animations = {}
+        animations.idle = anim8.newAnimation(self.grid('1-6', 1), 0.15)
+        animations.walk = anim8.newAnimation(self.grid('8-12', 1), 0.15)
+        animations.swing = anim8.newAnimation(self.grid('1-1', 1), 0.15)
+        animations.swingHoe = anim8.newAnimation(self.grid('1-17', 3), 0.05)
+        animations.stunned = anim8.newAnimation(self.grid('6-6', 1), 0.15)
+
+        return animations
+    end,
+
+    _getCurrentAnimationAbs = function(self) return self.animations.idle end,
+
     __swingHoe = function(self)
-        local canSwing = (self.state == "swing" or self.state == "swinging")
-        if canSwing then
+        local swinging = (self.state == "swing" or self.state == "swinging")
+        if swinging then
             self:_addToBuffer("hoe")
+            return
         end
 
         self.currentAnimation = self.animations.swingHoe
@@ -140,7 +158,7 @@ local Player = Class {
         local px, py = self.hurtCollider:getPosition()
         self.effectsHandler:addEffect(HoeSwingEffect(px, py, self.currentAnimation.flippedH))
 
-        self.animationTimer = 0.6
+        self.animationTimer = conf.PLAYER.HOE_SWING_ANIMATION_TIMER
     end,
 
     __handleHoeSwing = function(self, dt)
@@ -164,8 +182,8 @@ local Player = Class {
             local dir = self.attackDir:normalized()
 
             self.hoeHitPoint = {
-                x = px + dir.x * 16,
-                y = py + dir.y * 16
+                x = px + dir.x * conf.TILE_SIZE,
+                y = py + dir.y * conf.TILE_SIZE
             }
 
             for _, farmGroundTile in pairs(self.farmGroundTiles) do
@@ -181,7 +199,7 @@ local Player = Class {
                 end
             end
 
-            self.animationTimer = 0.2
+            self.animationTimer = conf.PLAYER.HOE_SWING_HIT_DELAY
         elseif self.state == "swinging" then
             self.animations.swingHoe:gotoFrame(1)
             self.hoeHitPoint = nil
@@ -194,7 +212,7 @@ local Player = Class {
             return
         end
         love.graphics.setColor(1, 0, 0, 0.5)
-        love.graphics.rectangle("line", self.tillingOverlay.x, self.tillingOverlay.y, 16, 16)
+        love.graphics.rectangle("line", self.tillingOverlay.x, self.tillingOverlay.y, conf.TILE_SIZE, conf.TILE_SIZE)
         love.graphics.setColor(1, 1, 1, 1)
     end,
 
@@ -212,8 +230,8 @@ local Player = Class {
         local px, py = self.hurtCollider:getPosition()
         for _, farmGroundTile in pairs(self.farmGroundTiles) do
             if self:__isPointInRectangle(
-                    px + dir.x * 16,
-                    py + dir.y * 16,
+                    px + dir.x * conf.TILE_SIZE,
+                    py + dir.y * conf.TILE_SIZE,
                     farmGroundTile.positionX, farmGroundTile.positionY,
                     farmGroundTile.width, farmGroundTile.height) and not farmGroundTile.tiled then
                 self.tillingOverlay = { x = farmGroundTile.positionX, y = farmGroundTile.positionY }
@@ -270,18 +288,6 @@ local Player = Class {
         end
     end,
 
-    _getAnimationsAbs = function(self)
-        local animations = {}
-        animations.idle = anim8.newAnimation(self.grid('1-6', 1), 0.15)
-        animations.walk = anim8.newAnimation(self.grid('8-12', 1), 0.15)
-        animations.swing = anim8.newAnimation(self.grid('1-1', 1), 0.15)
-        animations.swingHoe = anim8.newAnimation(self.grid('1-17', 3), 0.05)
-        animations.stunned = anim8.newAnimation(self.grid('6-6', 1), 0.15)
-
-        return animations
-    end,
-
-    _getCurrentAnimationAbs = function(self) return self.animations.idle end,
 }
 
 

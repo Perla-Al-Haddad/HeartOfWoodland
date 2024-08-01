@@ -93,7 +93,7 @@ local Level = Class {
         end
 
         if key == 'h' or key == 'H' then
-            self.player:useItem('hoe')
+            self.player:_addToBuffer('hoe')
         end
     end,
 

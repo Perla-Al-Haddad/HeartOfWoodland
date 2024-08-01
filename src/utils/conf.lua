@@ -26,5 +26,10 @@ else
     conf.gameWidth, conf.gameHeight = (444) * conf.CAMERA.SCALE, (256 + 14) * conf.CAMERA.SCALE
 end
 
+conf.TILE_SIZE = 16
+
+conf.PLAYER = {}
+conf.PLAYER.HOE_SWING_ANIMATION_TIMER = 0.6
+conf.PLAYER.HOE_SWING_HIT_DELAY = 0.2
 
 return conf
