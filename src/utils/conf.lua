@@ -29,6 +29,15 @@ end
 conf.TILE_SIZE = 16
 
 conf.PLAYER = {}
+conf.PLAYER.STATES = {
+    DEFAULT = "default",
+    SWING = "swing",
+    SWINGING = "swinging",
+}
+conf.PLAYER.ORIENTATION = {
+    HORIZONTAL = "horizontal",
+    VERTICAL = "vertical"
+}
 conf.PLAYER.HOE_SWING_ANIMATION_TIMER = 0.6
 conf.PLAYER.HOE_SWING_HIT_DELAY = 0.2
 

@@ -1,11 +1,13 @@
 local Vector = require("lib.hump.vector")
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
+local funcs = require("src.utils.funcs")
 
 local EffectsHandler = require("src.effects.EffectsHandler")
 local DigEffect = require("src.effects.DigEffect")
 local HoeSwingEffect = require("src.effects.HoeSwingEffect")
 
+local funcs = require("src.utils.funcs")
 local conf = require("src.utils.conf")
 
 local Player = Class {
@@ -19,8 +21,8 @@ local Player = Class {
 
         self.speed = 120
 
-        self.state = "default"
-        self.lastPressed = "horizontal"
+        self.state = conf.PLAYER.STATES.DEFAULT
+        self.lastOrientation = conf.PLAYER.ORIENTATION.HORIZONTAL
 
         self.hurtBoxWidth = 10
         self.hurtBoxHeight = 10
@@ -127,17 +129,9 @@ local Player = Class {
 
     _getCurrentAnimationAbs = function(self) return self.animations.idle end,
 
-    __swingHoe = function(self)
-        local swinging = (self.state == "swing" or self.state == "swinging")
-        if swinging then
-            self:_addToBuffer("hoe")
-            return
-        end
-
-        self.currentAnimation = self.animations.swingHoe
-
+    __setAttackDir = function(self)
         if self.pressedDirX == 0 and self.pressedDirY == 0 then
-            if self.lastPressed == "horizontal" then
+            if self.lastOrientation == conf.PLAYER.ORIENTATION.HORIZONTAL then
                 self.attackDir = Vector(self.dirX, 0)
             else
                 self.attackDir = Vector(0, self.dirY)
@@ -145,10 +139,21 @@ local Player = Class {
         else
             self.attackDir = Vector(self.pressedDirX, self.pressedDirY)
         end
+    end,
 
+    __swingHoe = function(self)
+        local swinging = funcs.hasValue({ conf.PLAYER.STATES.SWING, conf.PLAYER.STATES.SWINGING }, self.state)
+        if swinging then
+            self:_addToBuffer("hoe")
+            return
+        end
+
+        self.currentAnimation = self.animations.swingHoe
+
+        self:__setAttackDir()
         self:_setDirFromVector(self.attackDir)
 
-        self.state = "swing"
+        self.state = conf.PLAYER.STATES.SWING
         if self.dirX == -1 and not self.currentAnimation.flippedH then
             self.currentAnimation:flipH()
         elseif self.dirX == 1 and self.currentAnimation.flippedH then
@@ -162,33 +167,26 @@ local Player = Class {
     end,
 
     __handleHoeSwing = function(self, dt)
-        local isNotSwinging = not (self.state == 'swing' or self.state == 'swinging')
+        local isNotSwinging = not funcs.hasValue({ conf.PLAYER.STATES.SWING, conf.PLAYER.STATES.SWINGING }, self.state)
         if isNotSwinging then return end
 
         self.animationTimer = self.animationTimer - dt
 
         local px, py = self.hurtCollider:getPosition()
 
-        if self.state == "swing" then
+        if self.state == conf.PLAYER.STATES.SWING then
             self.hurtCollider:setLinearVelocity(0, 0)
         end
 
         local stillSwinging = self.animationTimer >= 0
         if stillSwinging then return end
 
-        if self.state == "swing" then
-            self.state = "swinging"
-
-            local dir = self.attackDir:normalized()
-
-            self.hoeHitPoint = {
-                x = px + dir.x * conf.TILE_SIZE,
-                y = py + dir.y * conf.TILE_SIZE
-            }
-
+        if self.state == conf.PLAYER.STATES.SWING then
+            self.state = conf.PLAYER.STATES.SWINGING
             for _, farmGroundTile in pairs(self.farmGroundTiles) do
-                if self:__isPointInRectangle(
-                        self.hoeHitPoint.x, self.hoeHitPoint.y,
+                if funcs.isPointInRectangle(
+                        px + dir.x * conf.TILE_SIZE,
+                        py + dir.y * conf.TILE_SIZE,
                         farmGroundTile.positionX, farmGroundTile.positionY,
                         farmGroundTile.width, farmGroundTile.height) and not farmGroundTile.tiled then
                     self.effectsHandler:addEffect(DigEffect(farmGroundTile.positionX + farmGroundTile.width / 2,
@@ -200,10 +198,10 @@ local Player = Class {
             end
 
             self.animationTimer = conf.PLAYER.HOE_SWING_HIT_DELAY
-        elseif self.state == "swinging" then
+        elseif self.state == conf.PLAYER.STATES.SWINGING then
             self.animations.swingHoe:gotoFrame(1)
             self.hoeHitPoint = nil
-            self.state = "default"
+            self.state = conf.PLAYER.STATES.DEFAULT
         end
     end,
 
@@ -217,19 +215,13 @@ local Player = Class {
     end,
 
     __updateTillingOverlayPosition = function(self)
-        if self.pressedDirX == 0 and self.pressedDirY == 0 then
-            if self.lastPressed == "horizontal" then
-                self.attackDir = Vector(self.dirX, 0)
-            else
-                self.attackDir = Vector(0, self.dirY)
-            end
-        else
-            self.attackDir = Vector(self.pressedDirX, self.pressedDirY)
-        end
+        self:__setAttackDir()
+
         local dir = self.attackDir:normalized()
         local px, py = self.hurtCollider:getPosition()
+
         for _, farmGroundTile in pairs(self.farmGroundTiles) do
-            if self:__isPointInRectangle(
+            if funcs.isPointInRectangle(
                     px + dir.x * conf.TILE_SIZE,
                     py + dir.y * conf.TILE_SIZE,
                     farmGroundTile.positionX, farmGroundTile.positionY,
@@ -241,12 +233,8 @@ local Player = Class {
         end
     end,
 
-    __isPointInRectangle = function(self, px, py, rx, ry, rw, rh)
-        return px >= rx and px <= rx + rw and py >= ry and py <= ry + rh
-    end,
-
     __handlePlayerMovement = function(self, dt)
-        if self.state ~= 'default' then return end
+        if self.state ~= conf.PLAYER.STATES.DEFAULT then return end
         self.hurtCollider:setLinearDamping(0)
 
         self.pressedDirX, self.pressedDirY = 0, 0
@@ -254,22 +242,22 @@ local Player = Class {
         if love.keyboard.isDown("d") or love.keyboard.isDown("right") then
             self.dirX = 1
             self.pressedDirX = 1
-            self.lastPressed = "horizontal"
+            self.lastOrientation = conf.PLAYER.ORIENTATION.HORIZONTAL
         end
         if love.keyboard.isDown("a") or love.keyboard.isDown("left") then
             self.dirX = -1
             self.pressedDirX = -1
-            self.lastPressed = "horizontal"
+            self.lastOrientation = conf.PLAYER.ORIENTATION.HORIZONTAL
         end
         if love.keyboard.isDown("s") or love.keyboard.isDown("down") then
             self.dirY = 1
             self.pressedDirY = 1
-            self.lastPressed = "vertical"
+            self.lastOrientation = conf.PLAYER.ORIENTATION.VERTICAL
         end
         if love.keyboard.isDown("w") or love.keyboard.isDown("up") then
             self.dirY = -1
             self.pressedDirY = -1
-            self.lastPressed = "vertical"
+            self.lastOrientation = conf.PLAYER.ORIENTATION.VERTICAL
         end
 
         local vec = Vector(self.pressedDirX, self.pressedDirY):normalized() * self.speed
