@@ -36,8 +36,6 @@ local Player = Class {
         self.width = 32
         self.height = 32
 
-        self.rotateMargin = 0.25
-
         self.buffer = {}
 
         self.animationSheet = love.graphics.newImage(animationSheet)
@@ -84,11 +82,10 @@ local Player = Class {
 
     _setDirFromVector = function(self, vec)
         local rad = math.atan2(vec.y, vec.x)
-        if rad >= self.rotateMargin * -1 and rad < math.pi / 2 then
+        if rad < math.pi / 2 then
             self.dirX = 1
             self.dirY = 1
-        elseif (rad >= math.pi / 2 and rad < math.pi) or
-            (rad < (math.pi - self.rotateMargin) * -1) then
+        elseif rad >= math.pi / 2 and rad < math.pi then
             self.dirX = -1
             self.dirY = 1
         elseif rad < 0 and rad > math.pi / -2 then
@@ -172,8 +169,6 @@ local Player = Class {
 
         self.animationTimer = self.animationTimer - dt
 
-        local px, py = self.hurtCollider:getPosition()
-
         if self.state == conf.PLAYER.STATES.SWING then
             self.hurtCollider:setLinearVelocity(0, 0)
         end
@@ -183,6 +178,8 @@ local Player = Class {
 
         if self.state == conf.PLAYER.STATES.SWING then
             self.state = conf.PLAYER.STATES.SWINGING
+            local px, py = self.hurtCollider:getPosition()
+            local dir = self.attackDir:normalized()
             for _, farmGroundTile in pairs(self.farmGroundTiles) do
                 if funcs.isPointInRectangle(
                         px + dir.x * conf.TILE_SIZE,
