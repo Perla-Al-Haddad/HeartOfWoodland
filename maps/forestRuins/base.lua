@@ -517,6 +517,38 @@ return {
       }
     },
     {
+      id = 106,
+      objectGroup = {
+        type = "objectgroup",
+        draworder = "index",
+        id = 2,
+        name = "",
+        class = "",
+        visible = true,
+        opacity = 1,
+        offsetx = 0,
+        offsety = 0,
+        parallaxx = 1,
+        parallaxy = 1,
+        properties = {},
+        objects = {
+          {
+            id = 1,
+            name = "",
+            type = "",
+            shape = "rectangle",
+            x = 0,
+            y = 0,
+            width = 16,
+            height = 16,
+            rotation = 0,
+            visible = true,
+            properties = {}
+          }
+        }
+      }
+    },
+    {
       id = 164,
       objectGroup = {
         type = "objectgroup",

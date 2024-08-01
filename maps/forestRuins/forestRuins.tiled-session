@@ -11,7 +11,7 @@
     "fileStates": {
         "": {
             "scaleInDock": 1,
-            "scaleInEditor": 2
+            "scaleInEditor": 1
         },
         "#tileset": {
             "scaleInDock": 2
@@ -49,17 +49,41 @@
             "scaleInDock": 1
         },
         "forestRuins.tmx": {
-            "scale": 2,
+            "scale": 4,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 224,
-                "y": 258.5
+                "x": 247.375,
+                "y": 414.375
             }
         },
         "forestRuins.tmx#base": {
+            "scaleInDock": 4
+        },
+        "forestRuins.tmx#bush": {
+            "scaleInDock": 1
+        },
+        "forestRuins.tmx#decor_16x16": {
+            "scaleInDock": 1
+        },
+        "forestRuins.tmx#grass": {
+            "scaleInDock": 1
+        },
+        "forestRuins.tmx#objects": {
             "scaleInDock": 1
         },
         "forestRuins.tmx#ruins": {
+            "scaleInDock": 1
+        },
+        "forestRuins.tmx#ruins_bottom": {
+            "scaleInDock": 1
+        },
+        "forestRuins.tmx#ruins_top": {
+            "scaleInDock": 1
+        },
+        "forestRuins.tmx#trees_bottom": {
+            "scaleInDock": 1
+        },
+        "forestRuins.tmx#trees_top": {
             "scaleInDock": 1
         }
     },
