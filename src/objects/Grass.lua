@@ -13,7 +13,7 @@ local Grass = Class {
         self.type = "grass"
 
         self.animations.default = anim8.newAnimation(self.grid('4-4', 1), 1)
-        self.animations.cut = anim8.newAnimation(self.grid('4-8', 1), 1)
+        self.animations.cut = anim8.newAnimation(self.grid('4-8', 1), 0.05, function(animation) animation:pauseAtEnd(1) end)
 
         self.currentAnimation = self.animations.default;
     end,
@@ -21,6 +21,12 @@ local Grass = Class {
     update = function(self, dt)
         self.currentAnimation:update(dt)
     end,
+
+    destroy = function(self)
+        self.currentAnimation = self.animations.cut
+        self.collider:destroy()
+        self.collider = nil
+    end
 }
 
 

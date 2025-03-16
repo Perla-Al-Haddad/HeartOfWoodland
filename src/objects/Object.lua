@@ -11,7 +11,9 @@ local conf = require("src.utils.conf")
 
 
 local Object = Class {
-    init = function(self, positionX, positionY, world)
+    init = function(self, positionX, positionY, world, collisionClass)
+        self.collisionClass = collisionClass or conf.OBJECTS.COLLISION_CLASS
+
         self._world = world
 
         self.width = 16
@@ -23,8 +25,10 @@ local Object = Class {
         self.collider = self._world:newBSGRectangleCollider(positionX, positionY,
             self.width,
             self.height, 0,
-            { collision_class = conf.OBJECTS.COLLISION_CLASS })
+            { collision_class = self.collisionClass })
         self.collider:setType("static")
+
+        self.dirX = self.collider.dirX
 
         self.animationSheet = SPRITES.default
         self.grid = anim8.newGrid(self.width, self.height,
@@ -33,20 +37,13 @@ local Object = Class {
 
         self.animations = {}
     end,
-    
+
+    update = function (_, _) end,
+
     draw = function(self)
         love.graphics.setColor(1, 1, 1, 1)
 
-        local px, py = self:_getCenterPosition()
-        self.currentAnimation:draw(self.animationSheet, px, py, nil, self.collider.dirX, 1, 0, 0)
-    end,
-
-    _getCenterPosition = function(self)
-        local px, py = self.collider:getPosition()
-        px = px - self.width / 2
-        py = py - self.height / 2
-
-        return px, py
+        self.currentAnimation:draw(self.animationSheet, self.positionX, self.positionY, nil, self.dirX, 1, 0, 0)
     end,
 }
 

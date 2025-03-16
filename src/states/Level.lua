@@ -7,11 +7,13 @@ local sti = require("lib.sti.sti")
 local Camera = require("src.Camera")
 local Wall = require("src.Wall")
 local Player = require("src.Player")
+local UI = require("src.UI")
 
 local Sign = require("src.objects.Sign")
 local Box = require("src.objects.Box")
 local Grass = require("src.objects.Grass")
 local Rock = require("src.objects.Rock")
+local ObjectHandler = require("src.objects.ObjectHandler")
 
 local FarmGroundTile = require("src.tiles.FarmGroundTile")
 local DirtTilesHandler = require("src.tiles.DirtTilesHandler")
@@ -19,8 +21,6 @@ local DirtTilesHandler = require("src.tiles.DirtTilesHandler")
 local Settings = require("src.states.menuStates.Settings")
 
 local conf = require("src.utils.conf")
-local fonts = require("src.utils.fonts")
-local funcs = require("src.utils.funcs")
 
 
 local Level = Class {
@@ -35,16 +35,17 @@ local Level = Class {
         self.farmGroundTiles = self:__createFarmGroundTiles()
         self.dirtTilesHandler = DirtTilesHandler()
 
+        self.grassHandler = ObjectHandler(self.world, Grass, "Grass", self.gameMap)
+        self.rockHandler = ObjectHandler(self.world, Rock, "Rocks", self.gameMap)
+        self.boxHandler = ObjectHandler(self.world, Box, "Boxes", self.gameMap)
+        self.signHandler = ObjectHandler(self.world, Sign, "Signs", self.gameMap)
+
         self.player = self:__spawnPlayer()
+        self.ui = UI(self.player)
         self.camera = Camera(conf.CAMERA.SCALE,
             self.player.hurtCollider:getX(), self.player.hurtCollider:getY(),
             self.gameMap.width, self.gameMap.height,
             self.gameMap.tilewidth, self.gameMap.tileheight)
-
-        self.grassObjects = self:__createGrassObjects()
-        self.rockObjects = self:__createRockObjects()
-        self.boxObjects = self:__createBoxObjects()
-        self.signObjects = self:__createSignObjects()
 
         self:__createWalls()
 
@@ -56,13 +57,7 @@ local Level = Class {
         self.player:update(dt)
         self.camera:update(self.player)
 
-        for _, grass in ipairs(self.grassObjects) do
-            grass:update(dt)
-        end
-    end,
-
-    keypressed = function(self, key)
-        -- TODO handle user presses here instead of in level
+        self.grassHandler:update(dt)
     end,
 
     drawInternal = function(self)
@@ -74,11 +69,13 @@ local Level = Class {
         self.camera.camera:detach()
         -- love.graphics.rectangle("fill", conf.gameWidth/2, conf.gameHeight/2, 1,1)
 
-        if conf.DEBUG.SHOW_FPS then
-            love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.setFont(fonts.smaller)
-            love.graphics.print(love.timer.getFPS(), 0, 0)
-        end
+        -- if conf.DEBUG.SHOW_FPS then
+        --     love.graphics.setColor(1, 1, 1, 1)
+        --     love.graphics.setFont(fonts.smaller)
+        --     love.graphics.print(love.timer.getFPS(), 0, 0)
+        -- end
+
+        self.ui:draw()
     end,
 
     draw = function(self)
@@ -92,9 +89,7 @@ local Level = Class {
             Gamestate.switch(Settings():initExternal(self, true))
         end
 
-        if key == 'h' or key == 'H' then
-            self.player:_addToBuffer('hoe')
-        end
+        self.player:keypressed(key)
     end,
 
     __createFarmGroundTiles = function(self)
@@ -132,49 +127,13 @@ local Level = Class {
         return self.gameMap
     end,
 
-    __createGrassObjects = function(self)
-        return self:__createObjects("Grass", Grass)
-    end,
-
-    __createSignObjects = function(self)
-        return self:__createObjects("Signs", Sign)
-    end,
-
-    __createBoxObjects = function(self)
-        return self:__createObjects("Boxes", Box)
-    end,
-
-    __createRockObjects = function(self)
-        local layer = self.gameMap.layers["Rocks"]
-        local rockObjects = {}
-        for i, row in ipairs(layer.data) do
-            for key, cell in pairs(row) do
-                local rock = Rock((key - 1) * 16, (i - 1) * 16, self.world, cell.id, cell.sx)
-                table.insert(rockObjects, rock)
-            end
-        end
-        return rockObjects
-    end,
-
-    __createObjects = function(self, layerName, objCls)
-        local layer = self.gameMap.layers[layerName]
-        local objects = {}
-        for i, row in ipairs(layer.data) do
-            for key, cell in pairs(row) do
-                local obj = objCls((key - 1) * 16, (i - 1) * 16, self.world)
-                table.insert(objects, obj)
-            end
-        end
-        return objects
-    end,
-
     __createWorld = function(_)
         local world = windfield.newWorld(0, 0, false);
 
         world:addCollisionClass('Ignore', { ignores = { 'Ignore' } });
         world:addCollisionClass('Dead', { ignores = { 'Ignore' } });
         world:addCollisionClass('Wall', { ignores = { 'Ignore' } });
-        world:addCollisionClass('Objects', { ignores = { 'Ignore' } });
+        world:addCollisionClass(conf.OBJECTS.COLLISION_CLASS, { ignores = { 'Ignore' } });
         world:addCollisionClass('Trees', { ignores = { 'Ignore' } });
         world:addCollisionClass('Drops', { ignores = { 'Ignore', "Dead" } });
         world:addCollisionClass('EnemyHurt', { ignores = { 'Ignore', "Drops" } });
@@ -214,7 +173,7 @@ local Level = Class {
         local playerLayer = self.gameMap.layers["Player"]
         for _, obj in pairs(playerLayer.objects) do
             return Player(self.world, obj.x, obj.y, "Player", "/assets/sprites/characters/player.png", self.dirtTilesHandler,
-                self.farmGroundTiles)
+                self.farmGroundTiles, self.grassHandler)
         end
     end,
 
@@ -226,10 +185,10 @@ local Level = Class {
         self.gameMap:drawLayer("Water")
         self.gameMap:drawLayer("Ruin", -1)
 
-        self:__drawObjects(self.grassObjects)
-        self:__drawObjects(self.rockObjects)
-        self:__drawObjects(self.boxObjects)
-        self:__drawObjects(self.signObjects)
+        self.grassHandler:draw()
+        self.rockHandler:draw()
+        self.boxHandler:draw()
+        self.signHandler:draw()
 
         self.dirtTilesHandler:draw()
 
@@ -237,12 +196,6 @@ local Level = Class {
         self.gameMap:drawLayer("Ruin", 1)
         self.gameMap:drawLayer("CeilingTrees")
     end,
-
-    __drawObjects = function(_, objects)
-        for _, obj in ipairs(objects) do
-            obj:draw()
-        end
-    end
 }
 
 return Level

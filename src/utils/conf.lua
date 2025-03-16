@@ -33,11 +33,20 @@ conf.PLAYER.STATES = {
     DEFAULT = "default",
     SWING = "swing",
     SWINGING = "swinging",
+    SLASH = "slash",
+    SLASHING = "slashing"
 }
 conf.PLAYER.ORIENTATION = {
     HORIZONTAL = "horizontal",
     VERTICAL = "vertical"
 }
+conf.PLAYER.ITEMS = {
+    HOE = "hoe",
+    BROKEN_SWORD = "broken sword",
+    BOW = "bow"
+}
+conf.PLAYER.ITEM_MAX = 3
+conf.PLAYER.SLASH_ANIMATION_TIMER = 0.4
 conf.PLAYER.HOE_SWING_ANIMATION_TIMER = 0.6
 conf.PLAYER.HOE_SWING_HIT_DELAY = 0.2
 

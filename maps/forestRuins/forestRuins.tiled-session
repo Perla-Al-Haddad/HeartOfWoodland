@@ -49,15 +49,15 @@
             "scaleInDock": 1
         },
         "forestRuins.tmx": {
-            "scale": 4,
-            "selectedLayer": 1,
+            "scale": 3,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 247.375,
-                "y": 414.375
+                "x": 177,
+                "y": 433.3333333333333
             }
         },
         "forestRuins.tmx#base": {
-            "scaleInDock": 4
+            "scaleInDock": 3
         },
         "forestRuins.tmx#bush": {
             "scaleInDock": 1

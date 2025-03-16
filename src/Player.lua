@@ -1,18 +1,18 @@
 local Vector = require("lib.hump.vector")
 local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
-local funcs = require("src.utils.funcs")
 
 local EffectsHandler = require("src.effects.EffectsHandler")
-local DigEffect = require("src.effects.DigEffect")
-local HoeSwingEffect = require("src.effects.HoeSwingEffect")
+local Hoe = require("src.items.Hoe")
+local BrokenSword = require("src.items.BrokenSword")
+local Bow = require("src.items.Bow")
 
 local funcs = require("src.utils.funcs")
 local conf = require("src.utils.conf")
 
 local Player = Class {
     init = function(self, world, positionX, positionY, hurtCollisionClass, animationSheet, dirtTilesHandler,
-                    farmGroundTiles)
+                    farmGroundTiles, grassHandler)
         self._world = world
 
         self.dirX = 1
@@ -20,6 +20,7 @@ local Player = Class {
         self.attackDir = Vector(self.dirX, self.dirY)
 
         self.speed = 120
+        self.health = 3
 
         self.state = conf.PLAYER.STATES.DEFAULT
         self.lastOrientation = conf.PLAYER.ORIENTATION.HORIZONTAL
@@ -51,15 +52,24 @@ local Player = Class {
 
         self.effectsHandler = EffectsHandler()
         self.tillingOverlay = nil
+
+        self.itemIndex = 2
+        self.items = {
+            Hoe(self),
+            BrokenSword(self, grassHandler),
+            Bow(self),
+        }
     end,
 
     update = function(self, dt)
         self.currentAnimation:update(dt)
         self:__handlePlayerMovement(dt)
-        self:__handleHoeSwing(dt)
         self:__updateTillingOverlayPosition()
 
-        self:useItem()
+        for _, item in ipairs(self.items) do
+            item:handleUse(dt)
+        end
+        self:__useItem()
 
         self.effectsHandler:updateEffects(dt)
     end,
@@ -68,16 +78,31 @@ local Player = Class {
         self.effectsHandler:drawEffects(-1)
 
         self:__drawTillingOverlay()
+        self:__drawShadow()
 
         local px, py = self:_getSpriteTopPosition()
         self.currentAnimation:draw(self.animationSheet, px, py, nil, self.hurtCollider.dirX, 1, 0, 0)
 
+        -- if self.items[self.itemIndex].polygon ~= nil then
+        --     love.graphics.setColor(0, 0, 1, 0.5)
+        --     love.graphics.polygon("fill", self.items[self.itemIndex].polygon)
+        --     love.graphics.setColor(1, 1, 1, 1)
+        -- end
+
         self.effectsHandler:drawEffects(1)
     end,
-
-    useItem = function(self)
-        local item = table.remove(self.buffer, 1)
-        if item == "hoe" then self:__swingHoe() end
+    
+    keypressed = function (self, key)
+        if #self.buffer > 0 then
+            return
+        end
+        if key == 'h' or key == 'H' then
+            self:_addToBuffer(self.items[self.itemIndex].name)
+        elseif key == "right" then
+            self.items[2], self.items[3] = self.items[3], self.items[2]
+        elseif key == "left" then
+            self.items[1], self.items[2] = self.items[2], self.items[1]
+        end
     end,
 
     _setDirFromVector = function(self, vec)
@@ -110,14 +135,16 @@ local Player = Class {
     end,
 
     _addToBuffer = function(self, action)
-        table.insert(self.buffer, action)
+        if #self.buffer < 2 then
+            table.insert(self.buffer, action)
+        end
     end,
 
     _getAnimationsAbs = function(self)
         local animations = {}
         animations.idle = anim8.newAnimation(self.grid('1-6', 1), 0.15)
         animations.walk = anim8.newAnimation(self.grid('8-12', 1), 0.15)
-        animations.swing = anim8.newAnimation(self.grid('1-1', 1), 0.15)
+        animations.slash = anim8.newAnimation(self.grid('1-11', 4), 0.05)
         animations.swingHoe = anim8.newAnimation(self.grid('1-17', 3), 0.05)
         animations.stunned = anim8.newAnimation(self.grid('6-6', 1), 0.15)
 
@@ -125,6 +152,15 @@ local Player = Class {
     end,
 
     _getCurrentAnimationAbs = function(self) return self.animations.idle end,
+
+    __useItem = function(self)
+        local itemName = table.remove(self.buffer, 1)
+        for _, item in ipairs(self.items) do
+            if item.name == itemName then
+                item:trigger()
+            end
+        end
+    end,
 
     __setAttackDir = function(self)
         if self.pressedDirX == 0 and self.pressedDirY == 0 then
@@ -138,72 +174,16 @@ local Player = Class {
         end
     end,
 
-    __swingHoe = function(self)
-        local swinging = funcs.hasValue({ conf.PLAYER.STATES.SWING, conf.PLAYER.STATES.SWINGING }, self.state)
-        if swinging then
-            self:_addToBuffer("hoe")
-            return
-        end
-
-        self.currentAnimation = self.animations.swingHoe
-
-        self:__setAttackDir()
-        self:_setDirFromVector(self.attackDir)
-
-        self.state = conf.PLAYER.STATES.SWING
-        if self.dirX == -1 and not self.currentAnimation.flippedH then
-            self.currentAnimation:flipH()
-        elseif self.dirX == 1 and self.currentAnimation.flippedH then
-            self.currentAnimation:flipH()
-        end
-
-        local px, py = self.hurtCollider:getPosition()
-        self.effectsHandler:addEffect(HoeSwingEffect(px, py, self.currentAnimation.flippedH))
-
-        self.animationTimer = conf.PLAYER.HOE_SWING_ANIMATION_TIMER
-    end,
-
-    __handleHoeSwing = function(self, dt)
-        local isNotSwinging = not funcs.hasValue({ conf.PLAYER.STATES.SWING, conf.PLAYER.STATES.SWINGING }, self.state)
-        if isNotSwinging then return end
-
-        self.animationTimer = self.animationTimer - dt
-
-        if self.state == conf.PLAYER.STATES.SWING then
-            self.hurtCollider:setLinearVelocity(0, 0)
-        end
-
-        local stillSwinging = self.animationTimer >= 0
-        if stillSwinging then return end
-
-        if self.state == conf.PLAYER.STATES.SWING then
-            self.state = conf.PLAYER.STATES.SWINGING
-            local px, py = self.hurtCollider:getPosition()
-            local dir = self.attackDir:normalized()
-            for _, farmGroundTile in pairs(self.farmGroundTiles) do
-                if funcs.isPointInRectangle(
-                        px + dir.x * conf.TILE_SIZE,
-                        py + dir.y * conf.TILE_SIZE,
-                        farmGroundTile.positionX, farmGroundTile.positionY,
-                        farmGroundTile.width, farmGroundTile.height) and not farmGroundTile.tiled then
-                    self.effectsHandler:addEffect(DigEffect(farmGroundTile.positionX + farmGroundTile.width / 2,
-                        farmGroundTile.positionY + farmGroundTile.height / 2))
-                    farmGroundTile.tiled = true
-                    self.dirtTilesHandler:addTile(farmGroundTile.positionX, farmGroundTile.positionY, self._world)
-                    break
-                end
-            end
-
-            self.animationTimer = conf.PLAYER.HOE_SWING_HIT_DELAY
-        elseif self.state == conf.PLAYER.STATES.SWINGING then
-            self.animations.swingHoe:gotoFrame(1)
-            self.hoeHitPoint = nil
-            self.state = conf.PLAYER.STATES.DEFAULT
-        end
+    __drawShadow = function(self)
+        -- TODO Fix shadow to not show behind walls
+        local x, y = self.hurtCollider:getPosition()
+        love.graphics.setColor(0, 0, 0.2, 0.3)
+        love.graphics.ellipse("fill", x, y + 5, 7, 3)
+        love.graphics.setColor(1, 1, 1, 1)
     end,
 
     __drawTillingOverlay = function(self)
-        if not self.tillingOverlay then
+        if not self.tillingOverlay or self.items[self.itemIndex].name ~= conf.PLAYER.ITEMS.HOE then
             return
         end
         love.graphics.setColor(1, 0, 0, 0.5)
@@ -236,22 +216,22 @@ local Player = Class {
 
         self.pressedDirX, self.pressedDirY = 0, 0
 
-        if love.keyboard.isDown("d") or love.keyboard.isDown("right") then
+        if love.keyboard.isDown("d") then
             self.dirX = 1
             self.pressedDirX = 1
             self.lastOrientation = conf.PLAYER.ORIENTATION.HORIZONTAL
         end
-        if love.keyboard.isDown("a") or love.keyboard.isDown("left") then
+        if love.keyboard.isDown("a") then
             self.dirX = -1
             self.pressedDirX = -1
             self.lastOrientation = conf.PLAYER.ORIENTATION.HORIZONTAL
         end
-        if love.keyboard.isDown("s") or love.keyboard.isDown("down") then
+        if love.keyboard.isDown("s") then
             self.dirY = 1
             self.pressedDirY = 1
             self.lastOrientation = conf.PLAYER.ORIENTATION.VERTICAL
         end
-        if love.keyboard.isDown("w") or love.keyboard.isDown("up") then
+        if love.keyboard.isDown("w") then
             self.dirY = -1
             self.pressedDirY = -1
             self.lastOrientation = conf.PLAYER.ORIENTATION.VERTICAL

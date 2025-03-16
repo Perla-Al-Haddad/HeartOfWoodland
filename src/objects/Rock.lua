@@ -8,7 +8,7 @@ local Rock = Class {
     __includes = { Object },
 
     init = function(self, positionX, positionY, world, version, sx)
-        Object.init(self, positionX, positionY, world)
+        Object.init(self, positionX, positionY, world, "Wall")
 
         self.type = "rock"
 

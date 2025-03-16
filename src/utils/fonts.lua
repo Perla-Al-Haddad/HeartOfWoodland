@@ -18,6 +18,7 @@ fonts.title = createFont(36 * conf.CAMERA.SCALE, "nearest", 0.7)
 fonts.small = createFont(12 * conf.CAMERA.SCALE, "nearest", 0.3)
 fonts.smaller = createFont(8 * conf.CAMERA.SCALE, "nearest", 0.7)
 fonts.dialogue = createFont(8 * conf.CAMERA.SCALE, "nearest", 0.7)
+fonts.dialogueS = createFont(8, "nearest", 0.7)
 
 fonts.OPTIONS_MARGIN = 1;
 

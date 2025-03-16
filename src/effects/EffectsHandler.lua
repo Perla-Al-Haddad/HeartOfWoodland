@@ -26,7 +26,7 @@ local EffectsHandler = Class {
                     if e.alpha then
                         love.graphics.setColor(1, 1, 1, e.alpha)
                     end
-                    e.anim:draw(e.spriteSheet, e.positionX, e.positionY, 0,
+                    e.anim:draw(e.spriteSheet, e.positionX, e.positionY, e.rot,
                         e.scaleX, e.scaleY, e.width / 2, e.height / 2)
                 end
                 if e.draw then e:draw() end
