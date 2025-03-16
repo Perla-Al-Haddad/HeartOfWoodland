@@ -26,7 +26,7 @@ local SlashEffect = Class {
 
         self.rot = math.atan2(attackDir.y, attackDir.x)
 
-        if self.rot >= 0 and self.rot < 1 then
+        if self.rot >= 0 and self.rot <= math.pi / 2 then
             self.anim:flipV()
         end
 

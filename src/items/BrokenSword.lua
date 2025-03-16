@@ -58,7 +58,6 @@ local BrokenSword = Class {
         self.player.currentAnimation = self.player.animations.slash
 
         self.player:__setAttackDir()
-        self.player:_setDirFromVector(self.player.attackDir)
 
         self.player.state = conf.PLAYER.STATES.SLASH
         if self.player.dirX == -1 and not self.player.currentAnimation.flippedH then

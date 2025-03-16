@@ -105,23 +105,6 @@ local Player = Class {
         end
     end,
 
-    _setDirFromVector = function(self, vec)
-        local rad = math.atan2(vec.y, vec.x)
-        if rad < math.pi / 2 then
-            self.dirX = 1
-            self.dirY = 1
-        elseif rad >= math.pi / 2 and rad < math.pi then
-            self.dirX = -1
-            self.dirY = 1
-        elseif rad < 0 and rad > math.pi / -2 then
-            self.dirX = 1
-            self.dirY = -1
-        else
-            self.dirX = -1
-            self.dirY = -1
-        end
-    end,
-
     _getSpriteTopPosition = function(self)
         if not self.hurtCollider then
             return self.lastX, self.lastY
