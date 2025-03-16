@@ -18,10 +18,6 @@ local Grass = Class {
         self.currentAnimation = self.animations.default;
     end,
 
-    update = function(self, dt)
-        self.currentAnimation:update(dt)
-    end,
-
     destroy = function(self)
         self.currentAnimation = self.animations.cut
         self.collider:destroy()

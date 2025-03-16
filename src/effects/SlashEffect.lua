@@ -19,7 +19,7 @@ local SlashEffect = Class {
         self.grid = anim8.newGrid(self.width, self.height,
             self.spriteSheet:getWidth(),
             self.spriteSheet:getHeight())
-        self.anim = anim8.newAnimation(self.grid('1-5', 1), 0.03,
+        self.anim = anim8.newAnimation(self.grid('1-5', 1), 0.025,
             function(animation)
                 self.dead = true; animation:pauseAtEnd()
             end)

@@ -7,7 +7,7 @@ local conf = require("src.utils.conf")
 local funcs = require("src.utils.funcs")
 
 local BrokenSword = Class {
-    init = function(self, player, grassHandler)
+    init = function(self, player, breakableObjectsHandler)
         self.uiSheet = love.graphics.newImage("/assets/sprites/GUI/GUI_1x.png");
         self.grid16x16 = anim8.newGrid(16, 16,
             self.uiSheet:getWidth(),
@@ -16,7 +16,7 @@ local BrokenSword = Class {
         self.name = conf.PLAYER.ITEMS.BROKEN_SWORD
         self.icon = anim8.newAnimation(self.grid16x16('5-5', 7), 1);
         self.player = player
-        self.grassHandler = grassHandler
+        self.breakableObjectsHandler = breakableObjectsHandler
     end,
     
     handleUse = function (self, dt)
@@ -45,7 +45,7 @@ local BrokenSword = Class {
             self.player.state = conf.PLAYER.STATES.DEFAULT
         end
     end,
-    
+
     trigger = function(self)
         local slashing = funcs.hasValue({ conf.PLAYER.STATES.SLASH, conf.PLAYER.STATES.SLASHING }, self.player.state)
         if slashing then
@@ -101,12 +101,12 @@ local BrokenSword = Class {
             py + dir:rotated(math.pi / -8).y * 20,
         }
         -- local range = math.random()/4
-        local hitGrass = self.player._world:queryPolygonArea(self.polygon, { conf.OBJECTS.COLLISION_CLASS })
+        local hitObjects = self.player._world:queryPolygonArea(self.polygon, { conf.OBJECTS.COLLISION_CLASS })
 
-        for _, grassCollider in ipairs(hitGrass) do
-            local grass = self.grassHandler:getByCollider(grassCollider)
-            if grass then
-                grass:destroy()
+        for _, collider in ipairs(hitObjects) do
+            local object = self.breakableObjectsHandler:getByCollider(collider)
+            if object then
+                object:destroy()
             end
         end
     end

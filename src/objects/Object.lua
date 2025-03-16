@@ -38,7 +38,9 @@ local Object = Class {
         self.animations = {}
     end,
 
-    update = function (_, _) end,
+    update = function (self, dt) 
+        self.currentAnimation:update(dt)
+    end,
 
     draw = function(self)
         love.graphics.setColor(1, 1, 1, 1)

@@ -3,6 +3,8 @@ local Class = require("lib.hump.class")
 local anim8 = require("lib.anim8.anim8")
 
 local EffectsHandler = require("src.effects.EffectsHandler")
+local DustEffect = require("src.effects.DustEffect")
+
 local Hoe = require("src.items.Hoe")
 local BrokenSword = require("src.items.BrokenSword")
 local Bow = require("src.items.Bow")
@@ -12,7 +14,7 @@ local conf = require("src.utils.conf")
 
 local Player = Class {
     init = function(self, world, positionX, positionY, hurtCollisionClass, animationSheet, dirtTilesHandler,
-                    farmGroundTiles, grassHandler)
+                    farmGroundTiles, breakableObjectsHandler)
         self._world = world
 
         self.dirX = 1
@@ -56,9 +58,11 @@ local Player = Class {
         self.itemIndex = 2
         self.items = {
             Hoe(self),
-            BrokenSword(self, grassHandler),
+            BrokenSword(self, breakableObjectsHandler),
             Bow(self),
         }
+
+        self.dustEffectTimer = 0
     end,
 
     update = function(self, dt)
@@ -223,8 +227,16 @@ local Player = Class {
         local vec = Vector(self.pressedDirX, self.pressedDirY):normalized() * self.speed
         self.hurtCollider:setLinearVelocity(vec.x, vec.y)
 
+        self.dustEffectTimer = self.dustEffectTimer - dt
+
         if vec.x ~= 0 or vec.y ~= 0 then
             self.currentAnimation = self.animations.walk
+
+            if self.dustEffectTimer <= 0 then
+                self.dustEffectTimer = 0.3
+                local dustEffect = DustEffect(self.hurtCollider:getX(), self.hurtCollider:getY() - 1)
+                self.effectsHandler:addEffect(dustEffect)
+            end
         else
             self.currentAnimation = self.animations.idle
         end

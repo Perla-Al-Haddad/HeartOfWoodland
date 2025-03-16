@@ -35,10 +35,14 @@ local Level = Class {
         self.farmGroundTiles = self:__createFarmGroundTiles()
         self.dirtTilesHandler = DirtTilesHandler()
 
-        self.grassHandler = ObjectHandler(self.world, Grass, "Grass", self.gameMap)
-        self.rockHandler = ObjectHandler(self.world, Rock, "Rocks", self.gameMap)
-        self.boxHandler = ObjectHandler(self.world, Box, "Boxes", self.gameMap)
-        self.signHandler = ObjectHandler(self.world, Sign, "Signs", self.gameMap)
+        self.breakableObjectsHandler = ObjectHandler(self.world, self.gameMap)
+        self.breakableObjectsHandler:add(Grass, "Grass")
+        self.breakableObjectsHandler:add(Box, "Boxes")
+
+        self.rockHandler = ObjectHandler(self.world, self.gameMap)
+        self.rockHandler:add(Rock, "Rocks")
+        self.signHandler = ObjectHandler(self.world, self.gameMap)
+        self.signHandler:add(Sign, "Signs")
 
         self.player = self:__spawnPlayer()
         self.ui = UI(self.player)
@@ -57,7 +61,7 @@ local Level = Class {
         self.player:update(dt)
         self.camera:update(self.player)
 
-        self.grassHandler:update(dt)
+        self.breakableObjectsHandler:update(dt)
     end,
 
     drawInternal = function(self)
@@ -173,7 +177,7 @@ local Level = Class {
         local playerLayer = self.gameMap.layers["Player"]
         for _, obj in pairs(playerLayer.objects) do
             return Player(self.world, obj.x, obj.y, "Player", "/assets/sprites/characters/player.png", self.dirtTilesHandler,
-                self.farmGroundTiles, self.grassHandler)
+                self.farmGroundTiles, self.breakableObjectsHandler)
         end
     end,
 
@@ -185,9 +189,8 @@ local Level = Class {
         self.gameMap:drawLayer("Water")
         self.gameMap:drawLayer("Ruin", -1)
 
-        self.grassHandler:draw()
+        self.breakableObjectsHandler:draw()
         self.rockHandler:draw()
-        self.boxHandler:draw()
         self.signHandler:draw()
 
         self.dirtTilesHandler:draw()
