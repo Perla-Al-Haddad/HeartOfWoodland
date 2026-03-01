@@ -1,265 +1,204 @@
 local Class = require("lib.hump.class")
-local sti = require("lib.sti.sti")
-local windfield = require("lib.windfield")
-local push = require("lib.push")
 local Gamestate = require("lib.hump.gamestate")
+local push = require("lib.push")
+local windfield = require("lib.windfield")
+local sti = require("lib.sti.sti")
 
-local UI = require("src.UI")
-local Wall = require("src.Wall")
-local Enemy = require("src.Enemy")
 local Camera = require("src.Camera")
+local Wall = require("src.Wall")
 local Player = require("src.Player")
-local EffectsHandler = require("src.handlers.EffectsHandler")
-local EnemiesHandler = require("src.handlers.EnemiesHandler")
-local ObjectsHandler = require("src.handlers.ObjectsHandler")
-local DropsHandler = require("src.handlers.DropsHandler")
-local Chest = require("src.objects.Chest")
-local Sign = require("src.objects.Sign")
-local WaveEffect = require("src.effects.WaveEffect")
-local dialogueHandler = require("src.dialogueHandler")
+local UI = require("src.UI")
 
-local Shake = require("src.utils.Shake")
+local Sign = require("src.objects.Sign")
+local Box = require("src.objects.Box")
+local Grass = require("src.objects.Grass")
+local Rock = require("src.objects.Rock")
+local ObjectHandler = require("src.objects.ObjectHandler")
+
+local FarmGroundTile = require("src.tiles.FarmGroundTile")
+local DirtTilesHandler = require("src.tiles.DirtTilesHandler")
+
+local Settings = require("src.states.menuStates.Settings")
+
 local conf = require("src.utils.conf")
-local audio = require("src.utils.audio")
-local globalFuncs = require("src.utils.globalFuncs")
-local fonts = require("src.utils.fonts")
 
 
 local Level = Class {
     initExternal = function(self, name, cameFrom)
         self.name = name
         self.cameFrom = cameFrom
-        self.opacity = 1
-        self.ui = UI()
 
-        self:_setupWorld()
-        self:_setHandlers()
-        self:_setGameMap()
-        self:_setPlayerLayer()
+        self.gameMap = sti("/maps/" .. self.name .. "/" .. self.name .. ".lua")
+        self.gameMap = self:__processMapTileset()
 
-        self:_spawnPlayer()
+        self.world = self:__createWorld()
+        self.farmGroundTiles = self:__createFarmGroundTiles()
+        self.dirtTilesHandler = DirtTilesHandler()
 
-        self:_setCamera()
-        self:_setShake()
+        self.breakableObjectsHandler = ObjectHandler(self.world, self.gameMap)
+        self.breakableObjectsHandler:add(Grass, "Grass")
+        self.breakableObjectsHandler:add(Box, "Boxes")
 
-        self:_spawnEffects()
-        self:_spawnEnemies()
-        self:_spawnWalls()
-        self:_spawnObjects()
-        self:_spawnLevelTransitionColliders()
+        self.rockHandler = ObjectHandler(self.world, self.gameMap)
+        self.rockHandler:add(Rock, "Rocks")
+        self.signHandler = ObjectHandler(self.world, self.gameMap)
+        self.signHandler:add(Sign, "Signs")
 
-        if conf.MUSIC then audio.gameMusic:play() end
+        self.player = self:__spawnPlayer()
+        self.ui = UI(self.player)
+        self.camera = Camera(conf.CAMERA.SCALE,
+            self.player.hurtCollider:getX(), self.player.hurtCollider:getY(),
+            self.gameMap.width, self.gameMap.height,
+            self.gameMap.tilewidth, self.gameMap.tileheight)
+
+        self:__createWalls()
 
         return self
     end,
 
     update = function(self, dt)
-        if self.player.hurtCollider == nil then return end
-        if self.opacity > 0 then self.opacity = self.opacity - dt end
-
         self.world:update(dt)
-        self.player:updateAbs(dt, self.shake)
-        self.camera:update(self.player);
-        self.shake:update(dt)
-        self.gameMap:update(dt)
+        self.player:update(dt)
+        self.camera:update(self.player)
 
-        dialogueHandler:update(dt)
+        self.breakableObjectsHandler:update(dt)
+    end,
 
-        self.handlers.enemies:updateEnemies(dt)
-        self.handlers.objects:updateObjects(dt)
-        self.handlers.effects:updateEffects(dt)
-        self.handlers.drops:updateDrops(dt)
+    drawInternal = function(self)
+        self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight)
+
+        self:__drawGameMap()
+        -- self.world:draw()
+
+        self.camera.camera:detach()
+        -- love.graphics.rectangle("fill", conf.gameWidth/2, conf.gameHeight/2, 1,1)
+
+        -- if conf.DEBUG.SHOW_FPS then
+        --     love.graphics.setColor(1, 1, 1, 1)
+        --     love.graphics.setFont(fonts.smaller)
+        --     love.graphics.print(love.timer.getFPS(), 0, 0)
+        -- end
+
+        self.ui:draw()
     end,
 
     draw = function(self)
         push:start()
-
-        self:_drawBackgroundColor()
-
-        self.camera.camera:attach(nil, nil, conf.gameWidth, conf.gameHeight);
-
-        self:drawGameMap()
-        if conf.DEBUG.DRAW_WORLD then
-            self.world:draw();
-        end
-
-        self.camera.camera:detach();
-
-        self.ui:drawPlayerLife();
-        self:_drawOverlayLayer()
-
-        if conf.DEBUG.SHOW_FPS then
-            love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.setFont(fonts.smaller)
-            love.graphics.print(love.timer.getFPS(), 0, 0)
-        end
-
-        dialogueHandler:draw()
-
+        self:drawInternal()
         push:finish()
     end,
 
     keypressed = function(self, key)
-        globalFuncs.keypressed(key)
-
-        if key == 'h' or key == 'H' then
-            self.player:useItem('sword', self.camera.camera)
-        end
-        if key == 'e' or key == 'E' then
-            self.player:interact()
-        end
         if key == "escape" then
-            local pause = require("src.states.pause")
-            Gamestate.switch(pause, self)
+            Gamestate.switch(Settings():initExternal(self, true))
         end
+
+        self.player:keypressed(key)
     end,
 
-    drawGameMap = function(self)
+    __createFarmGroundTiles = function(self)
+        local layer = self.gameMap.layers["Ground"]
+        local tiles = {}
+        for i, row in ipairs(layer.data) do
+            for key, cell in pairs(row) do
+                if cell.objectGroup then
+                    for _, object in pairs(cell.objectGroup.objects) do
+                        table.insert(tiles,
+                            FarmGroundTile((key - 1) * 16 + object.x, (i - 1) * 16 + object.y, self.world))
+                    end
+                end
+            end
+        end
+        return tiles
+    end,
+
+    __processMapTileset = function(self)
+        local tilesetObjectMapping = {}
+        for _, tile in ipairs(self.gameMap.tilesets[1].tiles) do
+            tilesetObjectMapping[tile.id] = tile.objectGroup
+        end
         for _, layer in ipairs(self.gameMap.layers) do
-            if layer.visible ~= true or layer.opacity <= 0 then
+            if not layer.data then
                 goto continue
             end
-            if layer.name == "Player" then
-                self.handlers.enemies:drawEnemies();
-                self.handlers.effects:drawEffects(-1)
-                self.handlers.objects:drawObjects()
-                self.handlers.drops:drawDrops()
-
-                self.player:drawAbs();
-
-                self.handlers.effects:drawEffects(0)
-            else
-                if layer.type == "tilelayer" then
-                    self.gameMap:drawLayer(layer)
+            for i, row in ipairs(layer.data) do
+                for key, cell in pairs(row) do
+                    cell[key] = tilesetObjectMapping[key]
                 end
             end
             ::continue::
         end
+        return self.gameMap
     end,
 
-    -- init functions start
-    _setupWorld = function(self)
-        self.world = windfield.newWorld(0, 0, false);
+    __createWorld = function(_)
+        local world = windfield.newWorld(0, 0, false);
 
-        self.world:addCollisionClass('Ignore', { ignores = { 'Ignore' } });
-        self.world:addCollisionClass('Dead', { ignores = { 'Ignore' } });
-        self.world:addCollisionClass('Wall', { ignores = { 'Ignore' } });
-        self.world:addCollisionClass('Objects', { ignores = { 'Ignore' } });
-        self.world:addCollisionClass('Trees', { ignores = { 'Ignore' } });
-        self.world:addCollisionClass('Drops', { ignores = { 'Ignore', "Dead" } });
-        self.world:addCollisionClass('EnemyHurt', { ignores = { 'Ignore', "Drops" } });
-        self.world:addCollisionClass('Player', { ignores = { 'Ignore', "EnemyHurt" } });
-        self.world:addCollisionClass('EnemyHit', { ignores = { 'Ignore', "EnemyHurt", "Drops" } });
-        self.world:addCollisionClass('LevelTransition',
+        world:addCollisionClass('Ignore', { ignores = { 'Ignore' } });
+        world:addCollisionClass('Dead', { ignores = { 'Ignore' } });
+        world:addCollisionClass('Wall', { ignores = { 'Ignore' } });
+        world:addCollisionClass(conf.OBJECTS.COLLISION_CLASS, { ignores = { 'Ignore' } });
+        world:addCollisionClass('Trees', { ignores = { 'Ignore' } });
+        world:addCollisionClass('Drops', { ignores = { 'Ignore', "Dead" } });
+        world:addCollisionClass('EnemyHurt', { ignores = { 'Ignore', "Drops" } });
+        world:addCollisionClass('Player', { ignores = { 'Ignore', "EnemyHurt" } });
+        world:addCollisionClass('EnemyHit', { ignores = { 'Ignore', "EnemyHurt", "Drops" } });
+        world:addCollisionClass('Dirt',
+            { ignores = { 'Ignore', "EnemyHurt", "Player", "Objects", "Drops", "EnemyHit", "Dead" } });
+        world:addCollisionClass('FarmGround',
+            { ignores = { 'Ignore', "EnemyHurt", "Player", "Objects", "Drops", "EnemyHit", "Dead" } });
+        world:addCollisionClass('LevelTransition',
             { ignores = { 'Ignore', "EnemyHurt", "Drops", "Objects", "Wall", "EnemyHit", "Dead" } });
+
+        return world
     end,
 
-    _setHandlers = function(self)
-        self.handlers = {
-            effects = EffectsHandler(),
-            drops = DropsHandler(),
-            enemies = EnemiesHandler(),
-            objects = ObjectsHandler()
-        }
-    end,
-
-    _setGameMap = function(self)
-        self.gameMap = sti("/maps/" .. self.name .. "/" .. self.name .. ".lua")
-    end,
-
-    _setPlayerLayer = function(self)
-        assert(self.gameMap.layers["Player"] ~= nil, string.format(
-            "%s level does not container player layer",
-            self.name))
-        self.playerLayer = self.gameMap.layers["Player"]
-    end,
-
-    _setCamera = function(self)
-        self.camera = Camera(conf.CAMERA.SCALE,
-            self.player.hurtCollider:getX(), self.player.hurtCollider:getY(),
-            self.gameMap.width, self.gameMap.height,
-            self.gameMap.tilewidth, self.gameMap.tileheight);
-    end,
-
-    _setShake = function(self)
-        self.shake = Shake(self.camera.camera);
-    end,
-
-    _spawnPlayer = function(self)
-        if not self.playerLayer then return end
-        for _, obj in pairs(self.playerLayer.objects) do
-            if obj.properties.cameFrom == self.cameFrom then
-                self.player = Player(obj.x, obj.y, self.world, self.handlers)
-                break
+    __createWalls = function(self)
+        for _, layer in ipairs(self.gameMap.layers) do
+            if not layer.data or layer.name == "Ground" then
+                goto continue
             end
-        end
-        assert(self.player ~= nil, "Player was not spawned")
-    end,
-
-    _spawnEffects = function(self)
-        local wavesLayer = self.gameMap.layers["Waves"]
-        if wavesLayer == nil then return end
-        for _, obj in pairs(wavesLayer.objects) do
-            self.handlers.effects:addEffect(WaveEffect(obj.x, obj.y))
-        end
-    end,
-
-    _spawnEnemies = function(self)
-        local enemiesLayer = self.gameMap.layers["Enemies"]
-        if enemiesLayer == nil then return end
-        for _, obj in pairs(enemiesLayer.objects) do
-            self.handlers.enemies:addEnemy(
-                Enemy(
-                    obj.x, obj.y, 32, 32, 60, 5, 5, 10, 10, 3,
-                    '/assets/sprites/characters/slime.png',
-                    self.world, self.handlers.drops
-                )
-            )
-        end
-    end,
-
-    _spawnObjects = function(self)
-        local objectsLayer = self.gameMap.layers["Objects"]
-        if objectsLayer == nil then return end
-        for _, obj in pairs(objectsLayer.objects) do
-            if obj.properties.type == "sign" then
-                self.handlers.objects:addObject(Sign(obj.x, obj.y, 16, 16, self.world, obj.properties.name))
-            elseif obj.properties.type == "chest" then
-                self.handlers.objects:addObject(Chest(obj.x, obj.y, 16, 16, self.world))
+            for i, row in ipairs(layer.data) do
+                for key, cell in pairs(row) do
+                    if cell.objectGroup then
+                        for _, object in pairs(cell.objectGroup.objects) do
+                            Wall((key - 1) * 16 + object.x, (i - 1) * 16 + object.y, object.width, object.height,
+                                self.world)
+                        end
+                    end
+                end
             end
+            ::continue::
+        end
+        return self.gameMap
+    end,
+
+    __spawnPlayer = function(self)
+        local playerLayer = self.gameMap.layers["Player"]
+        for _, obj in pairs(playerLayer.objects) do
+            return Player(self.world, obj.x, obj.y, "Player", "/assets/sprites/characters/player.png", self.dirtTilesHandler,
+                self.farmGroundTiles, self.breakableObjectsHandler)
         end
     end,
 
-    _spawnWalls = function(self)
-        local wallsLayer = self.gameMap.layers["Walls"]
-        if wallsLayer == nil then return end
-        for _, obj in pairs(wallsLayer.objects) do
-            Wall(obj.x, obj.y, obj.width, obj.height, self.world);
-        end
-    end,
+    __drawGameMap = function(self)
+        self.gameMap:drawLayer("Ground")
+        self.gameMap:drawLayer("Ground2")
+        self.gameMap:drawLayer("Decor")
+        self.gameMap:drawLayer("Flowers")
+        self.gameMap:drawLayer("Water")
+        self.gameMap:drawLayer("Ruin", -1)
 
-    _spawnLevelTransitionColliders = function(self)
-        local levelTransitionLayer = self.gameMap.layers["LevelTransition"]
-        if levelTransitionLayer == nil then return end
-        for _, obj in pairs(levelTransitionLayer.objects) do
-            local transitionCollider = self.world:newBSGRectangleCollider(obj.x, obj.y, obj.width, obj.height, 0,
-                { collision_class = "LevelTransition" })
-            transitionCollider:setType("static")
-            transitionCollider.stateName = obj.properties.level
-        end
-    end,
-    -- init functions end
+        self.breakableObjectsHandler:draw()
+        self.rockHandler:draw()
+        self.signHandler:draw()
 
-    _drawBackgroundColor = function(self)
-        love.graphics.setColor(80 / 255, 155 / 255, 102 / 255);
-        love.graphics.rectangle("fill", 0, 0, conf.gameWidth, conf.gameHeight)
-        love.graphics.setColor(1, 1, 1);
-    end,
+        self.dirtTilesHandler:draw()
 
-    _drawOverlayLayer = function(self)
-        love.graphics.setColor(0, 0, 0, self.opacity);
-        love.graphics.rectangle("fill", 0, 0, conf.gameWidth, conf.gameHeight)
-    end
+        self.player:draw()
+        self.gameMap:drawLayer("Ruin", 1)
+        self.gameMap:drawLayer("CeilingTrees")
+    end,
 }
 
 return Level

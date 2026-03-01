@@ -1,7 +1,7 @@
 local Gamestate = require("lib.hump.gamestate");
 local push = require("lib.push");
 
-local menu = require("src.states.menu");
+local MainMenu = require("src.states.menuStates.MainMenu");
 
 local conf = require("src.utils.conf");
 
@@ -24,11 +24,8 @@ function love.load()
     })
 
     Gamestate.registerEvents()
-    Gamestate.switch(menu)
+    Gamestate.switch(MainMenu())
 end
 
 function love.keypressed(key)
-    if (key) == "back" then
-        conf.FULLSCREEN = not conf.FULLSCREEN
-    end
 end

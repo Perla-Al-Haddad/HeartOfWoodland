@@ -5,6 +5,8 @@
   - [Overview](#overview)
   - [Theft](#theft)
 - [Pets](#pets)
+- [Seeds](#seeds)
+  - [Seed Types](#seed-types)
 
 ## Weapons
 ### starting weapons:
@@ -30,3 +32,15 @@ General theft mechanic in shops, if get caught get thrown in jail for a day, or 
 
 ## Pets
 idle animation with cat or dog. cat jumps on shoulder/head, rubs face on legs. dog falls asleep next to legs/rolls over/ZOOMIES. just pets. purr sound effect with cats
+
+## Seeds
+Seeds can drop from boxes, long grass, enemies(?), bought in the city in stores (very expensive).
+
+### Seed Types
+- health seeds
+- strength seeds
+- speed seeds
+- shooting speed seeds
+- shooting accuracy seeds
+- crit seeds
+
